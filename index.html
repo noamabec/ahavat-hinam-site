@@ -251,12 +251,6 @@ h1,h2,h3{margin:0;font-weight:500;line-height:var(--lh)}
 }
 .video-reveal__iframe-wrap{overflow:hidden}
 .video-reveal__iframe{position:absolute;inset:0;width:100%;height:100%;border:none}
-/* עוטף את ה-embed של פייסבוק (SDK) בלי לגעת בגודל הפנימי שלו - ה-JS
-   ממדד את הגודל הטבעי שה-SDK בחר (fitFbEmbed) וממקם/מגדיל את wrap
-   סביבו כדי שיתמלא כמו קאבר-אימג' בתוך ה-.video-reveal__media שחותך
-   כל מה שגולש (overflow:hidden למעלה). לפני המדידה הראשונה אין עדיין
-   width/height/transform inline - משאירים ברירת מחדל שקטה שלא קופצת. */
-.video-reveal__fb-wrap{position:absolute;top:50%;left:50%}
 .video-reveal__poster{
   position:absolute;inset:0;width:100%;height:100%;
   padding:0;margin:0;border:0;background:none;cursor:pointer;display:block;
@@ -1439,154 +1433,37 @@ html:not(.js) .progress{display:none}
   if(!root || !track || !stage || !frameEl || !media) return;
 
   /* פייסבוק לא חושפת API לשנות את תמונת הפוסטר הפנימית שלה (תוכן חוצה-מקור
-     בתוך ה-iframe) - לכן ה-iframe האמיתי לא נטען כלל עד שמתחילים, והתמונה
-     שלנו מכסה אותו.
-
-     שתי שיטות הטמעה, לפי הצורך:
-     - SDK הרשמי (fb-video XFBML): היחיד שמכבד autoplay בפועל, אבל מודד את
-       הגובה של עצמו לפי הרוחב שמבקשים (data-width) ומחשב גובה לבד לפי יחס
-       הממדים האמיתי של הסרטון - *לא* לפי מה שאנחנו כופים עליו. בסבב קודם
-       כפינו עליו position:absolute + width/height:100%!important, וזה בדיוק
-       מה ששבר את המדידה שלו (הוא הניח שהוא שולט על הגודל של עצמו) - יצא
-       iframe בגובה 0px. הפתרון: לא נוגעים בגודל של הרכיבים שה-SDK יוצר,
-       רק מבקשים ממנו רוחב קונקרטי (רוחב המיכל שלנו בפיקסלים, לא אחוזים),
-       נותנים לו לחשב גובה לבד, וממרכזים/חותכים את התוצאה בתוך מיכל עם
-       overflow:hidden כדי שתמיד תתמלא בדיוק כמו קאבר-אימג'.
-     - iframe גולמי (video.php): לא תלוי ב-SDK חיצוני בכלל, אז אין סיכון
-       שהוא "יישבר" - אבל פייסבוק מתעלמת בו בפועל מ-autoplay ומציגה תמיד
-       את כפתור הפליי הפנימי שלה. משמש רק כגיבוי אם ה-SDK לא נטען בזמן
-       (חסימת פרסומות, בעיית רשת וכו') - עדיף וידאו-שדורש-קליק על אף וידאו. */
+     בתוך ה-iframe) - לכן ה-iframe האמיתי לא נטען כלל עד קליק, והתמונה שלנו
+     מכסה אותו.
+     בעבר נעשה כאן ניסיון להשתמש ב-SDK הרשמי של פייסבוק (fb-video XFBML)
+     כדי לקבל autoplay אמין. בפועל זה נשבר בפריסה האמיתית: ה-SDK תלוי
+     ב-handshake דרך postMessage כדי למדוד את הגובה של עצמו, וכשההנדשייק
+     נכשל/מתעכב, ה-wrapper הפנימי שהוא יוצר נשאר בגובה 0 - וה-!important
+     שלנו על width/height:100% לא עוזר כי ה-0 מגיע מ-div ביניים שה-SDK
+     יוצר ולא ניתן לעקוף בעזרת סלקטור. בנוסף, הקריאה ל-startVideo כבר
+     בתחילת הגלילה (target>0.01) הרסה את כפתור הפוסטר לפני שהמשתמש הספיק
+     ללחוץ עליו בעצמו - כך שגם הלחיצה הידנית לא עבדה יותר.
+     הפתרון: iframe גולמי ופשוט (בלי SDK, בלי wrapper ביניים) שמתחיל אך ורק
+     בלחיצה אמיתית של המשתמש - גם אמין יותר וגם לא הורס את הפוסטר מוקדם מדי. */
   var poster = document.getElementById('videoRevealPoster');
-  var videoState = 'idle'; // idle | loading | ready | fallback
+  var videoStarted = false;
+  function startVideo(){
+    if (videoStarted) return;
+    videoStarted = true;
 
-  /* מחזיר את ה-scale שהיה מפעיל, בלי להפעיל בפועל - כדי שאפשר יהיה
-     לבדוק שהוא סביר (safety net) לפני שסומכים על המדידה ומסירים
-     את הפוסטר. */
-  function computeFbFit(cw, ch, iw, ih){
-    if (!cw || !ch || !iw || !ih) return null;
-    return Math.max(cw / iw, ch / ih);
-  }
-  function applyFbFit(wrap, iw, ih, scale){
-    wrap.style.width = iw + 'px';
-    wrap.style.height = ih + 'px';
-    wrap.style.transform = 'translate(-50%,-50%) scale(' + scale + ')';
-  }
-
-  function startRawIframe(){
     var iframe = document.createElement('iframe');
     iframe.className = 'video-reveal__iframe';
     var src = 'https://www.facebook.com/plugins/video.php?height=314&href=https%3A%2F%2Fwww.facebook.com%2Fhnn.hn.7%2Fvideos%2F222530866458185%2F&show_text=false&width=560&t=0';
-    iframe.src = src + '&autoplay=true&mute=1';
+    iframe.src = src + (src.indexOf('?') > -1 ? '&' : '?') + 'autoplay=true&mute=1';
     iframe.title = 'סרטון מפייסבוק - אהבת חינ"מ';
     iframe.setAttribute('scrolling', 'no');
     iframe.setAttribute('frameborder', '0');
     iframe.setAttribute('allowfullscreen', 'true');
     iframe.setAttribute('allow', 'autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share');
-    var oldWrap = media.querySelector('.video-reveal__fb-wrap');
-    if (oldWrap) oldWrap.remove();
-    /* מוסיפים *לפני* הפוסטר ב-DOM (לא אחריו) - כדי שסדר הציור יישאר
-       תקין: אלמנטים בלי z-index מצוירים לפי סדר ה-DOM, אחרון עליון.
-       poster.remove() מיד אחר כך חושף את האייפריים שכבר מונח מתחתיו. */
-    media.insertBefore(iframe, poster || null);
-    if (poster) poster.remove();
-    videoState = 'fallback';
-  }
-
-  function ensureFacebookSdk(cb){
-    if (window.FB && window.FB.XFBML){ cb(); return; }
-    if (!document.getElementById('facebook-jssdk')){
-      if (!document.getElementById('fb-root')){
-        var rootDiv = document.createElement('div');
-        rootDiv.id = 'fb-root';
-        document.body.appendChild(rootDiv);
-      }
-      var s = document.createElement('script');
-      s.id = 'facebook-jssdk';
-      s.async = true; s.defer = true; s.crossOrigin = 'anonymous';
-      s.src = 'https://connect.facebook.net/he_IL/sdk.js#xfbml=1&version=v19.0';
-      s.onerror = function(){ if (videoState === 'loading') startRawIframe(); };
-      document.body.appendChild(s);
-    }
-    (function wait(){
-      if (window.FB && window.FB.XFBML){ cb(); }
-      else if (videoState === 'loading'){ setTimeout(wait, 100); }
-    })();
-  }
-
-  function startVideo(){
-    if (videoState !== 'idle') return;
-    videoState = 'loading';
-
-    var wrap = document.createElement('div');
-    wrap.className = 'video-reveal__fb-wrap';
-    var fbVideo = document.createElement('div');
-    fbVideo.className = 'fb-video';
-    fbVideo.setAttribute('data-href', 'https://www.facebook.com/hnn.hn.7/videos/222530866458185/');
-    fbVideo.setAttribute('data-autoplay', 'true');
-    fbVideo.setAttribute('data-allowfullscreen', 'true');
-    fbVideo.setAttribute('data-show-text', 'false');
-    /* רוחב קונקרטי בפיקסלים (לא 100%/אחוזים) - זה מה שה-SDK צריך כדי
-       לחשב גובה נכון לבד. גדול ומטוקן ב-clip-path בלבד, לא בגודל האמיתי
-       של הקופסה, ולכן קבוע ולא תלוי בהתקדמות הגלילה. */
-    var w = Math.max(280, Math.round(media.clientWidth || 560));
-    fbVideo.setAttribute('data-width', String(w));
-    wrap.appendChild(fbVideo);
-    /* insertBefore ולא replaceChildren - הפוסטר נשאר בחיים ומכסה את
-       ה-wrap הריק/בטעינה, כך שאין הבזק ריק בזמן שה-SDK עוד טוען ומודד
-       את עצמו. הוא יוסר רק ברגע שיש בפועל iframe בגובה תקין (checkReady)
-       או בנפילה לגיבוי (startRawIframe). */
-    media.insertBefore(wrap, poster || null);
-
-    var fallbackTimer = setTimeout(function(){
-      if (videoState === 'loading') startRawIframe();
-    }, 6000);
-
-    ensureFacebookSdk(function(){
-      if (videoState !== 'loading') return;
-      window.FB.XFBML.parse(wrap);
-      /* מדידה בזמן אמת (מייד אחרי parse) לא אמינה: נבדק בפועל שה-iframe
-         שפייסבוק יוצרת עובר דרך *שתי* מדידות ביניים מטעות לפני שהיא
-         מגיעה לגובה הסופי האמיתי - למשל 220x1000 (שלד) ואז 615x124
-         (עדיין לא סופי) - כל אחת מהן נשארת "יציבה" מספיק זמן (כמה
-         מאות ms) כדי לעבור בדיקת יציבות קצרה של 2-3 קריאות רצופות.
-         פסילה של ערכים ספציפיים (כמו 1000) שברירית מדי - וידאו אחר
-         יביא ערכי ביניים אחרים. הפתרון האמין: לחכות זמן קבוע ונדיב
-         (1.4s) שעובר בבירור את שני שלבי הביניים לפני שבודקים בכלל,
-         ורק אז מוודאים יציבות קצרה + שה-scale הנגזר סביר (safety net)
-         לפני שמורידים את הפוסטר. */
-      setTimeout(function(){
-        if (videoState !== 'loading') return;
-        var tries = 0, lastH = -1, stableCount = 0;
-        (function checkReady(){
-          if (videoState !== 'loading') return;
-          var ifr = wrap.querySelector('iframe');
-          var h = ifr ? ifr.offsetHeight : 0;
-          if (h > 20 && h === lastH){
-            stableCount++;
-          } else {
-            stableCount = 0;
-          }
-          lastH = h;
-          if (stableCount >= 2){
-            var iw = ifr.offsetWidth;
-            var scale = computeFbFit(media.clientWidth, media.clientHeight, iw, h);
-            if (scale && scale <= 6){
-              clearTimeout(fallbackTimer);
-              videoState = 'ready';
-              applyFbFit(wrap, iw, h, scale);
-              if (poster) poster.remove();
-              return;
-            }
-            stableCount = 0;
-          }
-          tries++;
-          if (tries < 20) setTimeout(checkReady, 200);
-        })();
-      }, 1400);
-    });
+    media.replaceChildren(iframe);
   }
   if (poster){
-    poster.addEventListener('click', startVideo);
+    poster.addEventListener('click', startVideo, { once: true });
   }
 
   var opts = {
@@ -1647,7 +1524,6 @@ html:not(.js) .progress{display:none}
 
   function onScroll(){
     target = readProgress();
-    if(target > 0.01) startVideo();
     if(opts.smoothing <= 0 || reduce){ current = target; applyProgress(current); return; }
     kick();
   }
