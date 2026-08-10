@@ -1,0 +1,2027 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>אהבת חינ"מ - עמותה לילדים על הרצף האוטיסטי</title>
+<!-- מסומן לפני הציור הראשון: בלי JS הכל נשאר גלוי, בלי הבהוב -->
+<script>document.documentElement.classList.add('js')</script>
+<style>
+/* ============================================================
+   FONTS - Fb Coherenti Sans
+   ============================================================ */
+@font-face{font-family:'Fb Coherenti Sans';src:url('./public/fonts/fb-coherenti-sans-light.ttf') format('truetype');font-weight:300;font-style:normal;font-display:swap}
+@font-face{font-family:'Fb Coherenti Sans';src:url('./public/fonts/fb-coherenti-sans-regular.ttf') format('truetype');font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:'Fb Coherenti Sans';src:url('./public/fonts/fb-coherenti-sans-medium.ttf') format('truetype');font-weight:500;font-style:normal;font-display:swap}
+
+/* ============================================================
+   DESIGN TOKENS  (base frame = 1440px → 1px === 0.06944vw)
+   ============================================================ */
+:root{
+  --brand-blue:#18B1F0;
+  --brand-yellow:#FDC122;
+  --brand-coral:#FC543E;
+  --brand-green:#4DA831;
+  --ink:#000000;
+  --surface:#FFFFFF;
+
+  --container:1240px;
+  --gutter:clamp(16px,3vw,40px);
+
+  /* type scale - fluid, pixel-exact at 1440px */
+  --fs-h1:clamp(30px,3.333vw,48px);      /* 48 */
+  /* מוקטן ב-20% בכל האתר; ההירו והפוטר משחזרים את הגודל המקורי מקומית (ראו .hero,.footer) */
+  --fs-h2:clamp(22.4px,2.6664vw,38.4px);      /* 48 * .8 */
+  --fs-h3:clamp(17.6px,2vw,28.8px);           /* 36 * .8 */
+  --fs-band:clamp(18.4px,2.2224vw,32px);      /* 40 * .8 */
+  --fs-body:clamp(12.8px,1.3336vw,19.2px);    /* 24 * .8 */
+  --fs-nav:clamp(12px,1.3336vw,19.2px);       /* 24 * .8 */
+
+  --r-sm:clamp(6px,0.694vw,10px);        /* 10 */
+  --r-pill:clamp(12px,1.389vw,20px);     /* 20 */
+
+  /* vertical rhythm - exact frame offsets at 1440px */
+  --v-header:clamp(70.4px,10.111vw,145.6px); /* 182 * .8 - הותאם לגודל הלוגו המוקטן בהאדר */
+  --v-hero-top:clamp(12px,1.458vw,21px); /* 21  */
+  --v-gap-hero:clamp(16px,1.667vw,24px);       /* hero → רצועת הלוגואים (הוקטן - התמונה קטנה יותר) */
+  --v-gap-partners:clamp(48px,7.639vw,110px);  /* רצועת הלוגואים → "כל מה שקורה אצלנו" (מפצה על הגובה הנמוך יותר של 5 לוגואים נפרדים לעומת הרצועה המקורית) */
+  --v-gap-h2:clamp(24px,4.236vw,61px);   /* 61  */
+  /* Fb Coherenti Sans "normal" leading as rendered in Figma = 13/12 */
+  --lh:1.0833;
+  --v-gap-about:clamp(56px,7.917vw,114px);/* 114 */
+  --v-gap-gallery:clamp(64px,11.667vw,168px);/* 168 */
+  --v-gap-press:clamp(64px,11.25vw,162px);/* 162 */
+  --v-gap-footer:clamp(72px,14.028vw,202px);/* 202 */
+  --v-page-end:clamp(40px,5.417vw,78px); /* 78  */
+}
+
+/* ============================================================
+   RESET / PAGE
+   ============================================================ */
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  min-height:100dvh;
+  width:100%;
+  overflow-x:hidden;
+  background:var(--surface);
+  color:var(--ink);
+  font-family:'Fb Coherenti Sans','Heebo','Assistant','Segoe UI',system-ui,sans-serif;
+  font-weight:500;
+  line-height:var(--lh);
+  -webkit-font-smoothing:antialiased;
+}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+p{margin:0}
+h1,h2,h3{margin:0;font-weight:500;line-height:var(--lh)}
+
+/* בלי overflow:hidden: הוא מונע position:sticky על הכותרת (עוטף את כל
+   העמוד, כך שכל אב ביניים לבין ה-viewport שאינו visible שובר sticky).
+   הגנת הבליד האופקי כבר קיימת ברמת body (overflow-x:hidden למעלה). */
+.frame{max-width:1440px;margin-inline:auto;position:relative}
+.container{width:min(var(--container),100% - 2 * var(--gutter));margin-inline:auto}
+
+/* ============================================================
+   ICONS - exact Figma arrow geometry
+   ============================================================ */
+.ico{display:grid;place-items:center;flex:none;overflow:visible}
+.ico svg{overflow:visible;display:block}
+/* small arrow: 18.385px shaft, rotated -135deg → ↖ ; box 13×13 */
+.ico--sm{width:.5417em;height:.5417em}
+.ico--sm svg{width:.8077em;height:.6137em;transform:rotate(-135deg)}
+/* medium arrow: 25px shaft ; box 17.678×17.678 */
+.ico--md{width:.4911em;height:.4911em}
+.ico--md svg{width:.7222em;height:.4091em;transform:rotate(-135deg)}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  gap:clamp(10px,1.319vw,19px);
+  font-size:var(--fs-body);font-weight:500;line-height:1;
+  white-space:nowrap;transition:filter .2s ease,transform .2s ease,box-shadow .2s ease;
+  box-shadow:4px 4px 4px 0px rgba(0,0,0,.25);
+}
+.btn:active{transform:translateY(1px);box-shadow:0 1px 4px rgba(0,0,0,.10)}
+.btn--pill{
+  width:clamp(112px,11.667vw,168px);
+  height:clamp(38px,3.194vw,46px);
+  border-radius:var(--r-pill);
+}
+.btn--rect{
+  width:clamp(112px,11.667vw,168px);
+  height:clamp(38px,3.194vw,46px);
+  border-radius:var(--r-sm);
+}
+.btn--blue{background:var(--brand-blue);color:#fff}
+.btn--ghost-yellow{background:var(--surface);color:var(--brand-yellow);border:1px solid var(--brand-yellow)}
+.btn--ghost-yellow:hover{filter:none;background:#FFFBF0}
+.btn--wide{
+  width:clamp(150px,15.764vw,227px);
+  height:clamp(38px,3.194vw,46px);
+  border-radius:var(--r-sm);
+}
+.btn--coral{background:var(--brand-coral);color:#fff}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+.site-header{position:sticky;top:0;z-index:20;background:var(--surface)}
+.nav{
+  height:var(--v-header);
+  display:flex;align-items:center;justify-content:flex-start;
+  gap:clamp(14px,2.361vw,34px);
+}
+.nav a{font-size:var(--fs-nav);font-weight:500;white-space:nowrap;transition:color .2s ease}
+.nav a:hover{color:var(--brand-blue)}
+.nav__logo{flex:none;display:block}
+.nav__logo img{
+  width:clamp(120px,18.5vw,266.4px);
+  aspect-ratio:333/182;
+  height:auto;
+  object-fit:contain;
+}
+.nav__cta{margin-inline-start:auto}
+.nav__cta:hover,.about__cta .btn:hover{
+  filter:none;
+  background:var(--surface);
+  color:var(--brand-blue);
+  border:1px solid var(--brand-blue);
+}
+.nav__toggle{display:none}
+.nav__links{display:none}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+/* שחזור גודל הטקסט המקורי (לפני ההקטנה הגלובלית של 20%) - רק בהירו ובפוטר */
+.hero,.footer{
+  --fs-h2:clamp(28px,3.333vw,48px);
+  --fs-h3:clamp(22px,2.5vw,36px);
+  --fs-band:clamp(23px,2.778vw,40px);
+  --fs-body:clamp(16px,1.667vw,24px);
+  --fs-nav:clamp(15px,1.667vw,24px);
+}
+.hero{padding-top:var(--v-hero-top)}
+.hero__inner{display:flex;align-items:flex-start;gap:clamp(24px,3.264vw,47px)}
+.hero__copy{flex:1 1 auto;text-align:right;min-width:0}
+.hero h1{font-size:var(--fs-h1)}
+.hero__lead{
+  margin-top:clamp(10px,1.458vw,21px);
+  font-size:var(--fs-body);font-weight:300;line-height:var(--lh);
+  max-width:clamp(280px,37.5vw,540px);
+  margin-inline-end:auto;
+}
+.hero__actions{
+  margin-top:clamp(16px,2.083vw,30px);
+  display:flex;align-items:center;gap:clamp(12px,1.806vw,26px);
+}
+.hero__media{
+  position:relative;flex:0 1 auto;isolation:isolate;
+  width:clamp(120px,22.917vw,330px);
+  margin-inline-end:clamp(0px,12.917vw,186px);
+}
+.hero__media img{width:100%;aspect-ratio:330/302;height:auto;object-fit:contain;position:relative;z-index:0}
+/* decorative dot - anchored to the hero photo box so it scales with it.
+   It floats just outside the photo's bottom-right corner (>100% left). */
+.hero__dot{position:absolute;z-index:1;border-radius:50%;aspect-ratio:1;pointer-events:none}
+.hero__dot--blue{background:var(--brand-blue);width:6.061%;left:95.152%;top:88.079%}
+.hero__dot--green{background:var(--brand-green);width:9.091%;left:-2.727%;top:-2.649%}
+.hero__dot--yellow{background:var(--brand-yellow);width:9.091%;left:-2.727%;top:82.119%}
+.hero__dot--coral{background:var(--brand-coral);width:6.061%;left:95.152%;top:-2.649%}
+
+/* ============================================================
+   PARTNERS - רצועת הלוגואים ברווח שבין ההירו לכרטיסים
+   ============================================================ */
+.partners{margin-top:var(--v-gap-hero)}
+
+/* ---------- LogoLoop - רצועת לוגואים נגללת ברצף ---------- */
+.logoloop{
+  position:relative;display:flex;justify-content:flex-start;
+  --logoloop-gap:clamp(16px,3.264vw,47px);
+  --logoloop-logoHeight:clamp(48px,7.5vw,108px);
+}
+.logoloop--scale-hover{
+  padding-block:calc(var(--logoloop-logoHeight) * 0.1);
+}
+.logoloop__track{
+  display:flex;width:max-content;
+  will-change:transform;user-select:none;
+  position:relative;z-index:0;
+}
+.logoloop__list{display:flex;align-items:center;list-style:none;margin:0;padding:0;gap:var(--logoloop-gap)}
+.logoloop__item{
+  flex:0 0 auto;
+  font-size:var(--logoloop-logoHeight);line-height:1;
+}
+.logoloop__item img{
+  height:var(--logoloop-logoHeight);width:auto;display:block;object-fit:contain;
+  -webkit-user-drag:none;pointer-events:none;
+  opacity:.78;
+  transition:transform .3s cubic-bezier(.4,0,.2,1),opacity .45s ease;
+}
+.logoloop--scale-hover .logoloop__item{overflow:visible}
+.logoloop--scale-hover .logoloop__item:hover img{transform:scale(1.12);opacity:1;transform-origin:center center}
+@media (prefers-reduced-motion:reduce){
+  .logoloop__track{transform:translate3d(0,0,0)!important}
+  .logoloop__item img{transition:none!important}
+}
+
+/* ============================================================
+   VIDEO REVEAL - סרטון פייסבוק שנפתח על הגלילה (ScrollExpand, פורט וניל)
+   ============================================================ */
+.video-reveal{position:relative;width:100%;margin-top:var(--v-gap-partners)}
+.video-reveal__track{position:relative;width:100%}
+.video-reveal__stage{position:sticky;top:0;width:100%;overflow:hidden}
+.video-reveal__frame{
+  position:absolute;inset:0;
+  clip-path:inset(24% 29% 24% 29% round 24px);
+  will-change:clip-path;
+  filter:drop-shadow(4px 4px 4px rgba(0,0,0,.25));
+}
+.video-reveal__media{
+  position:absolute;inset:0;width:100%;height:100%;
+  border:none;object-fit:cover;
+  will-change:transform;transform-origin:center;
+  user-select:none;-webkit-user-drag:none;
+}
+.video-reveal__iframe-wrap{overflow:hidden}
+.video-reveal__iframe{position:absolute;inset:0;width:100%;height:100%;border:none}
+.video-reveal__fb-wrap{position:absolute;inset:0;width:100%;height:100%}
+.video-reveal__fb-wrap span,.video-reveal__fb-wrap iframe{
+  position:absolute!important;inset:0!important;width:100%!important;height:100%!important;border:none!important;
+}
+.video-reveal__poster{
+  position:absolute;inset:0;width:100%;height:100%;
+  padding:0;margin:0;border:0;background:none;cursor:pointer;display:block;
+}
+.video-reveal__poster img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  display:block;-webkit-user-drag:none;
+}
+.video-reveal__play{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:72px;height:72px;border-radius:50%;background:rgba(0,0,0,.55);
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .2s ease,background .2s ease;
+}
+.video-reveal__play svg{width:28px;height:28px;fill:#fff;margin-inline-start:3px}
+.video-reveal__poster:hover .video-reveal__play{background:rgba(0,0,0,.75);transform:translate(-50%,-50%) scale(1.08)}
+.video-reveal__scrim{
+  position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(to top,rgba(0,0,0,.75),rgba(0,0,0,.1) 45%,rgba(0,0,0,.35));
+  opacity:0;
+}
+.video-reveal__hint{
+  position:absolute;left:0;right:0;bottom:1.25rem;text-align:center;
+  font-size:.65rem;letter-spacing:.02em;color:rgba(0,0,0,.4);
+  pointer-events:none;will-change:opacity,transform;
+}
+@media (prefers-reduced-motion:reduce){
+  .video-reveal__media,.video-reveal__scrim,.video-reveal__hint{transition:none!important}
+}
+
+/* ============================================================
+   PROGRAMS  (כל מה שקורה אצלנו)
+   ============================================================ */
+.programs{margin-top:var(--v-gap-partners)}
+.programs h2,.gallery h2,.press h2{font-size:var(--fs-h2);text-align:right}
+.cards{
+  margin-top:var(--v-gap-h2);
+  display:flex;gap:clamp(12px,1.389vw,20px);align-items:stretch;
+}
+.card{
+  flex:1 1 0;min-width:0;
+  border-radius:var(--r-sm);
+  padding:clamp(9.6px,1.2224vw,17.6px) clamp(11.2px,1.3888vw,20px) clamp(12.8px,1.5vw,21.6px);
+  display:flex;flex-direction:column;color:#fff;
+  box-shadow:4px 4px 4px 0px rgba(0,0,0,.25);
+}
+.card--blue{background:var(--brand-blue)}
+.card--yellow{background:var(--brand-yellow)}
+.card--coral{background:var(--brand-coral)}
+.card--green{background:var(--brand-green)}
+.card__thumb{
+  width:100%;aspect-ratio:350/160;
+  background:var(--surface);border-radius:var(--r-sm);
+  flex:none;overflow:hidden;
+}
+.card__thumb img{width:100%;height:100%;object-fit:cover}
+.card__title{margin-top:clamp(9.6px,1.2224vw,17.6px);font-size:var(--fs-h3);text-align:right}
+.card__text{
+  margin-top:0;
+  font-size:var(--fs-body);font-weight:300;line-height:var(--lh);text-align:right;
+}
+.card .btn{margin-top:auto;margin-inline-end:0;margin-inline-start:auto;background:var(--surface);flex:none}
+.card--blue .btn{color:var(--brand-blue)}
+.card--yellow .btn{color:var(--brand-yellow)}
+.card--coral .btn{color:var(--brand-coral)}
+.card--green .btn{color:var(--brand-green)}
+.card__spacer{display:none}
+
+/* ============================================================
+   ABOUT
+   ============================================================ */
+.about{
+  position:relative;z-index:1;
+  margin-top:var(--v-gap-about);
+  text-align:center;
+}
+.about__heading{font-size:var(--fs-h2);text-align:center}
+.about__row{
+  display:flex;align-items:center;justify-content:center;
+  gap:clamp(24px,3.472vw,50px);
+  margin-top:clamp(16px,2.222vw,32px);
+}
+.about__col{flex:1 1 0;min-width:0;max-width:26em;text-align:right}
+.about__col p{font-size:var(--fs-body);font-weight:300;line-height:var(--lh)}
+.about__col p+p{margin-top:.85em}
+.about__col strong{font-weight:500}
+.about__cta{margin-top:clamp(20px,2.778vw,40px)}
+.about__collage{
+  position:relative;flex:none;
+  width:clamp(200px,26.667vw,384px);aspect-ratio:676/839;
+}
+/* קולאז' - שלוש עיגולי תמונה ממוקמים כמו בעיצוב המקורי, בלי image קבוע אחד */
+.about__collage-photo{
+  position:absolute;border-radius:50%;aspect-ratio:1;overflow:hidden;
+  border:6px solid var(--surface);box-shadow:0 8px 24px rgba(0,0,0,.08);
+}
+.about__collage-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.about__collage-photo--main{width:76%;left:4%;top:21.5%;z-index:1}
+.about__collage-photo--top{width:31.07%;left:58.4%;top:15.5%;z-index:2}
+.about__collage-photo--bottom{width:38.46%;left:54.7%;top:54.8%;z-index:2}
+.about__dot{position:absolute;border-radius:50%;aspect-ratio:1;pointer-events:none}
+.about__dot--coral{background:var(--brand-coral);width:2.96%;left:13.3%;top:22.05%}
+.about__dot--green{background:var(--brand-green);width:2.96%;left:87.3%;top:50.06%}
+.about__dot--ring{
+  width:5.18%;left:51%;top:14.9%;
+  border:3px solid #3E9C93;background:none;
+}
+
+/* ============================================================
+   DONATE BAND
+   ============================================================ */
+.donate{
+  position:relative;isolation:isolate;
+  margin-top:calc(-1 * clamp(0px,3.125vw,45px));
+  padding-top:calc(var(--boy-h) - var(--boy-overlap));
+  --boy-h:clamp(190px,34.097vw,491px);
+  --boy-overlap:clamp(24px,13.958vw,201px);
+}
+.donate__boy{
+  position:absolute;top:0;z-index:3;
+  inset-inline-start:auto;left:clamp(6px,2.083vw,30px);
+  height:var(--boy-h);width:auto;aspect-ratio:305/491;object-fit:contain;
+  pointer-events:none;
+}
+.donate__card{
+  position:relative;z-index:1;
+  background:var(--brand-yellow);border-radius:var(--r-sm);color:#fff;
+  padding:clamp(18px,2.153vw,31px) clamp(14px,1.806vw,26px) clamp(20px,2.847vw,41px);
+  display:flex;flex-direction:column;align-items:flex-start;
+  box-shadow:4px 4px 4px 0px rgba(0,0,0,.25);
+}
+.donate__card h2{font-size:var(--fs-band);text-align:right;align-self:stretch}
+.donate__text{
+  margin-top:clamp(10px,1.597vw,23px);
+  font-size:var(--fs-body);font-weight:300;line-height:var(--lh);text-align:right;
+  width:min(100%,clamp(280px,53.194vw,766px));
+  margin-inline-end:auto;
+}
+.donate__card .btn{margin-top:clamp(10px,1.597vw,23px);align-self:flex-start}
+.tiers{
+  position:relative;z-index:1;
+  display:flex;gap:clamp(12px,2.431vw,35px);
+  width:min(100%,72.9%);
+  margin-inline-start:auto;margin-inline-end:2.42%;
+  margin-top:calc(-1 * clamp(30px,6.528vw,94px));
+}
+.tier{
+  flex:1 1 0;min-width:0;aspect-ratio:278/214;
+  background:var(--brand-blue);border-radius:var(--r-sm);
+  display:flex;flex-direction:column;align-items:center;
+  padding:clamp(16px,3.681vw,53px) clamp(8px,1.736vw,25px) clamp(14px,2.083vw,30px);
+  box-shadow:4px 4px 4px 0px rgba(0,0,0,.25);
+}
+.tier__label{
+  font-size:var(--fs-h3);color:#fff;text-align:center;line-height:var(--lh);
+  white-space:nowrap;
+}
+.tier .btn{
+  margin-top:auto;width:100%;
+  background:var(--surface);color:var(--brand-blue);
+  font-size:var(--fs-h3);gap:clamp(6px,0.833vw,12px);
+}
+
+/* ============================================================
+   GALLERY
+   ============================================================ */
+.gallery{margin-top:var(--v-gap-gallery)}
+.gallery__strip{
+  margin-top:clamp(18px,3.056vw,44px);
+  height:clamp(320px,36.111vw,520px);
+  border-radius:2px;overflow:hidden;
+  cursor:grab;touch-action:pan-y;
+}
+.gallery__cta{margin-top:clamp(18px,2.222vw,32px);width:auto;padding-inline:clamp(22px,2.639vw,38px)}
+.gallery__strip:active{cursor:grabbing}
+.gallery__strip:focus-visible{outline:2px solid var(--brand-green);outline-offset:4px}
+.gallery__strip canvas{display:block}
+/* נפילה לאחור: אם WebGL לא זמין, מציגים את התמונות כרצועה נגללת */
+.gallery__strip--fallback{
+  display:flex;gap:clamp(8px,1.111vw,16px);
+  overflow-x:auto;cursor:default;
+  scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;
+}
+.gallery__strip--fallback img{
+  height:100%;width:auto;flex:0 0 auto;
+  border-radius:var(--r-sm);object-fit:cover;scroll-snap-align:center;
+}
+
+/* ============================================================
+   GALLERY LIGHTBOX - תמונה מוגדלת מעל כל הדף
+   ============================================================ */
+body.gallery-lightbox-lock{overflow:hidden}
+.gallery-lightbox{
+  position:fixed;inset:0;z-index:1000;
+  display:flex;align-items:center;justify-content:center;
+  padding:clamp(16px,4vw,48px);
+  background:rgba(0,0,0,0);
+  opacity:0;pointer-events:none;
+  transition:opacity .25s ease,background .25s ease;
+}
+.gallery-lightbox.is-open{
+  opacity:1;pointer-events:auto;
+  background:rgba(0,0,0,.82);
+}
+.gallery-lightbox img{
+  max-width:min(92vw,1100px);max-height:88vh;width:auto;height:auto;
+  border-radius:var(--r-sm);box-shadow:0 20px 60px rgba(0,0,0,.5);
+  transform:scale(.96);transition:transform .25s ease;
+}
+.gallery-lightbox.is-open img{transform:scale(1)}
+.gallery-lightbox__close{
+  position:absolute;top:clamp(12px,2.5vw,24px);right:clamp(12px,2.5vw,24px);
+  width:44px;height:44px;border-radius:50%;
+  background:rgba(255,255,255,.15);color:#fff;
+  font-size:28px;line-height:1;display:grid;place-items:center;
+  transition:background .2s ease;
+}
+.gallery-lightbox__close:hover{background:rgba(255,255,255,.3)}
+@media (prefers-reduced-motion:reduce){
+  .gallery-lightbox,.gallery-lightbox img{transition:none}
+}
+
+/* ============================================================
+   PRESS
+   ============================================================ */
+.press{margin-top:var(--v-gap-press)}
+.press .cards{
+  margin-top:clamp(16px,2.153vw,31px);
+  flex-wrap:nowrap;overflow-x:auto;overflow-y:visible;scroll-snap-type:x mandatory;
+  scrollbar-width:none;-ms-overflow-style:none;
+  padding-block:clamp(14px,2vw,22px); /* מקום ל-box-shadow של הכרטיסים בלי חיתוך */
+  padding-inline:clamp(10px,1.5vw,16px); /* אותו דבר בציר האופקי - הצל יוצא גם ימינה/שמאלה */
+  scroll-padding-inline:clamp(10px,1.5vw,16px);
+}
+.press .cards::-webkit-scrollbar{display:none}
+.press .card{flex:0 0 calc((100% - 2*clamp(12px,1.389vw,20px)) / 3);scroll-snap-align:start}
+.press__nav{
+  margin-top:clamp(4px,0.7vw,10px);
+  display:flex;align-items:center;justify-content:center;
+  gap:clamp(10px,1.667vw,24px);
+}
+.press__nav button{display:grid;place-items:center;padding:0;transition:opacity .2s ease}
+.press__nav button:hover{opacity:.55}
+.press__nav svg{width:clamp(44px,5.799vw,83.5px);height:auto;display:block;filter:drop-shadow(4px 4px 4px rgba(0,0,0,.25))}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+/* ה-<footer> יושב מחוץ ל-.frame (ראו ההערה ב-HTML), ולכן הוא כבר ברוחב
+   מלא ואפשר לצבוע אותו ישירות - בלי טריקים של 100vw, שלא מדויקים כי vw
+   כולל את רוחב פס הגלילה ויוצר סטייה של כמה פיקסלים בצד. */
+.footer{
+  margin-top:var(--v-gap-footer);padding-bottom:var(--v-page-end);
+  color:var(--ink);
+  background:var(--footer-bg);
+  border-top:1px solid var(--footer-line);
+  --footer-bg:#F4F5F6;
+  --footer-line:#E3E6E8;
+  --footer-ink-soft:#4A4A4A;
+  --footer-link:#0E86BA;   /* כחול כהה יותר - צבע המותג לא קריא על אפור בהיר */
+}
+.footer__band{
+  background:none;border-radius:0;box-shadow:none;color:inherit;
+  padding:clamp(28px,3.472vw,50px) 0 0;
+}
+
+/* ---------- רצועת ה-CTA ---------- */
+.footer__cta{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:clamp(16px,2.222vw,32px);flex-wrap:wrap;
+  padding-bottom:clamp(20px,2.778vw,40px);
+  border-bottom:1px solid var(--footer-line);
+}
+.footer__cta-copy{flex:1 1 320px;min-width:0}
+.footer__cta h2{font-size:var(--fs-band);text-align:right;color:var(--ink)}
+.footer__cta p{
+  margin-top:clamp(6px,0.833vw,12px);
+  font-size:var(--fs-body);font-weight:300;line-height:var(--lh);text-align:right;
+  color:var(--footer-ink-soft);
+}
+.footer__cta .btn--coral{
+  flex:none;
+  width:auto;padding-inline:clamp(22px,2.639vw,38px);
+}
+.footer__cta-copy{--fs-band:clamp(18.4px,2.2224vw,32px);--fs-body:clamp(12.8px,1.3336vw,19.2px)}
+
+/* ---------- הגריד הראשי ---------- */
+.footer__grid{
+  display:grid;
+  grid-template-columns:1.6fr 1fr 1fr 1.3fr;
+  gap:clamp(20px,2.778vw,40px);
+  padding-block:clamp(24px,3.056vw,44px);
+}
+.footer__logo{display:block;background:none;border-radius:0;padding:0;width:fit-content}
+.footer__logo img{
+  width:clamp(140px,13.889vw,200px);aspect-ratio:333/182;height:auto;object-fit:contain;
+  transition:transform .55s var(--ease-expo);
+}
+.footer__logo:hover img{transform:scale(1.04)}
+.footer__tagline{
+  margin-top:clamp(10px,1.111vw,16px);
+  font-size:clamp(14px,1.111vw,16px);font-weight:300;line-height:1.5;text-align:right;
+  max-width:38ch;color:var(--footer-ink-soft);
+}
+.footer__amuta{
+  margin-top:clamp(8px,0.833vw,12px);
+  font-size:clamp(12px,0.903vw,13px);font-weight:300;line-height:1.5;
+  opacity:.85;text-align:right;color:var(--footer-ink-soft);
+}
+.footer__title{
+  font-size:clamp(16px,1.319vw,19px);font-weight:500;text-align:right;
+  margin:0 0 clamp(10px,1.111vw,16px);color:var(--ink);
+}
+.footer__links,.footer__contact,.footer__legal{list-style:none;margin:0;padding:0}
+.footer__links li+li,.footer__contact li+li{margin-top:clamp(7px,0.694vw,10px)}
+.footer__links a,.footer__contact a,.footer__legal a{
+  font-size:clamp(14px,1.111vw,16px);font-weight:300;line-height:1.4;
+  position:relative;color:var(--footer-ink-soft);transition:color .2s ease;
+}
+.footer__links a:hover,.footer__contact a:hover,.footer__legal a:hover{color:var(--footer-link);text-decoration:underline}
+.footer__contact li{
+  display:flex;align-items:center;gap:clamp(7px,0.694vw,10px);
+  font-size:clamp(14px,1.111vw,16px);font-weight:300;line-height:1.4;
+  color:var(--footer-ink-soft);
+}
+.footer__ico{flex:none;display:grid;place-items:center;width:1.15em;height:1.15em;color:var(--footer-link)}
+.footer__ico svg{width:100%;height:100%;display:block}
+
+/* ---------- רשתות חברתיות ---------- */
+.footer__social{display:flex;gap:clamp(8px,0.833vw,12px);margin-top:clamp(14px,1.528vw,22px)}
+.footer__social a{
+  display:grid;place-items:center;
+  width:clamp(34px,2.639vw,38px);height:clamp(34px,2.639vw,38px);
+  border-radius:50%;background:var(--surface);color:var(--footer-ink-soft);
+  border:1px solid var(--footer-line);
+  transition:background .25s ease,color .25s ease,border-color .25s ease,transform .35s var(--ease-expo);
+}
+.footer__social a:hover{background:var(--brand-blue);color:#fff;border-color:var(--brand-blue);transform:translateY(-3px)}
+.footer__social svg{width:55%;height:55%;display:block}
+
+/* ---------- שורת התחתית ---------- */
+.footer__bottom{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:clamp(10px,1.389vw,20px);flex-wrap:wrap;
+  padding-top:clamp(16px,1.667vw,24px);
+  border-top:1px solid var(--footer-line);
+}
+.footer__copy{font-size:clamp(12px,0.972vw,14px);font-weight:300;color:var(--footer-ink-soft)}
+.footer__legal{display:flex;gap:clamp(12px,1.389vw,20px);flex-wrap:wrap}
+
+/* ============================================================
+   MOTION SYSTEM
+   ------------------------------------------------------------
+   עקרונות:
+   • כל תנועה היא transform/opacity/clip-path בלבד - 60fps, בלי reflow.
+   • הכל תלוי במחלקה .js על <html>: בלי JS הדף נשאר גלוי לחלוטין.
+   • כיוון התנועה נייטרלי (Y בלבד) כדי לא להישבר ב-RTL.
+   ============================================================ */
+:root{
+  --ease-expo:cubic-bezier(.16,1,.3,1);   /* ה"נחיתה הרכה" - יציאה מהירה, עצירה עדינה */
+  --ease-back:cubic-bezier(.34,1.56,.64,1);
+  --dur-reveal:.95s;
+}
+
+/* ---------- פס התקדמות גלילה ---------- */
+.progress{position:fixed;top:0;inset-inline:0;height:3px;z-index:100;pointer-events:none}
+.progress__bar{
+  height:100%;width:100%;transform:scaleX(0);transform-origin:right center;
+  background:linear-gradient(90deg,var(--brand-coral),var(--brand-yellow),var(--brand-green),var(--brand-blue));
+  will-change:transform;
+}
+html:not(.js) .progress{display:none}
+
+.js [data-parallax]{will-change:transform}
+
+/* ---------- מנוע החשיפה בגלילה ---------- */
+.js [data-reveal]{
+  will-change:opacity,transform;
+  transition:
+    opacity var(--dur-reveal) var(--ease-expo) var(--d,0ms),
+    transform var(--dur-reveal) var(--ease-expo) var(--d,0ms),
+    clip-path 1.25s var(--ease-expo) var(--d,0ms);
+}
+.js [data-reveal="up"]{opacity:0;transform:translate3d(0,34px,0)}
+.js [data-reveal="fade"]{opacity:0}
+.js [data-reveal="scale"]{opacity:0;transform:scale(.94)}
+/* mask - לתמונות שגם מקבלות פרלקסה: בלי transform, רק חשיפת clip */
+.js [data-reveal="mask"]{clip-path:inset(0 0 100% 0)}
+.js [data-reveal].is-in{opacity:1;transform:none}
+.js [data-reveal].is-in{will-change:auto}
+/* ה-clip-path שייך אך ורק לסוג mask (שלא בשימוש כרגע בעמוד) - כשהוא הוחל
+   על *כל* סוגי ה-reveal, הוא חתך כל box-shadow על אלמנטים חשופים (כרטיסים,
+   כפתורים) כי clip-path, בניגוד ל-overflow, גם חותך את הצל של האלמנט עצמו. */
+.js [data-reveal="mask"].is-in{clip-path:inset(0 0 0 0)}
+
+/* ---------- כותרת ההירו - חשיפת שורות מאחורי מסכה ---------- */
+.js [data-reveal="lines"] .ln{
+  display:block;overflow:hidden;
+  padding-bottom:.08em;margin-bottom:-.08em;  /* מקום לזנבות אותיות, בלי חיתוך */
+}
+.js [data-reveal="lines"] .ln>i{
+  display:block;font-style:normal;
+  transform:translate3d(0,115%,0);
+  transition:transform 1.05s var(--ease-expo);
+}
+.js [data-reveal="lines"] .ln:nth-child(2)>i{transition-delay:.10s}
+.js [data-reveal="lines"] .ln:nth-child(3)>i{transition-delay:.20s}
+.js [data-reveal="lines"].is-in .ln>i{transform:none}
+
+/* ---------- הירו: תמונה + נקודה ---------- */
+.js .hero__media img{clip-path:inset(0 0 100% 0);transition:clip-path 1.3s var(--ease-expo) .15s}
+.js .hero__media.is-in img{clip-path:inset(0 0 0 0)}
+/* מנוע החשיפה הכללי (data-reveal) מפעיל clip-path:inset(0) על hero__media עצמו
+   כשהוא נהיה .is-in - זה חותך את נקודות הצבע שיוצאות מעבר לגבולות התמונה.
+   מבטלים את זה כאן בלבד, כי רק ל-hero__media יש אלמנטים שיוצאים מהקופסה. */
+.js .hero__media.is-in{clip-path:none}
+@keyframes dotIn{0%{opacity:0;transform:scale(0)}70%{opacity:1;transform:scale(1.18)}100%{opacity:1;transform:scale(1)}}
+/* לכל נקודה מסלול ריחוף משלה - כדי שהן לא יזוזו מסונכרן אחת עם השנייה */
+@keyframes dotFloat--blue{0%,100%{transform:translate(0,0)}50%{transform:translate(-4px,-11px)}}
+@keyframes dotFloat--green{0%,100%{transform:translate(0,0)}50%{transform:translate(7px,-9px)}}
+@keyframes dotFloat--yellow{0%,100%{transform:translate(0,0)}33%{transform:translate(-6px,-13px)}66%{transform:translate(4px,-4px)}}
+@keyframes dotFloat--coral{0%,100%{transform:translate(0,0)}50%{transform:translate(-9px,6px)}}
+.js .hero__dot{opacity:0}
+.js .hero__media.is-in .hero__dot{animation:dotIn .75s var(--ease-back) .75s both}
+.js .hero__media.is-in .hero__dot--blue{animation:dotIn .75s var(--ease-back) .75s both,dotFloat--blue 4.4s ease-in-out 1.5s infinite}
+.js .hero__media.is-in .hero__dot--green{animation:dotIn .75s var(--ease-back) .85s both,dotFloat--green 5.6s ease-in-out 1.9s infinite}
+.js .hero__media.is-in .hero__dot--yellow{animation:dotIn .75s var(--ease-back) .65s both,dotFloat--yellow 3.9s ease-in-out 1.3s infinite}
+.js .hero__media.is-in .hero__dot--coral{animation:dotIn .75s var(--ease-back) 1.05s both,dotFloat--coral 5s ease-in-out 2.2s infinite}
+
+/* ---------- כפתורים ---------- */
+.btn{
+  transition:filter .3s ease,transform .4s var(--ease-expo),box-shadow .4s var(--ease-expo);
+}
+.btn .ico{transition:transform .4s var(--ease-expo)}
+.btn:hover{transform:translateY(-2px)}
+.btn:hover .ico{transform:translate(-4px,-4px)}   /* החץ אלכסוני ↖ - הדחיפה בכיוון שלו */
+.btn:active{transform:translateY(0);transition-duration:.08s}
+.btn--blue:hover{box-shadow:0 12px 26px rgba(24,177,240,.34)}
+.btn--coral:hover{box-shadow:0 12px 26px rgba(252,84,62,.34)}
+.btn--ghost-yellow:hover{box-shadow:0 12px 26px rgba(253,193,34,.28)}
+.card .btn:hover,.tier .btn:hover{box-shadow:0 12px 24px rgba(0,0,0,.18)}
+
+/* ---------- ניווט ---------- */
+.nav__link{position:relative}
+.nav__link::after{
+  content:"";position:absolute;inset-inline:0;bottom:-.3em;height:2px;
+  background:var(--brand-blue);border-radius:2px;
+  transform:scaleX(0);transform-origin:right center;
+  transition:transform .5s var(--ease-expo);
+}
+.nav__link:hover::after{transform:scaleX(1)}
+.nav__logo img{transition:transform .55s var(--ease-expo)}
+
+/* ---------- כרטיסים ---------- */
+.card{transition:transform .55s var(--ease-expo)}
+.card:hover{transform:translateY(-9px)}
+.card__thumb{transition:transform .6s var(--ease-expo)}
+.card:hover .card__thumb{transform:scale(1.025)}
+
+/* בקרוסלת "אנחנו בתקשורת" מבטלים גם את אנימציות ההובר של הכרטיסים
+   (משאירים את אותו צל עדין קבוע - לא מגדילים אותו בהובר) */
+.press .card{transition:none}
+.press .card:hover{transform:none;box-shadow:4px 4px 4px 0px rgba(0,0,0,.25)}
+.press .card__thumb{transition:none}
+.press .card:hover .card__thumb{transform:none}
+.press .card .btn:hover{box-shadow:4px 4px 4px 0px rgba(0,0,0,.25)}
+
+/* ---------- מדרגות תרומה ---------- */
+.tier{transition:transform .55s var(--ease-expo),box-shadow .55s var(--ease-expo)}
+.tier:hover{transform:translateY(-7px);box-shadow:0 22px 42px rgba(24,177,240,.32)}
+
+/* ---------- חיצי התקשורת ---------- */
+.press__nav button{transition:opacity .3s ease,transform .45s var(--ease-expo)}
+.press__nav button:hover{opacity:.55;transform:translateX(-7px)}
+.press__nav button:last-child:hover{transform:translateX(7px)}
+
+/* ---------- כיבוד העדפת תנועה מופחתת ---------- */
+@media (prefers-reduced-motion:reduce){
+  .js [data-reveal],
+  .js [data-reveal="lines"] .ln>i,
+  .js .hero__media img,
+  .js .hero__dot{
+    opacity:1!important;transform:none!important;
+    clip-path:none!important;animation:none!important;transition:none!important;
+  }
+  .progress{display:none}
+  .btn:hover,.card:hover,.tier:hover,
+  .press__nav button:hover,.nav__logo:hover img{transform:none!important}
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width:1023px){
+  /* במובייל הכותרת נשברת טבעית - השורות חוזרות ל-inline והחשיפה הופכת לפייד */
+  .js [data-reveal="lines"]{opacity:0;transform:translate3d(0,26px,0)}
+  .js [data-reveal="lines"].is-in{opacity:1;transform:none}
+  .js [data-reveal="lines"] .ln{display:inline;overflow:visible;padding-bottom:0;margin-bottom:0}
+  .js [data-reveal="lines"] .ln>i{display:inline;transform:none}
+
+  .hero__inner{flex-direction:column-reverse;align-items:stretch}
+  .hero__media{width:min(100%,330px);margin-inline:auto;margin-inline-end:auto}
+  .hero__copy{text-align:right}
+  .hero__lead{max-width:none}
+  .hero br{display:none}
+  .cards{flex-wrap:wrap}
+  .card{flex:1 1 calc(50% - 10px)}
+  .press .card{flex:0 0 calc((100% - clamp(12px,1.389vw,20px)) / 2)}
+}
+
+@media (max-width:899px){
+  .nav{gap:0;justify-content:space-between;height:auto;padding-block:clamp(10px,2vw,18px);position:relative}
+  .nav__links{
+    display:none;position:absolute;top:100%;inset-inline:0;z-index:30;
+    background:#fff;border-radius:var(--r-sm);
+    box-shadow:0 10px 30px rgba(0,0,0,.12);
+    padding:14px 18px;flex-direction:column;gap:12px;text-align:right;
+  }
+  .nav>.nav__link,.nav>.nav__cta{display:none}
+  .nav[data-open="true"] .nav__links{display:flex}
+  .nav__toggle{
+    display:grid;place-items:center;gap:5px;width:44px;height:44px;flex:none;
+  }
+  .nav__toggle span{display:block;width:24px;height:2px;background:var(--ink);border-radius:2px}
+  .nav__logo{order:1}
+  .nav__toggle{order:2}
+  .nav__logo img{width:clamp(140px,34vw,220px)}
+  .donate{--boy-overlap:0px}
+  .tiers{width:100%;margin-inline:0;flex-wrap:wrap;margin-top:clamp(20px,4vw,32px)}
+  .tier{flex:1 1 100%;aspect-ratio:auto}
+  .donate__text{width:100%}
+  .footer__grid{grid-template-columns:1fr 1fr}
+  .footer__brand{grid-column:1 / -1}
+}
+
+@media (max-width:639px){
+  /* below this, the about row (טור טקסט + קולאז' + טור טקסט) לא נכנס בשורה אחת */
+  .about__row{flex-direction:column}
+  .about__collage{width:min(70%,320px);margin-inline:auto}
+  .about__col{max-width:none;width:100%}
+  .cards{flex-direction:column}
+  .card{flex:1 1 auto;aspect-ratio:auto}
+  .press .cards{flex-direction:row}
+  .press .card{flex:0 0 calc(100% - 40px);aspect-ratio:auto}
+  .hero__actions{flex-wrap:wrap}
+  .btn--pill,.btn--rect{width:auto;min-width:140px;padding-inline:16px}
+  .btn--wide{width:100%}
+  .donate__card .btn{align-self:flex-start}
+  .press__nav{margin-top:clamp(6px,1.5vw,12px)}
+  .footer__grid{grid-template-columns:1fr}
+  .footer__cta .btn--wide{width:100%}
+  .footer__bottom{justify-content:flex-start}
+}
+</style>
+</head>
+<body>
+<div class="progress" aria-hidden="true"><div class="progress__bar" id="progressBar"></div></div>
+<div class="frame">
+
+  <!-- ===================== HEADER ===================== -->
+  <header class="site-header">
+    <div class="container">
+      <nav class="nav" id="nav" data-stagger="70">
+        <button class="nav__toggle" type="button" aria-label="תפריט" aria-expanded="false" onclick="var n=document.getElementById('nav');var o=n.getAttribute('data-open')==='true';n.setAttribute('data-open',String(!o));this.setAttribute('aria-expanded',String(!o));">
+          <span></span><span></span><span></span>
+        </button>
+        <a href="./index.html" class="nav__logo" aria-label="אהבת חינ&quot;מ" data-reveal="scale">
+          <img src="./public/images/logo.png" alt="לוגו אהבת חינ&quot;מ - עמותה לילדים על הרצף האוטיסטי והחינוך המיוחד" />
+        </a>
+        <a href="./beit-shai.html" class="nav__link" data-reveal="fade">בית ש”י</a>
+        <a href="./breshit.html" class="nav__link" data-reveal="fade">בראשית</a>
+        <a href="./vahavta.html" class="nav__link" data-reveal="fade">ואהב”ת</a>
+        <a href="./about.html" class="nav__link" data-reveal="fade">מי אנחנו</a>
+        <a href="./gallery.html" class="nav__link" data-reveal="fade">גלריה</a>
+        <a href="./press.html" class="nav__link" data-reveal="fade">בתקשורת</a>
+        <a href="./contact.html" class="nav__link" data-reveal="fade">צרו קשר</a>
+        <a href="./donate.html" class="btn btn--pill btn--blue nav__cta" data-reveal="fade">
+          <span>לתרומות</span>
+          <span class="ico ico--sm" aria-hidden="true">
+            <svg viewBox="0 0 19.3848 14.7279" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M19.0919 8.07107C19.4824 7.68054 19.4824 7.04738 19.0919 6.65685L12.7279 0.292893C12.3374 -0.097631 11.7042 -0.097631 11.3137 0.292893C10.9232 0.683418 10.9232 1.31658 11.3137 1.70711L16.9706 7.36396L11.3137 13.0208C10.9232 13.4113 10.9232 14.0445 11.3137 14.435C11.7042 14.8256 12.3374 14.8256 12.7279 14.435L19.0919 8.07107ZM0 7.36396V8.36396H18.3848V7.36396V6.36396H0V7.36396Z" fill="currentColor"/></svg>
+          </span>
+        </a>
+        <div class="nav__links">
+          <a href="./beit-shai.html">בית ש”י</a>
+          <a href="./breshit.html">בשביל בראשית</a>
+          <a href="./vahavta.html">תנועת הנוער ואהב”ת</a>
+          <a href="./the-gallery.html">הגלריה שלנו</a>
+          <a href="./about.html">מי אנחנו</a>
+          <a href="./gallery.html">גלריית תמונות</a>
+          <a href="./press.html">בתקשורת</a>
+          <a href="./contact.html">צרו קשר</a>
+          <a href="./donate.html">לתרומות</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ===================== HERO ===================== -->
+  <section class="hero">
+    <div class="container hero__inner">
+      <div class="hero__copy">
+        <h1 data-reveal="lines">
+          <span class="ln"><i>לכל ילד מגיע</i></span>
+          <span class="ln"><i>מקום שבו הוא לא צריך</i></span>
+          <span class="ln"><i>להסביר את עצמו.</i></span>
+        </h1>
+        <p class="hero__lead" data-reveal="up" style="--d:300ms">אצלנו ילדים על הרצף האוטיסטי מוצאים מקום שמקבל אותם בדיוק כפי שהם. מקום שבו הם יכולים להרגיש בטוחים, שייכים, אהובים וחופשיים להיות הם.</p>
+        <div class="hero__actions" data-reveal="up" style="--d:450ms">
+          <a href="./donate.html" class="btn btn--pill btn--blue">
+            <span>תרמו לנו</span>
+            <span class="ico ico--sm" aria-hidden="true">
+              <svg viewBox="0 0 19.3848 14.7279" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M19.0919 8.07107C19.4824 7.68054 19.4824 7.04738 19.0919 6.65685L12.7279 0.292893C12.3374 -0.097631 11.7042 -0.097631 11.3137 0.292893C10.9232 0.683418 10.9232 1.31658 11.3137 1.70711L16.9706 7.36396L11.3137 13.0208C10.9232 13.4113 10.9232 14.0445 11.3137 14.435C11.7042 14.8256 12.3374 14.8256 12.7279 14.435L19.0919 8.07107ZM0 7.36396V8.36396H18.3848V7.36396V6.36396H0V7.36396Z" fill="currentColor"/></svg>
+            </span>
+          </a>
+          <a href="./about.html" class="btn btn--pill btn--ghost-yellow"><span>הכירו אותנו</span></a>
+        </div>
+      </div>
+      <div class="hero__media" data-reveal="fade" style="--d:150ms">
+        <img src="./public/images/hero.png" alt="אם מחבקת את בתה, ויד של מבוגר אוחזת ביד של ילד" data-parallax="-0.05" />
+        <span class="hero__dot hero__dot--blue" aria-hidden="true"></span>
+        <span class="hero__dot hero__dot--green" aria-hidden="true"></span>
+        <span class="hero__dot hero__dot--yellow" aria-hidden="true"></span>
+        <span class="hero__dot hero__dot--coral" aria-hidden="true"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PARTNERS - רצועת הלוגואים ============ -->
+  <section class="partners">
+    <div class="container">
+      <div id="partnersLoop" class="logoloop logoloop--scale-hover"
+           role="region" aria-label="לוגואים של שותפים ותומכים"></div>
+    </div>
+  </section>
+
+  <!-- ============ VIDEO - נפתח על הגלילה, פייסבוק, בין הלוגואים ל"כל מה שקורה אצלנו" ============ -->
+  <section class="video-reveal" id="videoReveal">
+    <div class="video-reveal__track" id="videoRevealTrack">
+      <div class="video-reveal__stage" id="videoRevealStage">
+        <div class="video-reveal__frame" id="videoRevealFrame">
+          <div class="video-reveal__media video-reveal__iframe-wrap" id="videoRevealMedia">
+            <button type="button" class="video-reveal__poster" id="videoRevealPoster" aria-label="הפעלת הסרטון">
+              <img src="./public/images/video-poster.jpg" alt="" draggable="false" />
+              <span class="video-reveal__play" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              </span>
+            </button>
+          </div>
+          <div class="video-reveal__scrim" id="videoRevealScrim"></div>
+        </div>
+        <div class="video-reveal__hint" id="videoRevealHint">גללו לצפייה</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PROGRAMS ===================== -->
+  <section class="programs">
+    <div class="container">
+      <h2 data-reveal="up">כל מה שקורה אצלנו</h2>
+      <div class="cards" data-stagger="120">
+
+        <article data-reveal="up" class="card card--blue">
+          <div class="card__thumb"><img src="./public/images/gallery/g05.jpg" alt="ילדים בפעילות בבית ש״י" loading="lazy" /></div>
+          <h3 class="card__title">בית ש”י</h3>
+          <p class="card__text">מרכז קהילתי, חברתי וטיפולי בנהריה - חוגים, טיפולים, חצר וכלבים טיפוליים.</p>
+          <div class="card__spacer"></div>
+          <a href="./beit-shai.html" class="btn btn--rect">
+            <span>קראו עוד</span>
+            <span class="ico ico--sm" aria-hidden="true">
+              <svg viewBox="0 0 19.3848 14.7279" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M19.0919 8.07107C19.4824 7.68054 19.4824 7.04738 19.0919 6.65685L12.7279 0.292893C12.3374 -0.097631 11.7042 -0.097631 11.3137 0.292893C10.9232 0.683418 10.9232 1.31658 11.3137 1.70711L16.9706 7.36396L11.3137 13.0208C10.9232 13.4113 10.9232 14.0445 11.3137 14.435C11.7042 14.8256 12.3374 14.8256 12.7279 14.435L19.0919 8.07107ZM0 7.36396V8.36396H18.3848V7.36396V6.36396H0V7.36396Z" fill="currentColor"/></svg>
+            </span>
+          </a>
+        </article>
+
+        <article data-reveal="up" class="card card--yellow">
+          <div class="card__thumb"><img src="./public/images/gallery/g07.jpg" alt="פעילות יצירה בתוכנית בראשית" loading="lazy" /></div>
+          <h3 class="card__title">בשביל בראשית</h3>
+          <p class="card__text">מרחב רגשי לאחים, לאחיות ולהורים - כי גם להם מגיע מקום משלהם.</p>
+          <div class="card__spacer"></div>
+          <a href="./breshit.html" class="btn btn--rect">
+            <span>קראו עוד</span>
+            <span class="ico ico--sm" aria-hidden="true">
+              <svg viewBox="0 0 19.3848 14.7279" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M19.0919 8.07107C19.4824 7.68054 19.4824 7.04738 19.0919 6.65685L12.7279 0.292893C12.3374 -0.097631 11.7042 -0.097631 11.3137 0.292893C10.9232 0.683418 10.9232 1.31658 11.3137 1.70711L16.9706 7.36396L11.3137 13.0208C10.9232 13.4113 10.9232 14.0445 11.3137 14.435C11.7042 14.8256 12.3374 14.8256 12.7279 14.435L19.0919 8.07107ZM0 7.36396V8.36396H18.3848V7.36396V6.36396H0V7.36396Z" fill="currentColor"/></svg>
+            </span>
+          </a>
+        </article>
+
+        <article data-reveal="up" class="card card--coral">
+          <div class="card__thumb"><img src="./public/images/gallery/g09.jpg" alt="פעילות קהילתית משותפת" loading="lazy" /></div>
+          <h3 class="card__title">תנועת הנוער ואהב”ת</h3>
+          <p class="card__text">ילדים על הרצף וילדים מהקהילה נפגשים, מתנדבים וגדלים יחד.</p>
+          <div class="card__spacer"></div>
+          <a href="./vahavta.html" class="btn btn--rect">
+            <span>קראו עוד</span>
+            <span class="ico ico--sm" aria-hidden="true">
+              <svg viewBox="0 0 19.3848 14.7279" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M19.0919 8.07107C19.4824 7.68054 19.4824 7.04738 19.0919 6.65685L12.7279 0.292893C12.3374 -0.097631 11.7042 -0.097631 11.3137 0.292893C10.9232 0.683418 10.9232 1.31658 11.3137 1.70711L16.9706 7.36396L11.3137 13.0208C10.9232 13.4113 10.9232 14.0445 11.3137 14.435C11.7042 14.8256 12.3374 14.8256 12.7279 14.435L19.0919 8.07107ZM0 7.36396V8.36396H18.3848V7.36396V6.36396H0V7.36396Z" fill="currentColor"/></svg>
+            </span>
+          </a>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ABOUT ===================== -->
+  <section class="about">
+    <div class="container">
+      <h2 class="about__heading" data-reveal="up">אהבת חינ”מ (חינוך מיוחד) לכולם</h2>
+      <div class="about__row">
+        <div class="about__col about__col--right" data-reveal="up">
+          <p>עמותת אהבת חינ"מ לכולם הינה עמותה ,שהוקמה מתוך <strong>צורך אמיתי של ילדים על הספקטרום האוטיסטי</strong> ובני משפחותיהם.</p>
+          <p>יסוד העמותה באמונה <strong>שלכל אדם הזכות לחיות בכבוד</strong> תוך מתן אמצעים וכלים לאנשים עם מוגבלויות, לחיות באיכות חיים טובה יותר ובשותפות , ככל הניתן בחיי קהילה. כל זאת באמצעות פיתוח ומתן שירותים חינוכיים, טיפולים חדשניים, פעילות מחקר והכשרה מקצועית . הקמת מערך תקשורתי ליצירת שינוי עמדות חברתי והמשך העלאת הנושא  על סדר היום הציבורי.</p>
+        </div>
+        <div class="about__collage" data-parallax="-0.045">
+          <div class="about__collage-photo about__collage-photo--main">
+            <img src="./public/images/gallery-full/d10.jpg" alt="ילד מבית שי מחייך" loading="lazy" />
+          </div>
+          <div class="about__collage-photo about__collage-photo--top">
+            <img src="./public/images/gallery-full/d15.jpg" alt="ילדות מבית שי מחייכות" loading="lazy" />
+          </div>
+          <div class="about__collage-photo about__collage-photo--bottom">
+            <img src="./public/images/gallery-full/d01.jpg" alt="ילדים מבית שי נהנים יחד" loading="lazy" />
+          </div>
+          <span class="about__dot about__dot--coral" aria-hidden="true"></span>
+          <span class="about__dot about__dot--ring" aria-hidden="true"></span>
+          <span class="about__dot about__dot--green" aria-hidden="true"></span>
+        </div>
+        <div class="about__col about__col--left" data-reveal="up">
+          <p>העמותה נוסדה על ידי אמהות  ואחיות לילדים על הרצף האוטיסטי יחד עם יזמים חברתיים. העמותה שמה עצמה למטרה <strong>להקים מרכז קהילתי טיפולי</strong>, תוך שהמקום מהווה למעשה בית,  אך העשייה בו מתנהלת כל העת על ידי אנשי מקצוע ומטפלים מוכשרים ומוסמכים בתחום. כמו כן, הצורך בשילוב ושיפור מיומנויות תקשורת וכישורים חברתיים, בא לידי ביטוי בכך שהפעילות החוגית טיפולית תתקיים <strong>תמיד בקבוצות קטנות</strong>.</p>
+          <p><strong>בית ש"י יהיה מודל לבתים נוספים בפריפריה.</strong></p>
+        </div>
+      </div>
+      <div class="about__cta" data-reveal="up">
+        <a href="./about.html" class="btn btn--pill btn--blue">
+          <span>קראו עוד</span>
+          <span class="ico ico--sm" aria-hidden="true">
+            <svg viewBox="0 0 19.3848 14.7279" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M19.0919 8.07107C19.4824 7.68054 19.4824 7.04738 19.0919 6.65685L12.7279 0.292893C12.3374 -0.097631 11.7042 -0.097631 11.3137 0.292893C10.9232 0.683418 10.9232 1.31658 11.3137 1.70711L16.9706 7.36396L11.3137 13.0208C10.9232 13.4113 10.9232 14.0445 11.3137 14.435C11.7042 14.8256 12.3374 14.8256 12.7279 14.435L19.0919 8.07107ZM0 7.36396V8.36396H18.3848V7.36396V6.36396H0V7.36396Z" fill="currentColor"/></svg>
+          </span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== DONATE ===================== -->
+  <section class="donate container">
+    <img class="donate__boy" src="./public/images/donate-boy.png" alt="ילד יושב על קצה השלט" />
+
+    <div class="donate__card" data-reveal="up">
+      <h2>לא צריך לשנות עולם שלם כדי לשנות עולם של ילד אחד.</h2>
+      <p class="donate__text">התרומה שלכם מאפשרת לילדי בית שי לקבל את הכלים, התמיכה והאהבה שמגיעים להם. כל תרומה, קטנה כגדולה, הופכת להזדמנות אמיתית עבור ילד ומשפחתו כל תרומה, קטנה או גדולה, הופכת לעוד חיוך, עוד הצלחה, עוד חבר חדש ועוד ילד שמרגיש שהוא שייך.</p>
+      <a href="./donate.html" class="btn btn--wide btn--coral">
+        <span>לעמוד התרומות</span>
+        <span class="ico ico--sm" aria-hidden="true">
+          <svg viewBox="0 0 19.3848 14.7279" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M19.0919 8.07107C19.4824 7.68054 19.4824 7.04738 19.0919 6.65685L12.7279 0.292893C12.3374 -0.097631 11.7042 -0.097631 11.3137 0.292893C10.9232 0.683418 10.9232 1.31658 11.3137 1.70711L16.9706 7.36396L11.3137 13.0208C10.9232 13.4113 10.9232 14.0445 11.3137 14.435C11.7042 14.8256 12.3374 14.8256 12.7279 14.435L19.0919 8.07107ZM0 7.36396V8.36396H18.3848V7.36396V6.36396H0V7.36396Z" fill="currentColor"/></svg>
+        </span>
+      </a>
+    </div>
+
+    <div class="tiers" data-stagger="110">
+      <article class="tier" data-reveal="up">
+        <p class="tier__label">לתרומה מהירה <br />של 50 ש”ח</p>
+        <a href="./donate.html" class="btn btn--wide">
+          <span>לחצו כאן</span>
+          <span class="ico ico--md" aria-hidden="true">
+            <svg viewBox="0 0 26 14.7279" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M25.7071 8.07107C26.0976 7.68054 26.0976 7.04738 25.7071 6.65685L19.3431 0.292893C18.9526 -0.097631 18.3194 -0.097631 17.9289 0.292893C17.5384 0.683418 17.5384 1.31658 17.9289 1.70711L23.5858 7.36396L17.9289 13.0208C17.5384 13.4113 17.5384 14.0445 17.9289 14.435C18.3194 14.8256 18.9526 14.8256 19.3431 14.435L25.7071 8.07107ZM0 7.36396V8.36396H25V7.36396V6.36396H0V7.36396Z" fill="currentColor"/></svg>
+          </span>
+        </a>
+      </article>
+
+      <article class="tier" data-reveal="up">
+        <p class="tier__label">לתרומה מהירה <br />של 150 ש”ח</p>
+        <a href="./donate.html" class="btn btn--wide">
+          <span>לחצו כאן</span>
+          <span class="ico ico--md" aria-hidden="true">
+            <svg viewBox="0 0 26 14.7279" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M25.7071 8.07107C26.0976 7.68054 26.0976 7.04738 25.7071 6.65685L19.3431 0.292893C18.9526 -0.097631 18.3194 -0.097631 17.9289 0.292893C17.5384 0.683418 17.5384 1.31658 17.9289 1.70711L23.5858 7.36396L17.9289 13.0208C17.5384 13.4113 17.5384 14.0445 17.9289 14.435C18.3194 14.8256 18.9526 14.8256 19.3431 14.435L25.7071 8.07107ZM0 7.36396V8.36396H25V7.36396V6.36396H0V7.36396Z" fill="currentColor"/></svg>
+          </span>
+        </a>
+      </article>
+
+      <article class="tier" data-reveal="up">
+        <p class="tier__label">לתרומה מהירה <br />של 200 ש”ח</p>
+        <a href="./donate.html" class="btn btn--wide">
+          <span>לחצו כאן</span>
+          <span class="ico ico--md" aria-hidden="true">
+            <svg viewBox="0 0 26 14.7279" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M25.7071 8.07107C26.0976 7.68054 26.0976 7.04738 25.7071 6.65685L19.3431 0.292893C18.9526 -0.097631 18.3194 -0.097631 17.9289 0.292893C17.5384 0.683418 17.5384 1.31658 17.9289 1.70711L23.5858 7.36396L17.9289 13.0208C17.5384 13.4113 17.5384 14.0445 17.9289 14.435C18.3194 14.8256 18.9526 14.8256 19.3431 14.435L25.7071 8.07107ZM0 7.36396V8.36396H25V7.36396V6.36396H0V7.36396Z" fill="currentColor"/></svg>
+          </span>
+        </a>
+      </article>
+    </div>
+  </section>
+
+  <!-- ===================== GALLERY ===================== -->
+  <section class="gallery">
+    <div class="container">
+      <h2 data-reveal="up">גלריה</h2>
+      <div id="galleryStrip" class="gallery__strip" tabindex="0" role="region"
+           aria-label="גלריית תמונות. גררו או השתמשו בחצים ימינה ושמאלה כדי לנווט."></div>
+      <a href="./gallery.html" class="btn btn--pill btn--blue gallery__cta">
+        <span>לעמוד הגלריה</span>
+        <span class="ico ico--sm" aria-hidden="true">
+          <svg viewBox="0 0 19.3848 14.7279" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M19.0919 8.07107C19.4824 7.68054 19.4824 7.04738 19.0919 6.65685L12.7279 0.292893C12.3374 -0.097631 11.7042 -0.097631 11.3137 0.292893C10.9232 0.683418 10.9232 1.31658 11.3137 1.70711L16.9706 7.36396L11.3137 13.0208C10.9232 13.4113 10.9232 14.0445 11.3137 14.435C11.7042 14.8256 12.3374 14.8256 12.7279 14.435L19.0919 8.07107ZM0 7.36396V8.36396H18.3848V7.36396V6.36396H0V7.36396Z" fill="currentColor"/></svg>
+        </span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ===================== PRESS ===================== -->
+  <section class="press">
+    <div class="container">
+      <h2 data-reveal="up">אנחנו בתקשורת</h2>
+
+      <div class="cards" data-stagger="120" id="pressCards">
+        <article class="card card--green">
+          <div class="card__thumb"><img src="./public/images/gallery-full/d05.jpg" alt="מתחם חדש, תקווה חדשה" loading="lazy" /></div>
+          <h3 class="card__title">מתחם חדש, תקווה חדשה</h3>
+          <p class="card__text">בזכות תרומות של אנשים טובים נחנך מתחם הפעילות החדש של בית שי – מרחב בטוח ומלא אפשרויות לצמיחה.</p>
+          <a href="https://www.gmaaravionline.com/%d7%a8%d7%a7-%d7%91%d7%96%d7%9b%d7%95%d7%aa-%d7%94%d7%aa%d7%a8%d7%95%d7%9e%d7%95%d7%aa-%d7%91%d7%91%d7%99%d7%aa-%d7%a9%d7%99-%d7%97%d7%a0%d7%9b%d7%95-%d7%90%d7%aa-%d7%94%d7%9e%d7%aa%d7%97%d7%9e/" target="_blank" rel="noopener" class="btn btn--rect">
+            <span>קראו עוד</span>
+            <span class="ico ico--sm" aria-hidden="true">
+              <svg viewBox="0 0 19.3848 14.7279" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M19.0919 8.07107C19.4824 7.68054 19.4824 7.04738 19.0919 6.65685L12.7279 0.292893C12.3374 -0.097631 11.7042 -0.097631 11.3137 0.292893C10.9232 0.683418 10.9232 1.31658 11.3137 1.70711L16.9706 7.36396L11.3137 13.0208C10.9232 13.4113 10.9232 14.0445 11.3137 14.435C11.7042 14.8256 12.3374 14.8256 12.7279 14.435L19.0919 8.07107ZM0 7.36396V8.36396H18.3848V7.36396V6.36396H0V7.36396Z" fill="currentColor"/></svg>
+            </span>
+          </a>
+        </article>
+
+        <article class="card card--green">
+          <div class="card__thumb"><img src="./public/images/gallery-full/d20.jpg" alt="כל כרטיס הוא הזדמנות לשנות חיים" loading="lazy" /></div>
+          <h3 class="card__title">כל כרטיס הוא הזדמנות לשנות חיים</h3>
+          <p class="card__text">מכירת הכרטיסים לאירוע ההתרמה של בית שי יוצאת לדרך – הזמנה לקחת חלק בעשייה למען ילדים על הרצף האוטיסטי.</p>
+          <a href="https://www.gmaaravionline.com/%d7%94%d7%95%d7%a9%d7%a7%d7%94-%d7%9e%d7%9b%d7%99%d7%a8%d7%aa-%d7%94%d7%9b%d7%a8%d7%98%d7%99%d7%a1%d7%99%d7%9d-%d7%9c%d7%90%d7%99%d7%a8%d7%95%d7%a2-%d7%94%d7%94%d7%aa%d7%a8%d7%9e%d7%94-%d7%94%d7%a8/" target="_blank" rel="noopener" class="btn btn--rect">
+            <span>קראו עוד</span>
+            <span class="ico ico--sm" aria-hidden="true">
+              <svg viewBox="0 0 19.3848 14.7279" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M19.0919 8.07107C19.4824 7.68054 19.4824 7.04738 19.0919 6.65685L12.7279 0.292893C12.3374 -0.097631 11.7042 -0.097631 11.3137 0.292893C10.9232 0.683418 10.9232 1.31658 11.3137 1.70711L16.9706 7.36396L11.3137 13.0208C10.9232 13.4113 10.9232 14.0445 11.3137 14.435C11.7042 14.8256 12.3374 14.8256 12.7279 14.435L19.0919 8.07107ZM0 7.36396V8.36396H18.3848V7.36396V6.36396H0V7.36396Z" fill="currentColor"/></svg>
+            </span>
+          </a>
+        </article>
+
+        <article class="card card--green">
+          <div class="card__thumb"><img src="./public/images/gallery-full/d33.jpg" alt="כשהכוכבים האמיתיים עלו לבמה" loading="lazy" /></div>
+          <h3 class="card__title">כשהכוכבים האמיתיים עלו לבמה</h3>
+          <p class="card__text">להקת שי־יה, המורכבת מילדי בית שי, ריגשה את הקהל בערב ההתרמה והוכיחה שכישרון ואמונה יכולים לפרוץ כל גבול.</p>
+          <a href="https://www.gmaaravionline.com/%d7%a2%d7%a8%d7%91-%d7%94%d7%94%d7%aa%d7%a8%d7%9e%d7%94-%d7%9c%d7%91%d7%99%d7%aa-%d7%a9%d7%99-%d7%9c%d7%94%d7%a7%d7%aa-%d7%a9%d7%99-%d7%99%d7%94-%d7%92%d7%a0%d7%91%d7%94-%d7%90%d7%aa-%d7%94%d7%94/" target="_blank" rel="noopener" class="btn btn--rect">
+            <span>קראו עוד</span>
+            <span class="ico ico--sm" aria-hidden="true">
+              <svg viewBox="0 0 19.3848 14.7279" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M19.0919 8.07107C19.4824 7.68054 19.4824 7.04738 19.0919 6.65685L12.7279 0.292893C12.3374 -0.097631 11.7042 -0.097631 11.3137 0.292893C10.9232 0.683418 10.9232 1.31658 11.3137 1.70711L16.9706 7.36396L11.3137 13.0208C10.9232 13.4113 10.9232 14.0445 11.3137 14.435C11.7042 14.8256 12.3374 14.8256 12.7279 14.435L19.0919 8.07107ZM0 7.36396V8.36396H18.3848V7.36396V6.36396H0V7.36396Z" fill="currentColor"/></svg>
+            </span>
+          </a>
+        </article>
+
+        <article class="card card--green">
+          <div class="card__thumb"><img src="./public/images/gallery-full/d45.jpg" alt="גם הלבבות המוכרים בחרו לתת" loading="lazy" /></div>
+          <h3 class="card__title">גם הלבבות המוכרים בחרו לתת</h3>
+          <p class="card__text">אנשי תקשורת, אמנים ודמויות מוכרות התגייסו למען בית שי והעניקו את קולם למען עתיד טוב יותר לילדים על הרצף האוטיסטי.</p>
+          <a href="https://blinker.co.il/%D7%A6%D7%A4%D7%95%D7%9F-1-%D7%97%D7%93%D7%A9%D7%95%D7%AA-%D7%A0%D7%94%D7%A8%D7%99%D7%94/%D7%97%D7%93%D7%A9%D7%95%D7%AA-%D7%91%D7%A6%D7%A4%D7%95%D7%9F-1-%D7%97%D7%93%D7%A9%D7%95%D7%AA-%D7%A0%D7%94%D7%A8%D7%99%D7%94/%D7%94%D7%A1%D7%9C%D7%91%D7%A8%D7%99%D7%98%D7%90%D7%99%D7%9D-%D7%A0%D7%A8%D7%AA%D7%9E%D7%99%D7%9D-%D7%9C%D7%9E%D7%A2%D7%9F-%D7%91%D7%99%D7%AA-%D7%A9%D7%99-%D7%91%D7%A0%D7%94%D7%A8%D7%99%D7%94/248664/" target="_blank" rel="noopener" class="btn btn--rect">
+            <span>קראו עוד</span>
+            <span class="ico ico--sm" aria-hidden="true">
+              <svg viewBox="0 0 19.3848 14.7279" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M19.0919 8.07107C19.4824 7.68054 19.4824 7.04738 19.0919 6.65685L12.7279 0.292893C12.3374 -0.097631 11.7042 -0.097631 11.3137 0.292893C10.9232 0.683418 10.9232 1.31658 11.3137 1.70711L16.9706 7.36396L11.3137 13.0208C10.9232 13.4113 10.9232 14.0445 11.3137 14.435C11.7042 14.8256 12.3374 14.8256 12.7279 14.435L19.0919 8.07107ZM0 7.36396V8.36396H18.3848V7.36396V6.36396H0V7.36396Z" fill="currentColor"/></svg>
+            </span>
+          </a>
+        </article>
+
+        <article class="card card--green">
+          <div class="card__thumb"><img src="./public/images/gallery-full/d60.jpg" alt="כשילדים חולמים הקהילה כולה צועדת איתם" loading="lazy" /></div>
+          <h3 class="card__title">כשילדים חולמים הקהילה כולה צועדת איתם</h3>
+          <p class="card__text">בית שי פתח שעריו ליריד יד שנייה ותצוגת אופנה מיוחדת, אירוע קהילתי שחיבר בין יצירה, כישרון ואהבה גדולה.</p>
+          <a href="https://www.gmaaravionline.com/%D7%91%D7%99%D7%AA-%D7%A9%D7%99-%D7%9E%D7%A6%D7%99%D7%92-%D7%99%D7%A8%D7%99%D7%93-%D7%99%D7%93-%D7%A9%D7%A0%D7%99%D7%94-%D7%95%D7%AA%D7%A6%D7%95%D7%92%D7%AA-%D7%90%D7%95%D7%A4%D7%A0%D7%94-%D7%A9/" target="_blank" rel="noopener" class="btn btn--rect">
+            <span>קראו עוד</span>
+            <span class="ico ico--sm" aria-hidden="true">
+              <svg viewBox="0 0 19.3848 14.7279" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M19.0919 8.07107C19.4824 7.68054 19.4824 7.04738 19.0919 6.65685L12.7279 0.292893C12.3374 -0.097631 11.7042 -0.097631 11.3137 0.292893C10.9232 0.683418 10.9232 1.31658 11.3137 1.70711L16.9706 7.36396L11.3137 13.0208C10.9232 13.4113 10.9232 14.0445 11.3137 14.435C11.7042 14.8256 12.3374 14.8256 12.7279 14.435L19.0919 8.07107ZM0 7.36396V8.36396H18.3848V7.36396V6.36396H0V7.36396Z" fill="currentColor"/></svg>
+            </span>
+          </a>
+        </article>
+      </div>
+
+      <!-- RTL: the first child lands on the right. Design shows → on the right, ← on the left. -->
+      <div class="press__nav" data-reveal="up">
+        <button type="button" aria-label="הקודם" data-press-prev>
+          <svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><path d="m41.872 12.729c-.869-.766-2.068-.945-3.128-.466-1.074.486-1.742 1.523-1.742 2.707v5.029h-34.002c-1.654 0-3 1.346-3 3v14c0 1.654 1.346 3 3 3h34.002v5.029c0 1.184.668 2.221 1.742 2.707.394.178.807.265 1.214.265.69 0 1.367-.249 1.914-.729l17.12-15.029c.641-.562 1.008-1.379 1.008-2.242s-.368-1.681-1.008-2.242l-17.12-15.028zm15.801 18.009-17.12 15.03c-.401.354-.821.22-.983.146-.133-.061-.566-.302-.566-.885v-6.029c0-.553-.447-1-1-1h-35.004c-.552 0-1-.448-1-1v-14c0-.552.448-1 1-1h35.002c.553 0 1-.447 1-1v-6.029c0-.583.434-.824.566-.885.163-.072.584-.207.983.146l17.121 15.029c.208.183.327.451.327.738s-.119.556-.327.738z" fill="var(--brand-green)"/></svg>
+        </button>
+        <button type="button" aria-label="הבא" data-press-next>
+          <svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><path d="m41.872 12.729c-.869-.766-2.068-.945-3.128-.466-1.074.486-1.742 1.523-1.742 2.707v5.029h-34.002c-1.654 0-3 1.346-3 3v14c0 1.654 1.346 3 3 3h34.002v5.029c0 1.184.668 2.221 1.742 2.707.394.178.807.265 1.214.265.69 0 1.367-.249 1.914-.729l17.12-15.029c.641-.562 1.008-1.379 1.008-2.242s-.368-1.681-1.008-2.242l-17.12-15.028zm15.801 18.009-17.12 15.03c-.401.354-.821.22-.983.146-.133-.061-.566-.302-.566-.885v-6.029c0-.553-.447-1-1-1h-35.004c-.552 0-1-.448-1-1v-14c0-.552.448-1 1-1h35.002c.553 0 1-.447 1-1v-6.029c0-.583.434-.824.566-.885.163-.072.584-.207.983.146l17.121 15.029c.208.183.327.451.327.738s-.119.556-.327.738z" fill="var(--brand-green)" transform="scale(-1,1) translate(-60,0)"/></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  </div>
+
+<!-- ===================== FOOTER =====================
+     יושב מחוץ ל-.frame בכוונה: ה-frame מוגבל ל-1440px, ופוטר צריך
+     רקע ברוחב המסך המלא. ה-.container שבפנים שומר על אותו יישור
+     תוכן כמו שאר העמוד. -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__band">
+
+        <!-- רצועת ה-CTA לתרומה - יושבת בראש הפוטר -->
+        <div class="footer__cta">
+          <div class="footer__cta-copy">
+            <h2>כל תרומה הופכת לעוד ילד שמרגיש שייך.</h2>
+            <p>הצטרפו אלינו ותנו לילדים על הרצף האוטיסטי בית שמקבל אותם בדיוק כפי שהם.</p>
+          </div>
+          <a href="./donate.html" class="btn btn--wide btn--coral">
+            <span>לתרומה מאובטחת</span>
+            <span class="ico ico--sm" aria-hidden="true">
+              <svg viewBox="0 0 19.3848 14.7279" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M19.0919 8.07107C19.4824 7.68054 19.4824 7.04738 19.0919 6.65685L12.7279 0.292893C12.3374 -0.097631 11.7042 -0.097631 11.3137 0.292893C10.9232 0.683418 10.9232 1.31658 11.3137 1.70711L16.9706 7.36396L11.3137 13.0208C10.9232 13.4113 10.9232 14.0445 11.3137 14.435C11.7042 14.8256 12.3374 14.8256 12.7279 14.435L19.0919 8.07107ZM0 7.36396V8.36396H18.3848V7.36396V6.36396H0V7.36396Z" fill="currentColor"/></svg>
+            </span>
+          </a>
+        </div>
+
+        <!-- גוף הפוטר: לוגו + מפת אתר + יצירת קשר -->
+        <div class="footer__grid">
+
+          <div class="footer__brand">
+            <a href="./index.html" class="footer__logo" aria-label="אהבת חינ&quot;מ">
+              <img src="./public/images/logo.png" alt="לוגו אהבת חינ&quot;מ - עמותה לילדים על הרצף האוטיסטי והחינוך המיוחד" />
+            </a>
+            <p class="footer__tagline">
+              עמותה לילדים על הרצף האוטיסטי והחינוך המיוחד. מקימים בית שבו כל ילד
+              מתקבל בדיוק כפי שהוא.
+            </p>
+            <p class="footer__amuta">עמותה רשומה 58-070-XXX-X · אישור ניהול תקין</p>
+          </div>
+
+          <nav class="footer__col" aria-labelledby="ft-site">
+            <h3 id="ft-site" class="footer__title">מפת האתר</h3>
+            <ul class="footer__links">
+              <li><a href="./index.html">דף הבית</a></li>
+              <li><a href="./beit-shai.html">בית ש”י</a></li>
+              <li><a href="./breshit.html">בשביל בראשית</a></li>
+              <li><a href="./vahavta.html">תנועת ואהב”ת</a></li>
+              <li><a href="./the-gallery.html">הגלריה שלנו</a></li>
+              <li><a href="./about.html">מי אנחנו</a></li>
+              <li><a href="./gallery.html">גלריית תמונות</a></li>
+            </ul>
+          </nav>
+
+          <nav class="footer__col" aria-labelledby="ft-support">
+            <h3 id="ft-support" class="footer__title">תמכו בנו</h3>
+            <ul class="footer__links">
+              <li><a href="./donate.html">תרומה חד-פעמית</a></li>
+              <li><a href="./donate.html#horaat-keva">הוראת קבע</a></li>
+              <li><a href="./contact.html?topic=%D7%94%D7%AA%D7%A0%D7%93%D7%91%D7%95%D7%AA">התנדבות</a></li>
+              <li><a href="./donate.html#partners">שותפויות ועסקים</a></li>
+              <li><a href="./the-gallery.html#events">הקדשת אירוע</a></li>
+              <li><a href="./press.html">אנחנו בתקשורת</a></li>
+            </ul>
+          </nav>
+
+          <div class="footer__col" >
+            <h3 class="footer__title">צרו קשר</h3>
+            <ul class="footer__contact">
+              <li>
+                <span class="footer__ico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                </span>
+                <span>ויצמן 71, נהריה</span>
+              </li>
+              <li>
+                <span class="footer__ico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92Z"/></svg>
+                </span>
+                <a href="tel:+972500000000" dir="ltr">050-000-0000</a>
+              </li>
+              <li>
+                <span class="footer__ico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                </span>
+                <a href="mailto:info@ahavat-hinam.org.il" dir="ltr">info@ahavat-hinam.org.il</a>
+              </li>
+              <li>
+                <span class="footer__ico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                </span>
+                <span>א׳–ה׳, 09:00–17:00</span>
+              </li>
+            </ul>
+
+            <div class="footer__social">
+              <a href="#" aria-label="פייסבוק">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.52 1.49-3.91 3.77-3.91 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.78-1.63 1.57v1.89h2.78l-.44 2.91h-2.34V22c4.78-.76 8.44-4.92 8.44-9.94Z"/></svg>
+              </a>
+              <a href="#" aria-label="אינסטגרם">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg>
+              </a>
+              <a href="#" aria-label="יוטיוב">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 12s0-3.8-.48-5.62a2.94 2.94 0 0 0-2.07-2.08C18.63 3.82 12 3.82 12 3.82s-6.63 0-8.45.48a2.94 2.94 0 0 0-2.07 2.08C1 8.2 1 12 1 12s0 3.8.48 5.62a2.94 2.94 0 0 0 2.07 2.08c1.82.48 8.45.48 8.45.48s6.63 0 8.45-.48a2.94 2.94 0 0 0 2.07-2.08C23 15.8 23 12 23 12ZM9.82 15.4V8.6L15.7 12l-5.88 3.4Z"/></svg>
+              </a>
+              <a href="#" aria-label="וואטסאפ">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.6 2 2.2 6.4 2.2 11.84c0 1.74.46 3.44 1.32 4.94L2.1 22l5.36-1.4a9.8 9.8 0 0 0 4.58 1.16h.01c5.43 0 9.84-4.4 9.84-9.84 0-2.63-1.02-5.1-2.88-6.96A9.77 9.77 0 0 0 12.04 2Zm0 18.02a8.2 8.2 0 0 1-4.16-1.14l-.3-.18-3.18.83.85-3.1-.2-.32a8.16 8.16 0 0 1-1.25-4.37c0-4.52 3.68-8.2 8.2-8.2 2.19 0 4.25.86 5.8 2.4a8.15 8.15 0 0 1 2.4 5.8c0 4.53-3.68 8.2-8.2 8.2Zm4.5-6.14c-.25-.12-1.46-.72-1.68-.8-.23-.09-.39-.13-.55.12s-.64.8-.78.97c-.14.16-.29.18-.53.06-.25-.12-1.04-.38-1.98-1.22-.73-.65-1.23-1.46-1.37-1.7-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.15.16-.25.25-.41.08-.17.04-.31-.02-.43-.06-.12-.55-1.33-.76-1.82-.2-.48-.4-.41-.55-.42h-.47c-.16 0-.43.06-.65.31-.22.25-.85.83-.85 2.03s.87 2.35.99 2.51c.12.17 1.71 2.62 4.15 3.67.58.25 1.03.4 1.39.51.58.19 1.11.16 1.53.1.47-.07 1.46-.6 1.66-1.17.21-.58.21-1.07.15-1.17-.06-.11-.22-.17-.47-.29Z"/></svg>
+              </a>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- שורת התחתית -->
+        <div class="footer__bottom">
+          <p class="footer__copy">© <span id="ftYear">2026</span> אהבת חינ״מ. כל הזכויות שמורות.</p>
+          <ul class="footer__legal">
+            <li><a href="#">תקנון</a></li>
+            <li><a href="#">מדיניות פרטיות</a></li>
+            <li><a href="#">הצהרת נגישות</a></li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </footer>
+
+<!-- PRESS carousel - הקודם/הבא גוללים כרטיס אחד קדימה/אחורה, בלופ אינסופי -->
+<script>
+(function(){
+  var track = document.getElementById('pressCards');
+  if(!track) return;
+  var prevBtn = document.querySelector('[data-press-prev]');
+  var nextBtn = document.querySelector('[data-press-next]');
+
+  var originalCards = Array.prototype.slice.call(track.children);
+  var n = originalCards.length;
+  if (n === 0) return;
+
+  /* משכפלים את הכתבות פי 3 (עותק אמיתי באמצע + עותק "רפאים" בכל צד) -
+     כי כרגע יש מעט מדי כתבות בשביל לופ אינסופי אמיתי בלי שכפול.
+     רק העותק האמצעי נגיש (ARIA/טאב), כדי שקורא מסך לא יקרא כל כתבה 3 פעמים. */
+  var REPEATS = 3;
+  var frag = document.createDocumentFragment();
+  for (var copy = 0; copy < REPEATS; copy++){
+    originalCards.forEach(function(card){
+      var clone = card.cloneNode(true);
+      if (copy !== 1){
+        clone.setAttribute('aria-hidden', 'true');
+        Array.prototype.forEach.call(clone.querySelectorAll('a'), function(a){ a.setAttribute('tabindex','-1'); });
+      }
+      frag.appendChild(clone);
+    });
+  }
+  track.textContent = '';
+  track.appendChild(frag);
+
+  var cards = Array.prototype.slice.call(track.children);
+  var mid = n; /* תחילת העותק האמצעי (האמיתי) */
+
+  /* האינדקס הנוכחי נקבע תמיד לפי המיקום האמיתי בגלילה (לא ממשתנה שמור בצד) -
+     כך לחיצה תמיד זזה מהמקום שבו הקרוסלה באמת נמצאת, גם אם המשתמש גלל ידנית
+     בין הלחיצות, וזו הסיבה שהניווט הרגיש לפעמים "שבור" או חוזר אחורה. */
+  function currentIndex(){
+    var trackRect = track.getBoundingClientRect();
+    var best = mid, bestDist = Infinity;
+    cards.forEach(function(card, i){
+      var dist = Math.abs(card.getBoundingClientRect().right - trackRect.right);
+      if (dist < bestDist){ bestDist = dist; best = i; }
+    });
+    return best;
+  }
+
+  /* אם התדרדרנו לעותק ה"רפאים" - קופצים בשקט (בלי אנימציה) לאינדקס המקביל
+     בעותק האמצעי, *לפני* התזוזה הבאה. כך אין תלות בניחוש מתי אנימציית
+     ה-smooth-scroll נגמרת (זה מה שגרם לניווט להרגיש לא אמין / הפוך). */
+  /* scrollIntoView עם block:'nearest' עדיין מסוגל לגלול את *העמוד* אנכית
+     כשהאלמנט לא גלוי במלואו (למשל בטעינה ראשונית, לפני שהמשתמש הגיע
+     לסקשן) - וזו הייתה הסיבה שדף הבית "קפץ" ישר לסקשן "בתקשורת" בטעינה.
+     שומרים את מיקום הגלילה האנכי ומשחזרים אותו מיד אחרי הקריאה, כדי
+     שרק הגלילה האופקית של הקרוסלה תתבצע בפועל. */
+  function scrollCardIntoView(el, opts){
+    var y = window.scrollY;
+    el.scrollIntoView(opts);
+    if (window.scrollY !== y) window.scrollTo(window.scrollX, y);
+  }
+
+  function recenterIfNeeded(){
+    var ci = currentIndex();
+    var copy = Math.floor(ci / n);
+    if (copy !== 1){
+      var rel = ((ci % n) + n) % n;
+      scrollCardIntoView(cards[mid + rel], { behavior:'auto', inline:'start', block:'nearest' });
+    }
+  }
+
+  function go(step){
+    recenterIfNeeded();
+    var i = currentIndex() + step;
+    i = Math.max(0, Math.min(cards.length - 1, i));
+    scrollCardIntoView(cards[i], { behavior:'smooth', inline:'start', block:'nearest' });
+  }
+
+  scrollCardIntoView(cards[mid], { behavior:'auto', inline:'start', block:'nearest' });
+
+  prevBtn && prevBtn.addEventListener('click', function(){ go(-1); });
+  nextBtn && nextBtn.addEventListener('click', function(){ go(1); });
+
+  /* גלגלת עכבר/טראק-פד אנכית מעל הכרטיסים לא אמורה "להילכד" בגלילה האופקית
+     של ה-scroll-snap - מעבירים אותה בחזרה לגלילת העמוד הרגילה. */
+  track.addEventListener('wheel', function(e){
+    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+      e.preventDefault();
+      window.scrollBy(0, e.deltaY);
+    }
+  }, { passive:false });
+})();
+</script>
+
+<script>
+(function(){
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var yr = document.getElementById('ftYear');
+  if(yr) yr.textContent = new Date().getFullYear();
+
+  /* ---------- השהיה מדורגת: כל ילד בקבוצה נכנס אחרי הקודם ---------- */
+  Array.prototype.forEach.call(document.querySelectorAll('[data-stagger]'), function(group){
+    var step = parseFloat(group.dataset.stagger) || 90;
+    Array.prototype.forEach.call(group.querySelectorAll('[data-reveal]'), function(el, i){
+      if(!el.style.getPropertyValue('--d')) el.style.setProperty('--d', (i*step)+'ms');
+    });
+  });
+
+  /* ---------- חשיפה בגלילה ---------- */
+  var targets = document.querySelectorAll('[data-reveal]');
+  if(reduce || !('IntersectionObserver' in window)){
+    Array.prototype.forEach.call(targets, function(el){ el.classList.add('is-in'); });
+  }else{
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){ e.target.classList.add('is-in'); io.unobserve(e.target); }
+      });
+    }, {rootMargin:'0px 0px -10% 0px', threshold:0.12});
+    Array.prototype.forEach.call(targets, function(el){ io.observe(el); });
+  }
+
+  /* ---------- פרלקסה + פס התקדמות: rAF אחד, transform בלבד ---------- */
+  var bar = document.getElementById('progressBar');
+  var par = Array.prototype.slice.call(document.querySelectorAll('[data-parallax]'));
+  var ticking = false;
+
+  function frame(){
+    ticking = false;
+    var vh = innerHeight;
+
+    if(bar){
+      var max = document.documentElement.scrollHeight - vh;
+      bar.style.transform = 'scaleX(' + (max > 0 ? Math.min(1, scrollY/max) : 0) + ')';
+    }
+    if(reduce) return;
+
+    for(var i=0; i<par.length; i++){
+      var el = par[i], r = el.getBoundingClientRect();
+      if(r.bottom < -200 || r.top > vh + 200) continue;   /* מחוץ לטווח - לא מחשבים */
+      var y = (r.top + r.height/2 - vh/2) * (parseFloat(el.dataset.parallax) || 0);
+      var s = el.dataset.pscale;
+      el.style.transform = 'translate3d(0,' + y.toFixed(2) + 'px,0)' + (s ? ' scale('+s+')' : '');
+    }
+  }
+  function onScroll(){ if(!ticking){ ticking = true; requestAnimationFrame(frame); } }
+
+  /* ה-scale חייב לחול כבר בפריים הראשון, אחרת נפער רווח בקצוות הגלריה */
+  if(!reduce) par.forEach(function(el){
+    if(el.dataset.pscale) el.style.transform = 'scale(' + el.dataset.pscale + ')';
+  });
+
+  addEventListener('scroll', onScroll, {passive:true});
+  addEventListener('resize', onScroll);
+  frame();
+})();
+</script>
+
+<!-- ===================== VIDEO REVEAL - פורט וניל של ScrollExpand =====================
+     גלילת החלון פותחת בהדרגה מסגרת מצומצמת לסרטון פייסבוק במסך מלא, דרך
+     clip-path על ה-frame ו-scale על ה-iframe עצמו (transform עובד על כל
+     אלמנט, גם iframe, לא רק img/video).
+     ==================================================================== -->
+<script>
+(function(){
+  var root = document.getElementById('videoReveal');
+  var track = document.getElementById('videoRevealTrack');
+  var stage = document.getElementById('videoRevealStage');
+  var frameEl = document.getElementById('videoRevealFrame');
+  var media = document.getElementById('videoRevealMedia');
+  var scrim = document.getElementById('videoRevealScrim');
+  var hint = document.getElementById('videoRevealHint');
+  if(!root || !track || !stage || !frameEl || !media) return;
+
+  /* פייסבוק לא חושפת API לשנות את תמונת הפוסטר הפנימית שלה (תוכן חוצה-מקור
+     בתוך ה-iframe) - לכן ה-iframe האמיתי לא נטען כלל עד קליק, והתמונה שלנו
+     מכסה אותו.
+     ל-autoplay עצמו: iframe גולמי עם ?autoplay=true כמעט תמיד מתעלם מזה
+     ומציג שוב את הפלייבאק/פוסטר הפנימי של פייסבוק (חוזרים לקליק נוסף). ה-SDK
+     הרשמי של פייסבוק (fb-video XFBML) כן מכבד autoplay בפועל - לכן טוענים
+     אותו וממירים דרכו במקום ליצור iframe ידנית. */
+  function ensureFacebookSdk(){
+    if (document.getElementById('facebook-jssdk')) return;
+    if (!document.getElementById('fb-root')){
+      var rootDiv = document.createElement('div');
+      rootDiv.id = 'fb-root';
+      document.body.appendChild(rootDiv);
+    }
+    var s = document.createElement('script');
+    s.id = 'facebook-jssdk';
+    s.async = true;
+    s.defer = true;
+    s.crossOrigin = 'anonymous';
+    s.src = 'https://connect.facebook.net/he_IL/sdk.js#xfbml=1&version=v19.0';
+    document.body.appendChild(s);
+  }
+
+  /* ה-SDK דורש handshake אמיתי דרך postMessage למדידת הגודל שלו - זה נכשל
+     בשקט תחת file:// (תצוגה מקדימה מקומית של הקובץ). בפריסה אמיתית (https)
+     זה עובד כמצופה, אז מפעילים את ה-SDK רק שם; ל-file:// יש גיבוי ל-iframe
+     גולמי (בלי autoplay אמין, אבל לפחות מציג את הסרטון). */
+  var FB_VIDEO_HREF = location.protocol === 'file:'
+    ? ''
+    : 'https://www.facebook.com/hnn.hn.7/videos/222530866458185/';
+
+  var poster = document.getElementById('videoRevealPoster');
+  var videoStarted = false;
+  function startVideo(){
+    if (videoStarted) return;
+    videoStarted = true;
+
+    if (FB_VIDEO_HREF){
+      var wrap = document.createElement('div');
+      wrap.className = 'video-reveal__fb-wrap';
+      var fbVideo = document.createElement('div');
+      fbVideo.className = 'fb-video';
+      fbVideo.setAttribute('data-href', FB_VIDEO_HREF);
+      fbVideo.setAttribute('data-autoplay', 'true');
+      fbVideo.setAttribute('data-allowfullscreen', 'true');
+      fbVideo.setAttribute('data-show-text', 'false');
+      fbVideo.setAttribute('data-width', '560');
+      fbVideo.setAttribute('data-height', '314');
+      wrap.appendChild(fbVideo);
+      media.replaceChildren(wrap);
+
+      ensureFacebookSdk();
+      (function tryParse(){
+        if (window.FB && window.FB.XFBML){ window.FB.XFBML.parse(wrap); }
+        else { setTimeout(tryParse, 150); }
+      })();
+      return;
+    }
+
+    /* גיבוי ל-file:// - autoplay עם mute=1, כי דפדפנים חוסמים autoplay עם קול. */
+    var iframe = document.createElement('iframe');
+    iframe.className = 'video-reveal__iframe';
+    var src = 'https://www.facebook.com/plugins/video.php?height=314&href=https%3A%2F%2Fwww.facebook.com%2Fhnn.hn.7%2Fvideos%2F222530866458185%2F&show_text=false&width=560&t=0';
+    iframe.src = src + (src.indexOf('?') > -1 ? '&' : '?') + 'autoplay=true&mute=1';
+    iframe.title = 'סרטון מפייסבוק - אהבת חינ"מ';
+    iframe.setAttribute('scrolling', 'no');
+    iframe.setAttribute('frameborder', '0');
+    iframe.setAttribute('allowfullscreen', 'true');
+    iframe.setAttribute('allow', 'autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share');
+    media.replaceChildren(iframe);
+  }
+  if (poster){
+    poster.addEventListener('click', startVideo, { once: true });
+  }
+
+  var opts = {
+    startWidth: 50, startHeight: 52, startRadius: 24, endRadius: 0,
+    mediaZoom: 1.15, scrollDistance: 1, holdDistance: 0.25, smoothing: 0.1, overlayScrim: 0.45
+  };
+
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var clamp = function(v,a,b){ return v<a?a:(v>b?b:v); };
+  var smoothstep = function(e0,e1,x){ var t = clamp((x-e0)/((e1-e0)||1e-6),0,1); return t*t*(3-2*t); };
+
+  var raf = 0, current = 0, target = 0, stageH = 0, running = false, stickyOffset = 0;
+  var headerEl = document.querySelector('.site-header');
+
+  function applyProgress(p){
+    var e = smoothstep(0, 1, p);
+    var w = opts.startWidth + (100 - opts.startWidth) * e;
+    var h = opts.startHeight + (100 - opts.startHeight) * e;
+    var ix = Math.max(0, (100 - w) / 2);
+    var iy = Math.max(0, (100 - h) / 2);
+    var r = opts.startRadius + (opts.endRadius - opts.startRadius) * e;
+    frameEl.style.clipPath = 'inset(' + iy + '% ' + ix + '% ' + iy + '% ' + ix + '% round ' + r + 'px)';
+    media.style.transform = 'scale(' + (opts.mediaZoom + (1 - opts.mediaZoom) * e) + ')';
+    if(scrim) scrim.style.opacity = String(opts.overlayScrim * e);
+    if(hint){
+      var gone = smoothstep(0, 0.12, p);
+      hint.style.opacity = String(1 - gone);
+      hint.style.transform = 'translate3d(0,' + (8 * gone) + 'px,0)';
+    }
+  }
+
+  function measure(){
+    /* ה-stage נעול מתחת להדר הדביק (לא מ-top:0), אחרת ההדר חותך את
+       החלק העליון של הסרטון כשהם דביקים בו-זמנית. */
+    stickyOffset = headerEl ? headerEl.getBoundingClientRect().height : 0;
+    stage.style.top = stickyOffset + 'px';
+
+    stageH = innerHeight - stickyOffset;
+    if(stageH <= 0) return;
+    stage.style.height = stageH + 'px';
+    track.style.height = (stageH * (1 + Math.max(0, opts.scrollDistance) + Math.max(0, opts.holdDistance))) + 'px';
+  }
+
+  function readProgress(){
+    var span = stageH * Math.max(0.01, opts.scrollDistance);
+    var top = track.getBoundingClientRect().top - stickyOffset;
+    return clamp(-top / span, 0, 1);
+  }
+
+  function tick(){
+    var k = opts.smoothing <= 0 ? 1 : 1 - Math.exp(-1 / (60 * opts.smoothing));
+    current += (target - current) * k;
+    if(Math.abs(target - current) < 0.0004){ current = target; running = false; }
+    applyProgress(current);
+    raf = running ? requestAnimationFrame(tick) : 0;
+  }
+  function kick(){ if(running) return; running = true; if(!raf) raf = requestAnimationFrame(tick); }
+
+  function onScroll(){
+    target = readProgress();
+    if(target > 0.01) startVideo();
+    if(opts.smoothing <= 0 || reduce){ current = target; applyProgress(current); return; }
+    kick();
+  }
+  function onResize(){ measure(); target = readProgress(); current = target; applyProgress(current); }
+
+  measure();
+  target = readProgress();
+  current = target;
+  applyProgress(current);
+
+  addEventListener('scroll', onScroll, {passive:true});
+  addEventListener('resize', onResize);
+})();
+</script>
+
+<!-- ===================== לוגואים - שורה קבועה (בלי אנימציה) =====================
+     רק 3 שותפים כרגע - רצועה נגללת לא נראית טוב עם כל כך מעט לוגואים,
+     אז מציגים שורה סטטית אחת, ממורכזת.
+     ================================================================== -->
+<script>
+(function(){
+  var host = document.getElementById('partnersLoop');
+  if(!host) return;
+
+  var LOGOS = [
+    { src:'./public/images/partners/partner-z.jpeg',              alt:'Z' },
+    { src:'./public/images/partners/partner-anak-habitoach.jpeg', alt:'ענק הביטוח - אריה רוזן' },
+    { src:'./public/images/partners/partner-galila.jpeg',         alt:'גלילה' }
+  ];
+
+  var track = document.createElement('div');
+  track.className = 'logoloop__track';
+  host.appendChild(track);
+
+  var ul = document.createElement('ul');
+  ul.className = 'logoloop__list';
+  ul.setAttribute('role','list');
+  LOGOS.forEach(function(logo){
+    var li = document.createElement('li');
+    li.className = 'logoloop__item';
+    var img = new Image();
+    img.src = logo.src;
+    img.alt = logo.alt;
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    img.draggable = false;
+    li.appendChild(img);
+    ul.appendChild(li);
+  });
+  track.appendChild(ul);
+})();
+</script>
+
+<!-- ===================== גלריה מעגלית (WebGL / ogl) =====================
+     נטען כמודול חיצוני מ-CDN. אם אין רשת או אין WebGL - נופלים לרצועת
+     תמונות נגללת רגילה, כך שהסקשן אף פעם לא נשאר ריק.
+     ============================================================== -->
+<script>
+  window.GALLERY_IMAGES = [
+    './public/images/gallery/g01.jpg','./public/images/gallery/g02.jpg',
+    './public/images/gallery/g03.jpg','./public/images/gallery/g04.jpg',
+    './public/images/gallery/g05.jpg','./public/images/gallery/g06.jpg',
+    './public/images/gallery/g07.jpg','./public/images/gallery/g08.jpg',
+    './public/images/gallery/g09.jpg','./public/images/gallery/g10.jpg',
+    './public/images/gallery/g11.jpg','./public/images/gallery/g12.jpg',
+    './public/images/gallery/g13.jpg','./public/images/gallery/g14.jpg',
+    './public/images/gallery/g15.jpg','./public/images/gallery/g16.jpg'
+  ];
+  window.GALLERY_FALLBACK = function(){
+    var el = document.getElementById('galleryStrip');
+    if(!el || el.dataset.done) return;
+    el.dataset.done = '1';
+    el.classList.add('gallery__strip--fallback');
+    window.GALLERY_IMAGES.forEach(function(src){
+      var img = new Image();
+      img.src = src; img.alt = 'תמונה מהפעילות של אהבת חינ"מ'; img.loading = 'lazy';
+      img.style.cursor = 'zoom-in';
+      img.addEventListener('click', function(){ window.GALLERY_LIGHTBOX_OPEN(src); });
+      el.appendChild(img);
+    });
+  };
+
+  /* ---------- לייטבוקס משותף: תמונה מוגדלת מעל הכל ----------
+     משמש גם את ה-WebGL gallery וגם את הרצועה הסטטית, כדי שהתנהגות
+     ההגדלה תהיה זהה בין שתי הגרסאות. */
+  window.GALLERY_LIGHTBOX_OPEN = function(src){
+    var overlay = document.createElement('div');
+    overlay.className = 'gallery-lightbox';
+    overlay.innerHTML =
+      '<button class="gallery-lightbox__close" type="button" aria-label="סגירה">&times;</button>' +
+      '<img src="' + src + '" alt="תמונה מהפעילות של אהבת חינ&quot;מ" />';
+    document.body.appendChild(overlay);
+    document.body.classList.add('gallery-lightbox-lock');
+    requestAnimationFrame(function(){ overlay.classList.add('is-open'); });
+
+    function close(){
+      overlay.classList.remove('is-open');
+      document.body.classList.remove('gallery-lightbox-lock');
+      document.removeEventListener('keydown', onKey);
+      setTimeout(function(){ overlay.remove(); }, 250);
+    }
+    function onKey(e){ if(e.key === 'Escape') close(); }
+    overlay.addEventListener('click', function(e){
+      if(e.target === overlay || e.target.closest('.gallery-lightbox__close')) close();
+    });
+    document.addEventListener('keydown', onKey);
+  };
+
+  /* שומר-סף: הפולבק חייב לחיות בסקריפט קלאסי ולא בתוך המודול.
+     אם המודול לא רץ בכלל - נחסם, נכשל בפרסור, או שה-CDN לא נענה -
+     שום קוד שבתוכו לא ירוץ, כולל הפולבק, והסקשן היה נשאר ריק.
+     אחרי 2 שניות בלי סימן חיים מהמודול, מציגים את הרצועה הסטטית. */
+  setTimeout(function(){
+    var el = document.getElementById('galleryStrip');
+    if(el && !el.dataset.done){
+      console.warn('CircularGallery: המודול לא נטען בזמן - עוברים לרצועה הסטטית.');
+      window.GALLERY_FALLBACK();
+    }
+  }, 2000);
+</script>
+
+<!-- סקריפט קלאסי, לא type="module": ב-Chrome (ולא רק שם) import() דינמי של
+     מודול ES דורש fetch() פנימי, וב-file:// זה נכשל תמיד - לא באופן אקראי,
+     אלא כי Chrome חוסם fetch() לכתובות file:// לגמרי (מדיניות אבטחה, לא
+     קשור לרשת/CDN). בדפדפן שבו נבדק זה קודם זה עבד כי הוא לא אכף את זה,
+     מה שהסווה את הבעיה. הפתרון: ogl.global.js הוא אותו קובץ בדיוק, רק בלי
+     import/export - סקריפט קלאסי לגמרי שנטען עם <script src>, בדיוק כמו כל
+     סקריפט אחר בעמוד, ותולה את עצמו על window.ogl. טעינת <script src> לא
+     עוברת דרך fetch() ולכן עובדת תחת file:// בכל דפדפן. -->
+<script>
+(async function(){
+  var host = document.getElementById('galleryStrip');
+  if(!host) return;
+
+  /* בלי WebGL או עם העדפת תנועה מופחתת - רצועה סטטית */
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var probe  = document.createElement('canvas');
+  var hasGL  = !!(probe.getContext('webgl') || probe.getContext('experimental-webgl'));
+  if(reduce || !hasGL){ window.GALLERY_FALLBACK(); return; }
+
+  function loadClassicScript(src){
+    return new Promise(function(resolve, reject){
+      var s = document.createElement('script');
+      s.src = src;
+      s.onload = resolve;
+      s.onerror = function(){ reject(new Error('failed to load ' + src)); };
+      document.head.appendChild(s);
+    });
+  }
+
+  var ogl;
+  try{
+    if(!window.ogl) await loadClassicScript('./public/vendor/ogl.global.js');
+    ogl = window.ogl;
+    if(!ogl) throw new Error('window.ogl not defined after load');
+  }catch(e){
+    console.warn('CircularGallery: ogl לא נטען, נופלים לרצועה סטטית', e);
+    window.GALLERY_FALLBACK();
+    return;
+  }
+  var Camera = ogl.Camera, Mesh = ogl.Mesh, Plane = ogl.Plane,
+      Program = ogl.Program, Renderer = ogl.Renderer, Texture = ogl.Texture,
+      Transform = ogl.Transform;
+
+  function debounce(fn, wait){
+    var t; return function(){ var a = arguments, c = this;
+      clearTimeout(t); t = setTimeout(function(){ fn.apply(c, a); }, wait); };
+  }
+  function lerp(p1, p2, t){ return p1 + (p2 - p1) * t; }
+
+  /* ---------- כרטיס בודד ---------- */
+  function Media(o){
+    this.extra = 0;
+    this.geometry = o.geometry; this.gl = o.gl; this.image = o.image;
+    this.index = o.index; this.length = o.length;
+    this.scene = o.scene; this.screen = o.screen; this.viewport = o.viewport;
+    this.bend = o.bend; this.borderRadius = o.borderRadius;
+    this.createShader(); this.createMesh(); this.onResize();
+  }
+  Media.prototype.createShader = function(){
+    var texture = new Texture(this.gl, { generateMipmaps:true });
+    this.program = new Program(this.gl, {
+      depthTest:false, depthWrite:false,
+      vertex:[
+        'precision highp float;',
+        'attribute vec3 position; attribute vec2 uv;',
+        'uniform mat4 modelViewMatrix; uniform mat4 projectionMatrix;',
+        'uniform float uTime; uniform float uSpeed;',
+        'varying vec2 vUv;',
+        'void main(){',
+        '  vUv = uv;',
+        '  vec3 p = position;',
+        '  p.z = (sin(p.x * 4.0 + uTime) * 1.5 + cos(p.y * 2.0 + uTime) * 1.5) * (0.1 + uSpeed * 0.5);',
+        '  gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);',
+        '}'
+      ].join('\n'),
+      fragment:[
+        'precision highp float;',
+        'uniform vec2 uImageSizes; uniform vec2 uPlaneSizes;',
+        'uniform sampler2D tMap; uniform float uBorderRadius;',
+        'varying vec2 vUv;',
+        'float roundedBoxSDF(vec2 p, vec2 b, float r){',
+        '  vec2 d = abs(p) - b;',
+        '  return length(max(d, vec2(0.0))) + min(max(d.x, d.y), 0.0) - r;',
+        '}',
+        'void main(){',
+        '  vec2 ratio = vec2(',
+        '    min((uPlaneSizes.x / uPlaneSizes.y) / (uImageSizes.x / uImageSizes.y), 1.0),',
+        '    min((uPlaneSizes.y / uPlaneSizes.x) / (uImageSizes.y / uImageSizes.x), 1.0)',
+        '  );',
+        '  vec2 uv = vec2(',
+        '    vUv.x * ratio.x + (1.0 - ratio.x) * 0.5,',
+        '    vUv.y * ratio.y + (1.0 - ratio.y) * 0.5',
+        '  );',
+        '  vec4 color = texture2D(tMap, uv);',
+        '  float d = roundedBoxSDF(vUv - 0.5, vec2(0.5 - uBorderRadius), uBorderRadius);',
+        '  float edgeSmooth = 0.002;',
+        '  float alpha = 1.0 - smoothstep(-edgeSmooth, edgeSmooth, d);',
+        '  gl_FragColor = vec4(color.rgb, alpha);',
+        '}'
+      ].join('\n'),
+      uniforms:{
+        tMap:{ value:texture },
+        uPlaneSizes:{ value:[0,0] }, uImageSizes:{ value:[0,0] },
+        uSpeed:{ value:0 }, uTime:{ value:100 * Math.random() },
+        uBorderRadius:{ value:this.borderRadius }
+      },
+      transparent:true
+    });
+    var img = new Image(), self = this;
+    /* בלי crossOrigin - התמונות מקומיות, וב-file:// הדגל הזה מכשיל את הטעינה */
+    img.src = this.image;
+    img.onload = function(){
+      texture.image = img;
+      self.program.uniforms.uImageSizes.value = [img.naturalWidth, img.naturalHeight];
+    };
+  };
+  Media.prototype.createMesh = function(){
+    this.plane = new Mesh(this.gl, { geometry:this.geometry, program:this.program });
+    this.plane.setParent(this.scene);
+  };
+  Media.prototype.update = function(scroll, direction){
+    this.plane.position.x = this.x - scroll.current - this.extra;
+    var x = this.plane.position.x, H = this.viewport.width / 2;
+
+    if(this.bend === 0){
+      this.plane.position.y = 0; this.plane.rotation.z = 0;
+    }else{
+      var B = Math.abs(this.bend);
+      var R = (H * H + B * B) / (2 * B);
+      var ex = Math.min(Math.abs(x), H);
+      var arc = R - Math.sqrt(R * R - ex * ex);
+      if(this.bend > 0){
+        this.plane.position.y = -arc;
+        this.plane.rotation.z = -Math.sign(x) * Math.asin(ex / R);
+      }else{
+        this.plane.position.y = arc;
+        this.plane.rotation.z = Math.sign(x) * Math.asin(ex / R);
+      }
+    }
+
+    this.speed = scroll.current - scroll.last;
+    this.program.uniforms.uTime.value += 0.04;
+    this.program.uniforms.uSpeed.value = this.speed;
+
+    var planeOffset = this.plane.scale.x / 2;
+    var viewportOffset = this.viewport.width / 2;
+    this.isBefore = this.plane.position.x + planeOffset < -viewportOffset;
+    this.isAfter  = this.plane.position.x - planeOffset >  viewportOffset;
+    if(direction === 'right' && this.isBefore){ this.extra -= this.widthTotal; this.isBefore = this.isAfter = false; }
+    if(direction === 'left'  && this.isAfter ){ this.extra += this.widthTotal; this.isBefore = this.isAfter = false; }
+  };
+  Media.prototype.onResize = function(o){
+    o = o || {};
+    if(o.screen) this.screen = o.screen;
+    if(o.viewport) this.viewport = o.viewport;
+    this.scale = this.screen.height / 1500;
+    this.plane.scale.y = (this.viewport.height * (900 * this.scale)) / this.screen.height;
+    this.plane.scale.x = (this.viewport.width  * (700 * this.scale)) / this.screen.width;
+    this.plane.program.uniforms.uPlaneSizes.value = [this.plane.scale.x, this.plane.scale.y];
+    this.padding = 2;
+    this.width = this.plane.scale.x + this.padding;
+    this.widthTotal = this.width * this.length;
+    this.x = this.width * this.index;
+  };
+
+  /* ---------- האפליקציה ---------- */
+  function App(container, opts){
+    var self = this;
+    this.container = container;
+    this.scrollSpeed = opts.scrollSpeed;
+    this.scroll = { ease:opts.scrollEase, current:0, target:0, last:0 };
+    this.onCheckDebounce = debounce(function(){ self.onCheck(); }, 200);
+
+    this.renderer = new Renderer({ alpha:true, antialias:true, dpr:Math.min(window.devicePixelRatio || 1, 2) });
+    this.gl = this.renderer.gl;
+    this.gl.clearColor(0, 0, 0, 0);
+    this.container.appendChild(this.gl.canvas);
+
+    this.camera = new Camera(this.gl);
+    this.camera.fov = 45;
+    this.camera.position.z = 20;
+    this.scene = new Transform();
+
+    this.onResize();
+    this.planeGeometry = new Plane(this.gl, { heightSegments:50, widthSegments:100 });
+    this.createMedias(opts.items, opts.bend, opts.borderRadius);
+    this.update();
+    this.addEventListeners();
+  }
+  App.prototype.createMedias = function(items, bend, borderRadius){
+    var self = this;
+    /* מכפילים את הרשימה כדי שהלולאה תהיה רציפה בלי חורים */
+    this.mediasImages = items.concat(items);
+    this.medias = this.mediasImages.map(function(src, index){
+      return new Media({
+        geometry:self.planeGeometry, gl:self.gl, image:src, index:index,
+        length:self.mediasImages.length, scene:self.scene,
+        screen:self.screen, viewport:self.viewport,
+        bend:bend, borderRadius:borderRadius
+      });
+    });
+  };
+  App.prototype.onTouchDown = function(e){
+    this.isDown = true;
+    this.moved = false;
+    this.scroll.position = this.scroll.current;
+    this.start = e.touches ? e.touches[0].clientX : e.clientX;
+    this.startY = e.touches ? e.touches[0].clientY : e.clientY;
+  };
+  App.prototype.onTouchMove = function(e){
+    if(!this.isDown) return;
+    var x = e.touches ? e.touches[0].clientX : e.clientX;
+    var y = e.touches ? e.touches[0].clientY : e.clientY;
+    /* סף של 10px לפני שמסווגים כגרירה - קליק אמיתי כמעט תמיד נודד
+       כמה פיקסלים בין mousedown ל-mouseup */
+    if(!this.moved){
+      var dx = x - this.start, dy = y - this.startY;
+      if(dx*dx + dy*dy > 100) this.moved = true;
+    }
+    /* RTL: גרירה ימינה מקדמת את הגלריה ימינה */
+    this.scroll.target = this.scroll.position + (this.start - x) * (this.scrollSpeed * 0.025);
+  };
+  App.prototype.onTouchUp = function(){ this.isDown = false; this.onCheck(); };
+  App.prototype.onClick = function(e){
+    if(this.moved) return;
+    var media = this.hitTest(e.clientX, e.clientY);
+    if(media) window.GALLERY_LIGHTBOX_OPEN(media.image);
+  };
+  App.prototype.hitTest = function(clientX, clientY){
+    var rect = this.gl.canvas.getBoundingClientRect();
+    var px = clientX - rect.left, py = clientY - rect.top;
+    /* המצלמה מסתכלת ישר על מישור z=0, אז המיפוי מיחידות עולם לפיקסלים
+       ליניארי - אין צורך בפרויקציה מלאה כדי לדעת מה נלחץ */
+    var scale = this.screen.width / this.viewport.width;
+    var cx = this.screen.width / 2, cy = this.screen.height / 2;
+    var best = null, bestDist = Infinity;
+    for(var i = 0; i < this.medias.length; i++){
+      var m = this.medias[i];
+      var sx = cx + m.plane.position.x * scale;
+      var sy = cy - m.plane.position.y * scale;
+      var halfW = (m.plane.scale.x * scale) / 2, halfH = (m.plane.scale.y * scale) / 2;
+      if(px >= sx - halfW && px <= sx + halfW && py >= sy - halfH && py <= sy + halfH){
+        var dist = (px - sx) * (px - sx) + (py - sy) * (py - sy);
+        if(dist < bestDist){ bestDist = dist; best = m; }
+      }
+    }
+    return best;
+  };
+  App.prototype.onWheel = function(e){
+    /* גלגלת אנכית מעל הגלריה מסובבת אותה - בלי preventDefault,
+       כדי לא לחטוף את גלילת העמוד */
+    var delta = e.deltaY || e.wheelDelta || e.detail;
+    this.scroll.target += (delta > 0 ? this.scrollSpeed : -this.scrollSpeed) * 0.2;
+    this.onCheckDebounce();
+  };
+  App.prototype.onKeyDown = function(e){
+    if(e.key === 'ArrowRight'){ e.preventDefault(); this.scroll.target += this.scrollSpeed * 5; this.onCheckDebounce(); }
+    else if(e.key === 'ArrowLeft'){ e.preventDefault(); this.scroll.target -= this.scrollSpeed * 5; this.onCheckDebounce(); }
+    else if(e.key === 'Home'){ e.preventDefault(); this.scroll.target = 0; this.onCheckDebounce(); }
+  };
+  App.prototype.onCheck = function(){
+    if(!this.medias || !this.medias[0]) return;
+    var width = this.medias[0].width;
+    var item = width * Math.round(Math.abs(this.scroll.target) / width);
+    this.scroll.target = this.scroll.target < 0 ? -item : item;
+  };
+  App.prototype.onResize = function(){
+    this.screen = { width:this.container.clientWidth, height:this.container.clientHeight };
+    this.renderer.setSize(this.screen.width, this.screen.height);
+    this.camera.perspective({ aspect:this.screen.width / this.screen.height });
+    var fov = (this.camera.fov * Math.PI) / 180;
+    var height = 2 * Math.tan(fov / 2) * this.camera.position.z;
+    this.viewport = { width:height * this.camera.aspect, height:height };
+    if(this.medias){
+      var s = this.screen, v = this.viewport;
+      this.medias.forEach(function(m){ m.onResize({ screen:s, viewport:v }); });
+    }
+  };
+  App.prototype.update = function(){
+    var self = this;
+    this.scroll.current = lerp(this.scroll.current, this.scroll.target, this.scroll.ease);
+    var direction = this.scroll.current > this.scroll.last ? 'right' : 'left';
+    /* מרנדרים רק כשהסקשן על המסך - לא שורפים GPU בשאר העמוד */
+    if(this.visible && this.medias){
+      this.medias.forEach(function(m){ m.update(self.scroll, direction); });
+      this.renderer.render({ scene:this.scene, camera:this.camera });
+    }
+    this.scroll.last = this.scroll.current;
+    this.raf = requestAnimationFrame(function(){ self.update(); });
+  };
+  App.prototype.addEventListeners = function(){
+    var self = this;
+    this.boundResize    = function(){ self.onResize(); };
+    this.boundWheel     = function(e){ self.onWheel(e); };
+    this.boundTouchDown = function(e){ self.onTouchDown(e); };
+    this.boundTouchMove = function(e){ self.onTouchMove(e); };
+    this.boundTouchUp   = function(){ self.onTouchUp(); };
+    this.boundKeyDown   = function(e){ self.onKeyDown(e); };
+    this.boundClick     = function(e){ self.onClick(e); };
+
+    addEventListener('resize', this.boundResize);
+    /* אינטראקציה תחומה לגלריה בלבד; move/up על החלון כדי שגרירה לא תיתקע */
+    this.container.addEventListener('wheel', this.boundWheel, { passive:true });
+    this.container.addEventListener('mousedown', this.boundTouchDown);
+    this.container.addEventListener('touchstart', this.boundTouchDown, { passive:true });
+    this.container.addEventListener('keydown', this.boundKeyDown);
+    this.container.addEventListener('click', this.boundClick);
+    addEventListener('mousemove', this.boundTouchMove);
+    addEventListener('mouseup', this.boundTouchUp);
+    addEventListener('touchmove', this.boundTouchMove, { passive:true });
+    addEventListener('touchend', this.boundTouchUp);
+
+    /* דגל נראוּת עבור לולאת הרינדור */
+    this.visible = true;
+    if('IntersectionObserver' in window){
+      this.visible = false;
+      new IntersectionObserver(function(entries){
+        self.visible = entries[0].isIntersecting;
+      }, { rootMargin:'200px 0px' }).observe(this.container);
+    }
+  };
+
+  host.dataset.done = '1';
+  new App(host, {
+    items: window.GALLERY_IMAGES,
+    bend: 3,
+    borderRadius: 0.05,
+    scrollSpeed: 2,
+    scrollEase: 0.02
+  });
+})();
+</script>
+</body>
+</html>

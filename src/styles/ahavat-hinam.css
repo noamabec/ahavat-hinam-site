@@ -1,0 +1,507 @@
+/* ============================================================================
+   אהבת חינ"מ — landing page styles
+   Ported 1:1 from the Figma frame "Desktop - 2" (1440 × 5423).
+   Every metric is fluid: clamp(min, <value>/1440*100vw, <value>) so the layout
+   is pixel-exact at 1440px and scales smoothly below it.
+   All rules are scoped under .ahv-page so they never touch the rest of the app.
+   ========================================================================== */
+
+/* ---------- Fonts (files live in /public/fonts) ---------------------------- */
+@font-face{font-family:'Fb Coherenti Sans';src:url('/fonts/fb-coherenti-sans-light.ttf') format('truetype');font-weight:300;font-style:normal;font-display:swap}
+@font-face{font-family:'Fb Coherenti Sans';src:url('/fonts/fb-coherenti-sans-regular.ttf') format('truetype');font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:'Fb Coherenti Sans';src:url('/fonts/fb-coherenti-sans-medium.ttf') format('truetype');font-weight:500;font-style:normal;font-display:swap}
+
+/* ---------- Design tokens -------------------------------------------------- */
+/* HSL triplets so they can be consumed by Tailwind / shadcn:
+   colors: { brand: { blue: 'hsl(var(--brand-blue))', ... } }              */
+:root{
+  --brand-blue:197.5 87.8% 51.8%;   /* #18B1F0 */
+  --brand-yellow:43.6 98.2% 56.3%;  /* #FDC122 */
+  --brand-coral:7 96.9% 61.6%;      /* #FC543E */
+  --brand-green:105.9 54.8% 42.5%;  /* #4DA831 */
+}
+
+.ahv-page{
+  /* colour aliases */
+  --blue:hsl(var(--brand-blue));
+  --yellow:hsl(var(--brand-yellow));
+  --coral:hsl(var(--brand-coral));
+  --green:hsl(var(--brand-green));
+  --ink:#000;
+  --surface:#fff;
+
+  --container:1240px;
+  --gutter:clamp(16px,3vw,40px);
+
+  /* Fb Coherenti Sans "normal" leading as Figma renders it = 13/12 */
+  --lh:1.0833;
+
+  /* type scale — fluid, pixel-exact at 1440px */
+  --fs-h1:clamp(30px,3.333vw,48px);      /* 48 */
+  --fs-h2:clamp(28px,3.333vw,48px);      /* 48 */
+  --fs-h3:clamp(22px,2.5vw,36px);        /* 36 */
+  --fs-band:clamp(23px,2.778vw,40px);    /* 40 */
+  --fs-body:clamp(16px,1.667vw,24px);    /* 24 */
+  --fs-nav:clamp(15px,1.667vw,24px);     /* 24 */
+
+  --r-sm:clamp(6px,0.694vw,10px);        /* 10 */
+  --r-pill:clamp(12px,1.389vw,20px);     /* 20 */
+
+  /* vertical rhythm — exact frame offsets at 1440px */
+  --v-header:clamp(88px,12.639vw,182px);
+  --v-hero-top:clamp(12px,1.458vw,21px);
+  --v-gap-hero:clamp(16px,1.667vw,24px);        /* hero → logo strip (shrunk — smaller hero photo) */
+  --v-gap-partners:clamp(48px,7.639vw,110px);   /* logo strip → "כל מה שקורה אצלנו" (compensates for 5 separate logos being shorter than the old single strip) */
+  --v-gap-h2:clamp(24px,4.236vw,61px);
+  --v-gap-about:clamp(56px,7.917vw,114px);
+  --v-gap-gallery:clamp(64px,11.667vw,168px);
+  --v-gap-press:clamp(64px,11.25vw,162px);
+  --v-gap-footer:clamp(72px,14.028vw,202px);
+  --v-page-end:clamp(40px,5.417vw,78px);
+
+  width:100%;
+  overflow-x:hidden;
+  background:var(--surface);
+  color:var(--ink);
+  font-family:'Fb Coherenti Sans','Heebo','Assistant','Segoe UI',system-ui,sans-serif;
+  font-weight:500;
+  line-height:var(--lh);
+  -webkit-font-smoothing:antialiased;
+}
+
+/* Resets use :where() so they add no specificity and never beat the
+   component rules below (a plain `.ahv-page p` would kill their margins). */
+.ahv-page,.ahv-page *,.ahv-page *::before,.ahv-page *::after{box-sizing:border-box}
+.ahv-page :where(img){display:block;max-width:100%}
+.ahv-page :where(a){color:inherit;text-decoration:none}
+.ahv-page :where(button){font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+.ahv-page :where(p){margin:0}
+.ahv-page :where(h1,h2,h3){margin:0;font-weight:500;line-height:var(--lh)}
+
+/* בלי overflow:hidden: הוא מונע position:sticky על הכותרת. הגנת הבליד
+   האופקי כבר קיימת ברמת body (overflow-x:hidden למעלה). */
+.ahv-frame{max-width:1440px;margin-inline:auto;position:relative}
+.ahv-container{width:min(var(--container),100% - 2 * var(--gutter));margin-inline:auto}
+
+/* ---------- Icons — exact Figma arrow geometry ----------------------------- */
+.ahv-ico{display:grid;place-items:center;flex:none;overflow:visible}
+.ahv-ico svg{overflow:visible;display:block}
+/* 18.385px shaft rotated -135° → ↖ ; bounding box 13×13 */
+.ahv-ico--sm{width:.5417em;height:.5417em}
+.ahv-ico--sm svg{width:.8077em;height:.6137em;transform:rotate(-135deg)}
+/* 25px shaft ; bounding box 17.678×17.678 */
+.ahv-ico--md{width:.4911em;height:.4911em}
+.ahv-ico--md svg{width:.7222em;height:.4091em;transform:rotate(-135deg)}
+
+/* ---------- Buttons -------------------------------------------------------- */
+.ahv-btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  gap:clamp(10px,1.319vw,19px);
+  font-size:var(--fs-body);font-weight:500;line-height:1;
+  white-space:nowrap;transition:filter .2s ease,transform .2s ease,box-shadow .2s ease;
+  box-shadow:0 2px 8px rgba(0,0,0,.10);
+}
+.ahv-btn:hover{filter:brightness(.94)}
+.ahv-btn:active{transform:translateY(1px);box-shadow:0 1px 4px rgba(0,0,0,.10)}
+.ahv-btn--pill{width:clamp(112px,11.667vw,168px);height:clamp(38px,3.194vw,46px);border-radius:var(--r-pill)}
+.ahv-btn--rect{width:clamp(112px,11.667vw,168px);height:clamp(38px,3.194vw,46px);border-radius:var(--r-sm)}
+.ahv-btn--wide{width:clamp(150px,15.764vw,227px);height:clamp(38px,3.194vw,46px);border-radius:var(--r-sm)}
+.ahv-btn--blue{background:var(--blue);color:#fff}
+.ahv-btn--coral{background:var(--coral);color:#fff}
+.ahv-btn--ghost-yellow{background:var(--surface);color:var(--yellow);border:1px solid var(--yellow)}
+.ahv-btn--ghost-yellow:hover{filter:none;background:#FFFBF0}
+
+/* ---------- Header --------------------------------------------------------- */
+.ahv-header{position:sticky;top:0;z-index:20;background:var(--surface)}
+.ahv-nav{height:var(--v-header);display:flex;align-items:center;justify-content:center;gap:clamp(14px,2.361vw,34px)}
+.ahv-nav a{font-size:var(--fs-nav);font-weight:500;white-space:nowrap;transition:color .2s ease}
+.ahv-nav a:hover{color:var(--blue)}
+.ahv-nav__logo{flex:none;display:block}
+.ahv-nav__logo img{width:clamp(150px,23.125vw,333px);aspect-ratio:333/182;height:auto;object-fit:contain}
+.ahv-nav__toggle{display:none}
+.ahv-nav__drawer{display:none}
+
+/* ---------- Hero ----------------------------------------------------------- */
+.ahv-hero{padding-top:var(--v-hero-top)}
+.ahv-hero__inner{display:flex;align-items:flex-start;gap:clamp(24px,3.264vw,47px)}
+.ahv-hero__copy{flex:1 1 auto;text-align:right;min-width:0}
+.ahv-hero h1{font-size:var(--fs-h1)}
+.ahv-hero__lead{
+  margin-top:clamp(10px,1.458vw,21px);
+  font-size:var(--fs-body);font-weight:300;line-height:var(--lh);
+  max-width:clamp(280px,37.5vw,540px);margin-inline-end:auto;
+}
+.ahv-hero__actions{margin-top:clamp(16px,2.083vw,30px);display:flex;align-items:center;gap:clamp(12px,1.806vw,26px)}
+.ahv-hero__media{position:relative;flex:0 1 auto;width:clamp(120px,22.917vw,330px);margin-inline-end:clamp(0px,12.917vw,186px)}
+.ahv-hero__media img{width:100%;aspect-ratio:330/302;height:auto;object-fit:contain}
+/* decorative dot — anchored to the hero photo box so it scales with it.
+   It floats just outside the photo's bottom-right corner (>100% left). */
+.ahv-hero__dot{position:absolute;border-radius:50%;aspect-ratio:1;pointer-events:none}
+.ahv-hero__dot--blue{background:var(--blue);width:6.061%;left:106.364%;top:88.079%}
+
+/* ---------- Partners — logo strip in the band under the hero ---------------
+   הגדלים מגיעים מ-LogoLoop כ-props (logoHeight/gap) ומגיעים לכאן כמשתני CSS.
+   הדריסה הזו מחזירה אותם ל-clamp() הנוזלי של שאר העמוד. */
+.ahv-partners{margin-top:var(--v-gap-hero)}
+.ahv-partners .logoloop{
+  --logoloop-gap:clamp(16px,3.264vw,47px);
+  --logoloop-logoHeight:clamp(48px,7.5vw,108px);
+}
+
+/* ---------- Video reveal (ScrollExpand, סרטון פייסבוק) --------------------- */
+.ahv-video-reveal{margin-top:var(--v-gap-partners)}
+
+/* ---------- Programs ------------------------------------------------------- */
+.ahv-programs{margin-top:var(--v-gap-partners)}
+.ahv-programs h2,.ahv-gallery h2,.ahv-press h2{font-size:var(--fs-h2);text-align:right}
+.ahv-cards{margin-top:var(--v-gap-h2);display:flex;gap:clamp(12px,1.389vw,20px);align-items:stretch}
+.ahv-card{
+  flex:1 1 0;min-width:0;aspect-ratio:400/450;border-radius:var(--r-sm);
+  padding:clamp(12px,1.528vw,22px) clamp(14px,1.736vw,25px) clamp(16px,1.875vw,27px);
+  display:flex;flex-direction:column;color:#fff;
+}
+.ahv-card--blue{background:var(--blue)}
+.ahv-card--yellow{background:var(--yellow)}
+.ahv-card--coral{background:var(--coral)}
+.ahv-card--green{background:var(--green)}
+.ahv-card__thumb{width:100%;aspect-ratio:350/200;background:var(--surface);border-radius:var(--r-sm);flex:none;overflow:hidden}
+.ahv-card__thumb img{width:100%;height:100%;object-fit:cover}
+.ahv-card__title{margin-top:clamp(12px,1.528vw,22px);font-size:var(--fs-h3);text-align:right}
+.ahv-card__text{font-size:var(--fs-body);font-weight:300;line-height:var(--lh);text-align:right}
+.ahv-card .ahv-btn{margin-top:auto;margin-inline-end:0;margin-inline-start:auto;background:var(--surface);flex:none}
+.ahv-card--blue .ahv-btn{color:var(--blue)}
+.ahv-card--yellow .ahv-btn{color:var(--yellow)}
+.ahv-card--coral .ahv-btn{color:var(--coral)}
+.ahv-card--green .ahv-btn{color:var(--green)}
+
+/* ---------- About ---------------------------------------------------------- */
+.ahv-about{margin-top:var(--v-gap-about);position:relative;min-height:clamp(0px,58.264vw,839px)}
+.ahv-about__collage{position:absolute;left:0;top:0;width:clamp(0px,46.944vw,676px)}
+.ahv-about__collage img{width:100%;aspect-ratio:676/839;height:auto;object-fit:contain}
+.ahv-about__copy{
+  padding-top:clamp(0px,4.722vw,68px);text-align:right;
+  width:min(100%,clamp(300px,46.111vw,664px));margin-inline-end:auto;
+  display:flex;flex-direction:column;
+}
+.ahv-about__copy h2{font-size:var(--fs-h2)}
+.ahv-about__body{margin-top:clamp(8px,1.111vw,16px);font-size:var(--fs-body);font-weight:300;line-height:var(--lh)}
+.ahv-about .ahv-btn{margin-top:clamp(16px,1.944vw,28px);align-self:flex-start}
+
+/* ---------- Donate band ---------------------------------------------------- */
+.ahv-donate{
+  position:relative;
+  margin-top:calc(-1 * clamp(0px,3.125vw,45px));
+  --boy-h:clamp(190px,34.097vw,491px);
+  --boy-overlap:clamp(24px,13.958vw,201px);
+  padding-top:calc(var(--boy-h) - var(--boy-overlap));
+}
+.ahv-donate__boy{
+  position:absolute;top:0;left:clamp(6px,2.083vw,30px);z-index:2;
+  height:var(--boy-h);width:auto;aspect-ratio:305/491;object-fit:contain;pointer-events:none;
+}
+.ahv-donate__card{
+  position:relative;background:var(--yellow);border-radius:var(--r-sm);color:#fff;
+  padding:clamp(18px,2.153vw,31px) clamp(14px,1.806vw,26px) clamp(20px,2.847vw,41px);
+  display:flex;flex-direction:column;align-items:flex-start;
+}
+.ahv-donate__card h2{font-size:var(--fs-band);text-align:right;align-self:stretch}
+.ahv-donate__text{
+  margin-top:clamp(10px,1.597vw,23px);
+  font-size:var(--fs-body);font-weight:400;line-height:var(--lh);text-align:right;
+  width:min(100%,clamp(280px,53.194vw,766px));margin-inline-end:auto;
+}
+.ahv-donate__card .ahv-btn{margin-top:clamp(10px,1.597vw,23px);align-self:flex-start}
+.ahv-tiers{
+  position:relative;z-index:3;display:flex;gap:clamp(12px,2.431vw,35px);
+  width:min(100%,72.9%);margin-inline-start:auto;margin-inline-end:2.42%;
+  margin-top:calc(-1 * clamp(30px,6.528vw,94px));
+}
+.ahv-tier{
+  flex:1 1 0;min-width:0;aspect-ratio:278/214;background:var(--blue);border-radius:var(--r-sm);
+  display:flex;flex-direction:column;align-items:center;
+  padding:clamp(16px,3.681vw,53px) clamp(8px,1.736vw,25px) clamp(14px,2.083vw,30px);
+}
+.ahv-tier__label{font-size:var(--fs-h3);color:#fff;text-align:center;line-height:var(--lh);white-space:nowrap}
+.ahv-tier .ahv-btn{margin-top:auto;width:100%;background:var(--surface);color:var(--blue);font-size:var(--fs-h3);gap:clamp(6px,0.833vw,12px)}
+
+/* ---------- Gallery -------------------------------------------------------- */
+.ahv-gallery{margin-top:var(--v-gap-gallery)}
+.ahv-gallery__strip{
+  margin-top:clamp(18px,3.056vw,44px);
+  height:clamp(320px,36.111vw,520px);
+  border-radius:2px;overflow:hidden;
+}
+.ahv-gallery__cta{margin-top:clamp(18px,2.222vw,32px)}
+
+/* ---------- Gallery page (DomeGallery) ------------------------------------- */
+.ahv-gallery-page{margin-top:clamp(32px,4.583vw,66px)}
+.ahv-gallery-page h1{font-size:var(--fs-h1);text-align:right}
+.ahv-gallery-page__lead{
+  margin-top:clamp(8px,1.111vw,16px);
+  font-size:var(--fs-body);font-weight:300;line-height:var(--lh);text-align:right;
+  max-width:clamp(280px,37.5vw,540px);margin-inline-end:auto;
+}
+.ahv-gallery-page__dome{
+  margin-top:clamp(24px,3.333vw,48px);
+  height:min(75vh,860px);min-height:420px;
+  border-radius:var(--r-sm);overflow:hidden;
+  background:var(--surface);
+}
+
+/* ---------- Press ---------------------------------------------------------- */
+.ahv-press{margin-top:var(--v-gap-press)}
+.ahv-press .ahv-cards{margin-top:clamp(16px,2.153vw,31px)}
+.ahv-press__nav{margin-top:clamp(28px,4.208vw,60.6px);display:flex;align-items:center;justify-content:center;gap:clamp(10px,1.667vw,24px)}
+.ahv-press__nav button{display:grid;place-items:center;padding:0;transition:opacity .2s ease}
+.ahv-press__nav button:hover{opacity:.55}
+.ahv-press__nav svg{width:clamp(44px,5.799vw,83.5px);height:auto;display:block}
+.ahv-press__nav .is-prev{transform:scaleX(-1)}
+
+/* ---------- Footer --------------------------------------------------------- */
+.ahv-footer{margin-top:var(--v-gap-footer);padding-bottom:var(--v-page-end)}
+.ahv-footer__band{
+  background:var(--yellow);border-radius:var(--r-sm);color:#fff;
+  padding:clamp(24px,3.472vw,50px) clamp(18px,2.778vw,40px) clamp(20px,2.222vw,32px);
+  min-height:clamp(140px,21.597vw,311px);
+}
+.ahv-footer__cta{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:clamp(16px,2.222vw,32px);flex-wrap:wrap;
+  padding-bottom:clamp(20px,2.778vw,40px);
+  border-bottom:1px solid rgba(255,255,255,.35);
+}
+.ahv-footer__cta-copy{flex:1 1 320px;min-width:0}
+.ahv-footer__cta h2{font-size:var(--fs-band);text-align:right}
+.ahv-footer__cta p{
+  margin-top:clamp(6px,0.833vw,12px);
+  font-size:var(--fs-body);font-weight:300;line-height:var(--lh);text-align:right;
+}
+/* על הרקע הצהוב הכפתור האלמוגי צריך צל משלו, לא brightness */
+.ahv-footer__cta .ahv-btn--coral{flex:none;box-shadow:0 10px 24px rgba(0,0,0,.16)}
+
+.ahv-footer__grid{
+  display:grid;grid-template-columns:1.6fr 1fr 1fr 1.3fr;
+  gap:clamp(20px,2.778vw,40px);
+  padding-block:clamp(24px,3.056vw,44px);
+}
+.ahv-footer__logo{display:block;background:#fff;border-radius:var(--r-sm);padding:clamp(8px,0.833vw,12px);width:fit-content}
+.ahv-footer__logo img{
+  width:clamp(140px,13.889vw,200px);aspect-ratio:333/182;height:auto;object-fit:contain;
+  transition:transform .55s var(--ease-expo);
+}
+.ahv-footer__logo:hover img{transform:scale(1.04)}
+.ahv-footer__tagline{
+  margin-top:clamp(10px,1.111vw,16px);
+  font-size:clamp(14px,1.111vw,16px);font-weight:300;line-height:1.5;text-align:right;max-width:38ch;
+}
+.ahv-footer__amuta{
+  margin-top:clamp(8px,0.833vw,12px);
+  font-size:clamp(12px,0.903vw,13px);font-weight:300;line-height:1.5;opacity:.8;text-align:right;
+}
+.ahv-footer__title{
+  font-size:clamp(16px,1.319vw,19px);font-weight:500;text-align:right;
+  margin:0 0 clamp(10px,1.111vw,16px);
+}
+.ahv-footer__links,.ahv-footer__contact,.ahv-footer__legal{list-style:none;margin:0;padding:0}
+.ahv-footer__links li+li,.ahv-footer__contact li+li{margin-top:clamp(7px,0.694vw,10px)}
+.ahv-footer__links a,.ahv-footer__contact a,.ahv-footer__legal a{
+  font-size:clamp(14px,1.111vw,16px);font-weight:300;line-height:1.4;transition:opacity .2s ease;
+}
+.ahv-footer__links a:hover,.ahv-footer__contact a:hover,.ahv-footer__legal a:hover{opacity:.72;text-decoration:underline}
+.ahv-footer__contact li{
+  display:flex;align-items:center;gap:clamp(7px,0.694vw,10px);
+  font-size:clamp(14px,1.111vw,16px);font-weight:300;line-height:1.4;
+}
+.ahv-footer__ico{flex:none;display:grid;place-items:center;width:1.15em;height:1.15em}
+.ahv-footer__ico svg{width:100%;height:100%;display:block}
+
+.ahv-footer__social{display:flex;gap:clamp(8px,0.833vw,12px);margin-top:clamp(14px,1.528vw,22px)}
+.ahv-footer__social a{
+  display:grid;place-items:center;
+  width:clamp(34px,2.639vw,38px);height:clamp(34px,2.639vw,38px);
+  border-radius:50%;background:rgba(255,255,255,.2);color:#fff;
+  transition:background .25s ease,transform .35s var(--ease-expo);
+}
+.ahv-footer__social a:hover{background:#fff;color:var(--yellow);transform:translateY(-3px)}
+.ahv-footer__social svg{width:55%;height:55%;display:block}
+
+.ahv-footer__bottom{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:clamp(10px,1.389vw,20px);flex-wrap:wrap;
+  padding-top:clamp(16px,1.667vw,24px);
+  border-top:1px solid rgba(255,255,255,.35);
+}
+.ahv-footer__copy{font-size:clamp(12px,0.972vw,14px);font-weight:300}
+.ahv-footer__legal{display:flex;gap:clamp(12px,1.389vw,20px);flex-wrap:wrap}
+
+/* ============================================================================
+   Responsive
+   ========================================================================== */
+@media (max-width:1023px){
+  .ahv-hero__inner{flex-direction:column-reverse;align-items:stretch}
+  .ahv-hero__media{width:min(100%,330px);margin-inline:auto}
+  .ahv-hero__lead{max-width:none}
+  .ahv-hero br{display:none}
+  .ahv-cards{flex-wrap:wrap}
+  .ahv-card{flex:1 1 calc(50% - 10px)}
+}
+
+@media (max-width:899px){
+  .ahv-nav{gap:0;justify-content:space-between;height:auto;padding-block:clamp(10px,2vw,18px);position:relative}
+  .ahv-nav > a:not(.ahv-nav__logo){display:none}
+  .ahv-nav__logo{order:1}
+  .ahv-nav__toggle{
+    order:2;display:grid;place-items:center;gap:5px;width:44px;height:44px;flex:none;
+  }
+  .ahv-nav__toggle span{display:block;width:24px;height:2px;background:var(--ink);border-radius:2px}
+  .ahv-nav__logo img{width:clamp(140px,34vw,220px)}
+  .ahv-nav__drawer{
+    display:flex;position:absolute;top:100%;inset-inline:0;z-index:30;
+    background:#fff;border-radius:var(--r-sm);box-shadow:0 10px 30px rgba(0,0,0,.12);
+    padding:14px 18px;flex-direction:column;gap:12px;text-align:right;
+  }
+  .ahv-donate{--boy-overlap:0px}
+  .ahv-donate__text{width:100%}
+  .ahv-tiers{width:100%;margin-inline:0;flex-wrap:wrap;margin-top:clamp(20px,4vw,32px)}
+  .ahv-tier{flex:1 1 100%;aspect-ratio:auto}
+  .ahv-footer__grid{grid-template-columns:1fr 1fr}
+  .ahv-footer__brand{grid-column:1 / -1}
+}
+
+@media (max-width:639px){
+  /* below this, the about row (collage + copy) no longer fits without overlapping */
+  .ahv-about{min-height:0}
+  .ahv-about__collage{position:static;width:min(100%,676px);margin-inline:auto}
+  .ahv-about__copy{width:100%;padding-top:clamp(24px,4vw,48px)}
+  .ahv-cards{flex-direction:column}
+  .ahv-card{flex:1 1 auto;aspect-ratio:auto}
+  .ahv-hero__actions{flex-wrap:wrap}
+  .ahv-btn--pill,.ahv-btn--rect{width:auto;min-width:140px;padding-inline:16px}
+  .ahv-btn--wide{width:100%}
+  .ahv-about .ahv-btn,.ahv-donate__card .ahv-btn{align-self:flex-start}
+  .ahv-press__nav{margin-top:clamp(32px,10vw,60px)}
+  .ahv-footer__grid{grid-template-columns:1fr}
+  .ahv-footer__bottom{justify-content:flex-start}
+}
+
+/* ============================================================================
+   MOTION SYSTEM
+   ----------------------------------------------------------------------------
+   • transform / opacity / clip-path בלבד — 60fps, בלי reflow.
+   • הכל תלוי ב-.ahv-motion שנוסף ב-useEffect: לפני הידרציה הדף גלוי לחלוטין,
+     כך שאין הבהוב ואין תוכן שנעלם אם ה-JS לא רץ.
+   • תנועה בציר Y בלבד — נייטרלי ל-RTL.
+   ========================================================================== */
+.ahv-page{
+  --ease-expo:cubic-bezier(.16,1,.3,1);
+  --ease-back:cubic-bezier(.34,1.56,.64,1);
+  --dur-reveal:.95s;
+}
+
+/* ---------- פס התקדמות גלילה ---------- */
+.ahv-progress{position:fixed;top:0;inset-inline:0;height:3px;z-index:100;pointer-events:none}
+.ahv-progress__bar{
+  height:100%;width:100%;transform:scaleX(0);transform-origin:right center;
+  background:linear-gradient(90deg,var(--coral),var(--yellow),var(--green),var(--blue));
+  will-change:transform;
+}
+
+/* ---------- מנוע החשיפה בגלילה ---------- */
+.ahv-motion [data-parallax]{will-change:transform}
+.ahv-motion [data-reveal]{
+  will-change:opacity,transform;
+  transition:
+    opacity var(--dur-reveal) var(--ease-expo) var(--d,0ms),
+    transform var(--dur-reveal) var(--ease-expo) var(--d,0ms),
+    clip-path 1.25s var(--ease-expo) var(--d,0ms);
+}
+.ahv-motion [data-reveal="up"]{opacity:0;transform:translate3d(0,34px,0)}
+.ahv-motion [data-reveal="fade"]{opacity:0}
+.ahv-motion [data-reveal="scale"]{opacity:0;transform:scale(.94)}
+.ahv-motion [data-reveal="mask"]{clip-path:inset(0 0 100% 0)}
+.ahv-motion [data-reveal].is-in{opacity:1;transform:none;clip-path:inset(0 0 0 0);will-change:auto}
+
+/* ---------- כותרת ההירו — חשיפת שורות מאחורי מסכה ---------- */
+.ahv-motion [data-reveal="lines"] .ahv-ln{
+  display:block;overflow:hidden;
+  padding-bottom:.08em;margin-bottom:-.08em;   /* מקום לזנבות אותיות, בלי לשנות את הזרימה */
+}
+.ahv-motion [data-reveal="lines"] .ahv-ln>i{
+  display:block;font-style:normal;
+  transform:translate3d(0,115%,0);
+  transition:transform 1.05s var(--ease-expo);
+}
+.ahv-motion [data-reveal="lines"] .ahv-ln:nth-child(2)>i{transition-delay:.10s}
+.ahv-motion [data-reveal="lines"] .ahv-ln:nth-child(3)>i{transition-delay:.20s}
+.ahv-motion [data-reveal="lines"].is-in .ahv-ln>i{transform:none}
+
+/* ---------- הירו: תמונה + נקודה ---------- */
+.ahv-motion .ahv-hero__media img{clip-path:inset(0 0 100% 0);transition:clip-path 1.3s var(--ease-expo) .15s}
+.ahv-motion .ahv-hero__media.is-in img{clip-path:inset(0 0 0 0)}
+@keyframes ahvDotIn{0%{opacity:0;transform:scale(0)}70%{opacity:1;transform:scale(1.18)}100%{opacity:1;transform:scale(1)}}
+@keyframes ahvDotFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-11px)}}
+.ahv-motion .ahv-hero__dot{opacity:0}
+.ahv-motion .ahv-hero__media.is-in .ahv-hero__dot{
+  animation:ahvDotIn .75s var(--ease-back) .75s both,
+            ahvDotFloat 4.4s ease-in-out 1.5s infinite;
+}
+
+/* ---------- כפתורים ---------- */
+.ahv-page .ahv-btn{transition:filter .3s ease,transform .4s var(--ease-expo),box-shadow .4s var(--ease-expo)}
+.ahv-page .ahv-btn .ahv-ico{transition:transform .4s var(--ease-expo)}
+.ahv-page .ahv-btn:hover{filter:brightness(.97);transform:translateY(-2px)}
+.ahv-page .ahv-btn:hover .ahv-ico{transform:translate(-4px,-4px)}  /* החץ אלכסוני ↖ */
+.ahv-page .ahv-btn:active{transform:translateY(0);transition-duration:.08s}
+.ahv-page .ahv-btn--blue:hover{box-shadow:0 12px 26px hsl(var(--brand-blue)/.34)}
+.ahv-page .ahv-btn--coral:hover{box-shadow:0 12px 26px hsl(var(--brand-coral)/.34)}
+.ahv-page .ahv-btn--ghost-yellow:hover{box-shadow:0 12px 26px hsl(var(--brand-yellow)/.28)}
+.ahv-page .ahv-card .ahv-btn:hover,
+.ahv-page .ahv-tier .ahv-btn:hover{box-shadow:0 12px 24px rgba(0,0,0,.18)}
+
+/* ---------- ניווט ---------- */
+.ahv-nav>a:not(.ahv-nav__logo){position:relative}
+.ahv-nav>a:not(.ahv-nav__logo)::after{
+  content:"";position:absolute;inset-inline:0;bottom:-.3em;height:2px;
+  background:var(--blue);border-radius:2px;
+  transform:scaleX(0);transform-origin:right center;
+  transition:transform .5s var(--ease-expo);
+}
+.ahv-nav>a:not(.ahv-nav__logo):hover::after{transform:scaleX(1)}
+.ahv-nav__logo img{transition:transform .55s var(--ease-expo)}
+.ahv-nav__logo:hover img{transform:scale(1.04)}
+
+/* ---------- כרטיסים ומדרגות תרומה ---------- */
+.ahv-card{transition:transform .55s var(--ease-expo),box-shadow .55s var(--ease-expo)}
+.ahv-card:hover{transform:translateY(-9px);box-shadow:0 24px 46px rgba(0,0,0,.17)}
+.ahv-card__thumb{transition:transform .6s var(--ease-expo)}
+.ahv-card:hover .ahv-card__thumb{transform:scale(1.025)}
+.ahv-tier{transition:transform .55s var(--ease-expo),box-shadow .55s var(--ease-expo)}
+.ahv-tier:hover{transform:translateY(-7px);box-shadow:0 22px 42px hsl(var(--brand-blue)/.32)}
+
+/* ---------- חיצי התקשורת ---------- */
+.ahv-press__nav button{transition:opacity .3s ease,transform .45s var(--ease-expo)}
+.ahv-press__nav button:hover{opacity:.55;transform:translateX(-7px)}
+.ahv-press__nav button:last-child:hover{transform:translateX(7px)}
+
+/* ---------- במובייל הכותרת נשברת טבעית: השורות חוזרות ל-inline ---------- */
+@media (max-width:1023px){
+  .ahv-motion [data-reveal="lines"]{opacity:0;transform:translate3d(0,26px,0)}
+  .ahv-motion [data-reveal="lines"].is-in{opacity:1;transform:none}
+  .ahv-motion [data-reveal="lines"] .ahv-ln{display:inline;overflow:visible;padding-bottom:0;margin-bottom:0}
+  .ahv-motion [data-reveal="lines"] .ahv-ln>i{display:inline;transform:none}
+}
+
+/* ---------- כיבוד העדפת תנועה מופחתת ---------- */
+@media (prefers-reduced-motion:reduce){
+  .ahv-motion [data-reveal],
+  .ahv-motion [data-reveal="lines"] .ahv-ln>i,
+  .ahv-motion .ahv-hero__media img,
+  .ahv-motion .ahv-hero__dot{
+    opacity:1!important;transform:none!important;
+    clip-path:none!important;animation:none!important;transition:none!important;
+  }
+  .ahv-progress{display:none}
+  .ahv-page .ahv-btn:hover,.ahv-card:hover,.ahv-tier:hover,
+  .ahv-press__nav button:hover,
+  .ahv-nav__logo:hover img{transform:none!important}
+}
