@@ -251,10 +251,6 @@ h1,h2,h3{margin:0;font-weight:500;line-height:var(--lh)}
 }
 .video-reveal__iframe-wrap{overflow:hidden}
 .video-reveal__iframe{position:absolute;inset:0;width:100%;height:100%;border:none}
-.video-reveal__fb-wrap{position:absolute;inset:0;width:100%;height:100%}
-.video-reveal__fb-wrap span,.video-reveal__fb-wrap iframe{
-  position:absolute!important;inset:0!important;width:100%!important;height:100%!important;border:none!important;
-}
 .video-reveal__poster{
   position:absolute;inset:0;width:100%;height:100%;
   padding:0;margin:0;border:0;background:none;cursor:pointer;display:block;
@@ -1439,63 +1435,22 @@ html:not(.js) .progress{display:none}
   /* פייסבוק לא חושפת API לשנות את תמונת הפוסטר הפנימית שלה (תוכן חוצה-מקור
      בתוך ה-iframe) - לכן ה-iframe האמיתי לא נטען כלל עד קליק, והתמונה שלנו
      מכסה אותו.
-     ל-autoplay עצמו: iframe גולמי עם ?autoplay=true כמעט תמיד מתעלם מזה
-     ומציג שוב את הפלייבאק/פוסטר הפנימי של פייסבוק (חוזרים לקליק נוסף). ה-SDK
-     הרשמי של פייסבוק (fb-video XFBML) כן מכבד autoplay בפועל - לכן טוענים
-     אותו וממירים דרכו במקום ליצור iframe ידנית. */
-  function ensureFacebookSdk(){
-    if (document.getElementById('facebook-jssdk')) return;
-    if (!document.getElementById('fb-root')){
-      var rootDiv = document.createElement('div');
-      rootDiv.id = 'fb-root';
-      document.body.appendChild(rootDiv);
-    }
-    var s = document.createElement('script');
-    s.id = 'facebook-jssdk';
-    s.async = true;
-    s.defer = true;
-    s.crossOrigin = 'anonymous';
-    s.src = 'https://connect.facebook.net/he_IL/sdk.js#xfbml=1&version=v19.0';
-    document.body.appendChild(s);
-  }
-
-  /* ה-SDK דורש handshake אמיתי דרך postMessage למדידת הגודל שלו - זה נכשל
-     בשקט תחת file:// (תצוגה מקדימה מקומית של הקובץ). בפריסה אמיתית (https)
-     זה עובד כמצופה, אז מפעילים את ה-SDK רק שם; ל-file:// יש גיבוי ל-iframe
-     גולמי (בלי autoplay אמין, אבל לפחות מציג את הסרטון). */
-  var FB_VIDEO_HREF = location.protocol === 'file:'
-    ? ''
-    : 'https://www.facebook.com/hnn.hn.7/videos/222530866458185/';
-
+     בעבר נעשה כאן ניסיון להשתמש ב-SDK הרשמי של פייסבוק (fb-video XFBML)
+     כדי לקבל autoplay אמין. בפועל זה נשבר בפריסה האמיתית: ה-SDK תלוי
+     ב-handshake דרך postMessage כדי למדוד את הגובה של עצמו, וכשההנדשייק
+     נכשל/מתעכב, ה-wrapper הפנימי שהוא יוצר נשאר בגובה 0 - וה-!important
+     שלנו על width/height:100% לא עוזר כי ה-0 מגיע מ-div ביניים שה-SDK
+     יוצר ולא ניתן לעקוף בעזרת סלקטור. בנוסף, הקריאה ל-startVideo כבר
+     בתחילת הגלילה (target>0.01) הרסה את כפתור הפוסטר לפני שהמשתמש הספיק
+     ללחוץ עליו בעצמו - כך שגם הלחיצה הידנית לא עבדה יותר.
+     הפתרון: iframe גולמי ופשוט (בלי SDK, בלי wrapper ביניים) שמתחיל אך ורק
+     בלחיצה אמיתית של המשתמש - גם אמין יותר וגם לא הורס את הפוסטר מוקדם מדי. */
   var poster = document.getElementById('videoRevealPoster');
   var videoStarted = false;
   function startVideo(){
     if (videoStarted) return;
     videoStarted = true;
 
-    if (FB_VIDEO_HREF){
-      var wrap = document.createElement('div');
-      wrap.className = 'video-reveal__fb-wrap';
-      var fbVideo = document.createElement('div');
-      fbVideo.className = 'fb-video';
-      fbVideo.setAttribute('data-href', FB_VIDEO_HREF);
-      fbVideo.setAttribute('data-autoplay', 'true');
-      fbVideo.setAttribute('data-allowfullscreen', 'true');
-      fbVideo.setAttribute('data-show-text', 'false');
-      fbVideo.setAttribute('data-width', '560');
-      fbVideo.setAttribute('data-height', '314');
-      wrap.appendChild(fbVideo);
-      media.replaceChildren(wrap);
-
-      ensureFacebookSdk();
-      (function tryParse(){
-        if (window.FB && window.FB.XFBML){ window.FB.XFBML.parse(wrap); }
-        else { setTimeout(tryParse, 150); }
-      })();
-      return;
-    }
-
-    /* גיבוי ל-file:// - autoplay עם mute=1, כי דפדפנים חוסמים autoplay עם קול. */
     var iframe = document.createElement('iframe');
     iframe.className = 'video-reveal__iframe';
     var src = 'https://www.facebook.com/plugins/video.php?height=314&href=https%3A%2F%2Fwww.facebook.com%2Fhnn.hn.7%2Fvideos%2F222530866458185%2F&show_text=false&width=560&t=0';
@@ -1569,7 +1524,6 @@ html:not(.js) .progress{display:none}
 
   function onScroll(){
     target = readProgress();
-    if(target > 0.01) startVideo();
     if(opts.smoothing <= 0 || reduce){ current = target; applyProgress(current); return; }
     kick();
   }
