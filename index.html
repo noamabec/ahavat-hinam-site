@@ -1459,11 +1459,14 @@ html:not(.js) .progress{display:none}
   var poster = document.getElementById('videoRevealPoster');
   var videoState = 'idle'; // idle | loading | ready | fallback
 
-  function fitFbEmbed(wrap, ifr){
-    var cw = media.clientWidth, ch = media.clientHeight;
-    var iw = ifr.offsetWidth, ih = ifr.offsetHeight;
-    if (!cw || !ch || !iw || !ih) return;
-    var scale = Math.max(cw / iw, ch / ih);
+  /* מחזיר את ה-scale שהיה מפעיל, בלי להפעיל בפועל - כדי שאפשר יהיה
+     לבדוק שהוא סביר (safety net) לפני שסומכים על המדידה ומסירים
+     את הפוסטר. */
+  function computeFbFit(cw, ch, iw, ih){
+    if (!cw || !ch || !iw || !ih) return null;
+    return Math.max(cw / iw, ch / ih);
+  }
+  function applyFbFit(wrap, iw, ih, scale){
     wrap.style.width = iw + 'px';
     wrap.style.height = ih + 'px';
     wrap.style.transform = 'translate(-50%,-50%) scale(' + scale + ')';
@@ -1536,37 +1539,50 @@ html:not(.js) .progress{display:none}
 
     var fallbackTimer = setTimeout(function(){
       if (videoState === 'loading') startRawIframe();
-    }, 4000);
+    }, 6000);
 
     ensureFacebookSdk(function(){
       if (videoState !== 'loading') return;
       window.FB.XFBML.parse(wrap);
-      /* לא מספיק לבדוק שיש גובה >20px - פייסבוק עוברת דרך מצב ביניים
-         עם גובה "שלד" זמני (למשל 1000px) לפני שהיא מגיעה לגובה הסופי
-         האמיתי, ותפיסה של המצב הזמני הזה יצרה scale ענק ומיקום הרחק
-         מחוץ למסך. במקום זה מחכים שהגובה יתייצב - יהיה זהה בשתי בדיקות
-         רצופות (200ms הפרש) - וזה הגובה שסומכים עליו. */
-      var tries = 0, lastH = -1, stableCount = 0;
-      (function checkReady(){
+      /* מדידה בזמן אמת (מייד אחרי parse) לא אמינה: נבדק בפועל שה-iframe
+         שפייסבוק יוצרת עובר דרך *שתי* מדידות ביניים מטעות לפני שהיא
+         מגיעה לגובה הסופי האמיתי - למשל 220x1000 (שלד) ואז 615x124
+         (עדיין לא סופי) - כל אחת מהן נשארת "יציבה" מספיק זמן (כמה
+         מאות ms) כדי לעבור בדיקת יציבות קצרה של 2-3 קריאות רצופות.
+         פסילה של ערכים ספציפיים (כמו 1000) שברירית מדי - וידאו אחר
+         יביא ערכי ביניים אחרים. הפתרון האמין: לחכות זמן קבוע ונדיב
+         (1.4s) שעובר בבירור את שני שלבי הביניים לפני שבודקים בכלל,
+         ורק אז מוודאים יציבות קצרה + שה-scale הנגזר סביר (safety net)
+         לפני שמורידים את הפוסטר. */
+      setTimeout(function(){
         if (videoState !== 'loading') return;
-        var ifr = wrap.querySelector('iframe');
-        var h = ifr ? ifr.offsetHeight : 0;
-        if (h > 20 && h === lastH){
-          stableCount++;
-        } else {
-          stableCount = 0;
-        }
-        lastH = h;
-        if (stableCount >= 2){
-          clearTimeout(fallbackTimer);
-          videoState = 'ready';
-          fitFbEmbed(wrap, ifr);
-          if (poster) poster.remove();
-          return;
-        }
-        tries++;
-        if (tries < 60) setTimeout(checkReady, 200);
-      })();
+        var tries = 0, lastH = -1, stableCount = 0;
+        (function checkReady(){
+          if (videoState !== 'loading') return;
+          var ifr = wrap.querySelector('iframe');
+          var h = ifr ? ifr.offsetHeight : 0;
+          if (h > 20 && h === lastH){
+            stableCount++;
+          } else {
+            stableCount = 0;
+          }
+          lastH = h;
+          if (stableCount >= 2){
+            var iw = ifr.offsetWidth;
+            var scale = computeFbFit(media.clientWidth, media.clientHeight, iw, h);
+            if (scale && scale <= 6){
+              clearTimeout(fallbackTimer);
+              videoState = 'ready';
+              applyFbFit(wrap, iw, h, scale);
+              if (poster) poster.remove();
+              return;
+            }
+            stableCount = 0;
+          }
+          tries++;
+          if (tries < 20) setTimeout(checkReady, 200);
+        })();
+      }, 1400);
     });
   }
   if (poster){
