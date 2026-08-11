@@ -754,8 +754,8 @@ html:not(.js) .progress{display:none}
   /* במובייל הכותרת נשברת טבעית - השורות חוזרות ל-inline והחשיפה הופכת לפייד */
   .js [data-reveal="lines"]{opacity:0;transform:translate3d(0,26px,0)}
   .js [data-reveal="lines"].is-in{opacity:1;transform:none}
-  .js [data-reveal="lines"] .ln{display:inline;overflow:visible;padding-bottom:0;margin-bottom:0}
-  .js [data-reveal="lines"] .ln>i{display:inline;transform:none}
+  .js [data-reveal="lines"] .ln{display:block;overflow:visible;padding-bottom:0;margin-bottom:0}
+  .js [data-reveal="lines"] .ln>i{display:block;transform:none}
 
   .hero__inner{flex-direction:column-reverse;align-items:stretch}
   .hero__media{width:min(100%,330px);margin-inline:auto;margin-inline-end:auto}
