@@ -787,7 +787,32 @@ html:not(.js) .progress{display:none}
   .nav__logo{order:2}
   .nav__logo img{width:clamp(140px,34vw,220px)}
   .tiers{display:none}
-  .donate__text{width:100%}
+
+  /* ----- באנר התרומה לפי הפיגמה (node 105:54), מסגרת ייחוס 376px -----
+     כל הערכים הם אחוזים מרוחב המסגרת כדי לשמור על היחסים המדויקים.
+     הכותרת מוגבלת ברוחב ונצמדת לימין כדי שלא תרוץ מתחת לילד. */
+  .donate{
+    /* 170/376 מרוחב ה-container. אחוזי padding נמדדים מול ה-.frame ולא מול
+       ה-container, ולכן מקזזים את הגאטר משני הצדדים. */
+    padding-top:calc(45.213% - var(--gutter) * .90426);
+  }
+  .donate__boy{
+    left:0;                           /* 13/376 => צמוד לקצה השמאלי של המלבן */
+    width:47.872%;                    /* 180/376 */
+    height:auto;
+  }
+  .donate__card{
+    padding:6.117% 3.989% 3.324% 5.585%;  /* 23 / 15 / 12.5 / 21 */
+  }
+  .donate__card h2{
+    align-self:flex-start;            /* RTL: נצמד לימין */
+    width:70.294%;                    /* 239/340 מרוחב תיבת התוכן */
+    font-size:clamp(23px,6.4vw,26px); /* בפיגמה הכותרת נשברת ל-3 שורות */
+    line-height:1.07;                 /* 28/26.3 */
+  }
+  .donate__text{width:100%;margin-top:1.5%;font-size:clamp(13px,3.7vw,16px)}
+  .donate__card .btn--wide{margin-top:1.5%;width:45.176%;min-width:130px}
+
   .footer__grid{grid-template-columns:1fr 1fr}
   .footer__brand{grid-column:1 / -1}
 }
@@ -804,10 +829,8 @@ html:not(.js) .progress{display:none}
   .hero__actions{flex-wrap:wrap}
   .btn--pill,.btn--rect{width:auto;min-width:140px;padding-inline:16px}
   .btn--wide{width:100%}
-  .donate__card .btn{align-self:flex-start}
-  /* לפי הפיגמה (node 105:54): הילד צמוד לפינה השמאלית העליונה של המלבן, לא ממורכז מעליו */
-  .donate{--boy-h:min(77vw,340px);--boy-overlap:calc(var(--boy-h) * .413)}
-  .donate__boy{left:0}
+  /* הכפתור בבאנר התרומה נשאר צר ונצמד לימין, כמו בפיגמה (153.6/340) */
+  .donate__card .btn--wide{align-self:flex-start;width:45.176%;min-width:130px}
   .press__nav{margin-top:clamp(6px,1.5vw,12px)}
   .footer__grid{grid-template-columns:1fr}
   .footer__cta .btn--wide{width:100%}
