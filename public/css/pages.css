@@ -541,6 +541,17 @@ html:not(.js) .progress{display:none}
   display:block;width:1.7em;height:1.2em;
   color:var(--accent);opacity:.85;pointer-events:none;
 }
+/* וריאנט "דיוקן שיוצא מהמסגרת": הגרשיים יושבים בפינה השמאלית-עליונה
+   של המסגרת עצמה (לא של פסקת הציטוט) וחוצים את קו השפה שלה - חצי
+   מהאייקון בולט מעל הכרטיס, בדיוק כמו בפיגמה (node 109:2). */
+.person--portrait{position:relative}
+.person--portrait .person__quote-icon{
+  position:absolute;top:0;inset-inline-end:0;
+  transform:translateY(-50%);
+  width:2.4em;height:1.68em;font-size:var(--fs-h3);
+  color:var(--accent);opacity:1;z-index:3;
+}
+.person--portrait .person__quote{padding-top:0}
 .person__name{margin-top:clamp(12px,1.389vw,20px);font-size:var(--fs-body);color:var(--accent-ink)}
 .person__role{margin-top:.3em;font-size:var(--fs-sm);font-weight:300;color:var(--ink-soft)}
 
