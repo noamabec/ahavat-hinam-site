@@ -389,6 +389,7 @@ h1,h2,h3{margin:0;font-weight:500;line-height:var(--lh)}
   box-shadow:4px 4px 4px 0px rgba(0,0,0,.25);
 }
 .donate__card h2{font-size:var(--fs-band);text-align:right;align-self:stretch}
+.donate__br{display:none}
 .donate__text{
   margin-top:clamp(10px,1.597vw,23px);
   font-size:var(--fs-body);font-weight:300;line-height:var(--lh);text-align:right;
@@ -807,9 +808,10 @@ html:not(.js) .progress{display:none}
   .donate__card h2{
     align-self:flex-start;            /* RTL: נצמד לימין */
     width:70.294%;                    /* 239/340 מרוחב תיבת התוכן */
-    font-size:clamp(23px,6.4vw,26px); /* בפיגמה הכותרת נשברת ל-3 שורות */
-    line-height:1.07;                 /* 28/26.3 */
+    font-size:clamp(20px,5.6vw,26px);
+    line-height:1.07;
   }
+  .donate__br{display:block}
   .donate__text{width:100%;margin-top:1.5%;font-size:clamp(13px,3.7vw,16px)}
   .donate__card .btn--wide{margin-top:1.5%;width:45.176%;min-width:130px}
 
@@ -1031,7 +1033,7 @@ html:not(.js) .progress{display:none}
     <img class="donate__boy" src="./public/images/donate-boy.png" alt="ילד יושב על קצה השלט" />
 
     <div class="donate__card" data-reveal="up">
-      <h2>לא צריך לשנות עולם שלם כדי לשנות עולם של ילד אחד.</h2>
+      <h2>לא צריך לשנות<br class="donate__br">עולם שלם כדי לשנות<br class="donate__br">עולם של ילד אחד.</h2>
       <p class="donate__text">התרומה שלכם מאפשרת לילדי בית שי לקבל את הכלים, התמיכה והאהבה שמגיעים להם. כל תרומה, קטנה כגדולה, הופכת להזדמנות אמיתית עבור ילד ומשפחתו כל תרומה, קטנה או גדולה, הופכת לעוד חיוך, עוד הצלחה, עוד חבר חדש ועוד ילד שמרגיש שהוא שייך.</p>
       <a href="./donate.html" class="btn btn--wide btn--coral">
         <span>לעמוד התרומות</span>
@@ -1503,11 +1505,20 @@ html:not(.js) .progress{display:none}
     mediaZoom: 1.15, scrollDistance: 1, holdDistance: 0.25, smoothing: 0.1, overlayScrim: 0.45
   };
 
+  /* במובייל הבמה מקבלת את יחס הגובה-רוחב של הסרטון עצמו (16:9) במקום
+     גובה מסך מלא. אחרת הסרטון, שנפתח לרוחב, משאיר פס ריק ענק מתחתיו.
+     מכיוון שהבמה נמוכה בהרבה, מאריכים את מרחק הגלילה כדי שהפתיחה
+     לא תקרה בבת אחת. */
+  var VIDEO_RATIO = 9 / 16;
+  var mqMobile = matchMedia('(max-width:899px)');
+  function isMobileStage(){ return mqMobile.matches; }
+
   var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   var clamp = function(v,a,b){ return v<a?a:(v>b?b:v); };
   var smoothstep = function(e0,e1,x){ var t = clamp((x-e0)/((e1-e0)||1e-6),0,1); return t*t*(3-2*t); };
 
   var raf = 0, current = 0, target = 0, stageH = 0, running = false, stickyOffset = 0;
+  var scrollDist = opts.scrollDistance;
   var headerEl = document.querySelector('.site-header');
 
   function applyProgress(p){
@@ -1533,14 +1544,19 @@ html:not(.js) .progress{display:none}
     stickyOffset = headerEl ? headerEl.getBoundingClientRect().height : 0;
     stage.style.top = stickyOffset + 'px';
 
-    stageH = innerHeight - stickyOffset;
+    var mob = isMobileStage();
+    stageH = mob ? Math.round(stage.getBoundingClientRect().width * VIDEO_RATIO)
+                 : innerHeight - stickyOffset;
     if(stageH <= 0) return;
     stage.style.height = stageH + 'px';
-    track.style.height = (stageH * (1 + Math.max(0, opts.scrollDistance) + Math.max(0, opts.holdDistance))) + 'px';
+    /* הבמה במובייל נמוכה פי ~3.4, לכן מרחק הגלילה מוכפל בהתאם */
+    scrollDist = mob ? 3.4 : Math.max(0, opts.scrollDistance);
+    var hold = mob ? 0.8 : Math.max(0, opts.holdDistance);
+    track.style.height = (stageH * (1 + scrollDist + hold)) + 'px';
   }
 
   function readProgress(){
-    var span = stageH * Math.max(0.01, opts.scrollDistance);
+    var span = stageH * Math.max(0.01, scrollDist);
     var top = track.getBoundingClientRect().top - stickyOffset;
     return clamp(-top / span, 0, 1);
   }

@@ -143,6 +143,10 @@ ul,ol{margin:0;padding:0}
 .btn--green:hover{box-shadow:0 12px 26px rgba(77,168,49,.30)}
 .btn--accent:hover,.btn--white:hover,.btn--ghost:hover{box-shadow:0 12px 24px rgba(0,0,0,.18)}
 .btn--ghost-yellow:hover{background:#FFFBF0;box-shadow:0 12px 26px rgba(253,193,34,.28)}
+/* דף ואהב"ת (theme-yellow): צהוב של הלוגו במקום הגוון החום הכהה של accent-ink,
+   שנועד במקור לקריאוּת בטקסט רץ ולא מתאים כאן לכפתורים */
+.theme-yellow .page-hero__actions .btn--ghost{color:var(--brand-yellow);border-color:var(--brand-yellow)}
+.theme-yellow #join .btn--white{color:var(--brand-yellow)}
 
 /* ============================================================
    HEADER  (זהה ל-index.html + תפריט נפתח)
