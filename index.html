@@ -820,6 +820,18 @@ html:not(.js) .progress{display:none}
 
   .footer__grid{grid-template-columns:1fr 1fr}
   .footer__brand{grid-column:1 / -1}
+
+  /* הגדלת כל הטקסטים ב-10% במובייל, מלבד ההירו (שכבר משחזר גדלים קבועים
+     למעלה ב-.hero,.footer) וסקשן התרומה (מאופס בחזרה כאן). */
+  :root{
+    --fs-h2:clamp(24.64px,2.93304vw,42.24px);
+    --fs-h3:clamp(19.36px,2.2vw,31.68px);
+    --fs-band:clamp(20.24px,2.44464vw,35.2px);
+    --fs-body:clamp(14.08px,1.46696vw,21.12px);
+  }
+  .donate{
+    --fs-body:clamp(12.8px,1.3336vw,19.2px);
+  }
 }
 
 @media (max-width:639px){
