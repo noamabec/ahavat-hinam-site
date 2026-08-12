@@ -547,7 +547,7 @@ html:not(.js) .progress{display:none}
 .person--portrait{position:relative}
 .person--portrait .person__quote-icon{
   position:absolute;top:0;inset-inline-end:0;
-  transform:translateY(-50%);
+  transform:translateY(-50%) scaleX(-1);
   /* גודל יחסי לרוחב המסך (לא לגודל הטקסט) - כך שהאייקון יישאר בולט
      גם בדסקטופ רחב, לפי היחס בפיגמה (94.66/64 ≈ 9.5% מגובה הכרטיס) */
   width:clamp(44px,6.5vw,96px);aspect-ratio:94.66/64;height:auto;
@@ -1022,7 +1022,7 @@ body.gallery-lightbox-lock{overflow:hidden}
   }
   .person--portrait .person__quote{text-align:center}
   /* במובייל בלבד: הגרשיים עוברים לקצה הימני (בדסקטופ הם בקצה השמאלי) */
-  .person--portrait .person__quote-icon{inset-inline-end:auto;inset-inline-start:0}
+  .person--portrait .person__quote-icon{inset-inline-end:auto;inset-inline-start:0;transform:translateY(-50%)}
   .contact-grid{grid-template-columns:1fr}
   .donate-box{grid-template-columns:1fr}
   .footer__grid{grid-template-columns:1fr 1fr}
