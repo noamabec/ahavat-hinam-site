@@ -48,7 +48,12 @@
   position: absolute; display: block; inset: 15px;
   border-radius: var(--tile-radius, 12px); background: transparent; overflow: hidden;
   backface-visibility: hidden; transition: transform 300ms; cursor: pointer;
-  -webkit-tap-highlight-color: transparent; touch-action: manipulation; pointer-events: auto;
+  /* היה touch-action:manipulation - כמעט כל שטח המגע בפועל הוא בתוך
+     item__image (רק מרווח 15px שייך ל-item עצמו), אז המגע התחיל כאן
+     כמעט תמיד וקיבל manipulation במקום none של האב - הדפדפן ניסה
+     לגלול/לפאן באופן טבעי במקביל ל-JS שמסובב את הכיפה, מה שגרם
+     לגרירה איטית ולא חלקה במגע. */
+  -webkit-tap-highlight-color: transparent; touch-action: none; pointer-events: auto;
   -webkit-transform: translateZ(0); transform: translateZ(0);
 }
 .sphere-root .item__image:focus { outline: none; }
