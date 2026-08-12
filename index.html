@@ -1552,7 +1552,7 @@ html:not(.js) .progress{display:none}
     /* הבמה במובייל נמוכה פי ~3.4, לכן מרחק הגלילה מוכפל בהתאם.
        hold=0 במובייל: ברגע שהסרטון מגיע לרוחב מלא הוא משתחרר מיד
        והסקשן הבא מגיע במרווח הרגיל, בלי אזור מת של גלילה בלי שינוי. */
-    scrollDist = mob ? 3.4 : Math.max(0, opts.scrollDistance);
+    scrollDist = mob ? 2 : Math.max(0, opts.scrollDistance);
     var hold = mob ? 0 : Math.max(0, opts.holdDistance);
     track.style.height = (stageH * (1 + scrollDist + hold)) + 'px';
   }
