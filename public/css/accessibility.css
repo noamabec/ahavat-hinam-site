@@ -1,0 +1,78 @@
+/* ============================================================
+   וידג'ט נגישות צף - עצמאי, בלי שירות חיצוני בתשלום
+   ============================================================ */
+.a11y-toggle{
+  position:fixed;inset-inline-end:20px;bottom:20px;z-index:9999;
+  width:52px;height:52px;border-radius:50%;
+  display:grid;place-items:center;
+  background:#1a56db;color:#fff;border:none;cursor:pointer;
+  box-shadow:0 6px 20px rgba(0,0,0,.25);
+  transition:transform .2s ease;
+}
+.a11y-toggle:hover,.a11y-toggle:focus-visible{transform:scale(1.06)}
+.a11y-toggle svg{width:28px;height:28px}
+
+.a11y-panel{
+  position:fixed;inset-inline-end:20px;bottom:82px;z-index:9999;
+  width:min(320px,calc(100vw - 40px));
+  background:#fff;color:#1a1a1a;border-radius:16px;
+  box-shadow:0 12px 40px rgba(0,0,0,.28);
+  padding:18px;
+  display:none;
+  max-height:calc(100vh - 120px);overflow-y:auto;
+}
+.a11y-panel.is-open{display:block}
+.a11y-panel h2{font-size:17px;margin:0 0 4px;text-align:right}
+.a11y-panel__sub{font-size:13px;color:#666;margin:0 0 14px;text-align:right}
+.a11y-panel__grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.a11y-btn{
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  padding:12px 8px;border-radius:10px;border:1px solid #e2e2e2;
+  background:#f7f7f8;color:#1a1a1a;cursor:pointer;font-size:12.5px;
+  text-align:center;line-height:1.25;
+}
+.a11y-btn svg{width:22px;height:22px}
+.a11y-btn:hover,.a11y-btn:focus-visible{border-color:#1a56db;background:#eef3ff}
+.a11y-btn[aria-pressed="true"]{background:#1a56db;color:#fff;border-color:#1a56db}
+.a11y-reset{
+  width:100%;margin-top:12px;padding:10px;border-radius:10px;
+  border:1px solid #e2e2e2;background:#fff;color:#1a1a1a;cursor:pointer;font-size:13px;
+}
+.a11y-reset:hover{background:#f2f2f2}
+.a11y-close{
+  position:absolute;top:10px;inset-inline-start:10px;
+  width:28px;height:28px;border-radius:50%;border:none;background:transparent;
+  color:#666;cursor:pointer;display:grid;place-items:center;
+}
+.a11y-close:hover{background:#f2f2f2}
+.a11y-close svg{width:16px;height:16px}
+
+@media (max-width:480px){
+  .a11y-toggle{inset-inline-end:14px;bottom:14px;width:46px;height:46px}
+  .a11y-panel{inset-inline-end:14px;bottom:68px}
+}
+
+/* ---------- מצבי נגישות גלובליים (מופעלים על html) ---------- */
+html.a11y-contrast{filter:contrast(1.35) saturate(1.15)}
+html.a11y-contrast body{background:#000;color:#fff}
+html.a11y-contrast .card,
+html.a11y-contrast .pillar,
+html.a11y-contrast .prose,
+html.a11y-contrast .footer,
+html.a11y-contrast .site-header{background:#111 !important;color:#fff !important}
+
+html.a11y-grayscale{filter:grayscale(1)}
+
+html.a11y-underline a{text-decoration:underline !important}
+html.a11y-underline a:not(.btn){text-underline-offset:3px}
+
+html.a11y-stop-anim *,
+html.a11y-stop-anim *::before,
+html.a11y-stop-anim *::after{
+  animation-duration:0s !important;animation-delay:0s !important;
+  transition-duration:0s !important;scroll-behavior:auto !important;
+}
+
+html[data-a11y-fs="1"]{font-size:107.5%}
+html[data-a11y-fs="2"]{font-size:115%}
+html[data-a11y-fs="3"]{font-size:130%}

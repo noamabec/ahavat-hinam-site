@@ -13,6 +13,7 @@
 <script>document.documentElement.classList.add('js')</script>
 <link rel="stylesheet" href="./public/css/pages.css" />
 <link rel="stylesheet" href="./public/css/dome-gallery.css" />
+<link rel="stylesheet" href="./public/css/accessibility.css" />
 </head>
 <body class="theme-blue">
 
@@ -59,6 +60,18 @@
         <a href="./press.html" class="nav__link" data-nav="press">בתקשורת</a>
         <a href="./contact.html" class="nav__link" data-nav="contact">צרו קשר</a>
 
+        <div class="nav__group">
+          <button class="nav__trigger" type="button" aria-expanded="false">
+            <span>מידע</span>
+            <svg viewBox="0 0 12 8" fill="none" aria-hidden="true"><path d="M1 1.5 6 6.5l5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="nav__menu">
+            <a href="./terms.html" data-nav="terms">תקנון</a>
+            <a href="./privacy.html" data-nav="privacy">מדיניות פרטיות</a>
+            <a href="./accessibility.html" data-nav="accessibility">הצהרת נגישות</a>
+          </div>
+        </div>
+
         <a href="./donate.html" class="btn btn--pill btn--blue nav__cta" data-nav="donate">
           <span>לתרומות</span>
           <span class="ico ico--sm" aria-hidden="true"><svg viewBox="0 0 19.3848 14.7279" preserveAspectRatio="none"><use href="#arrow"/></svg></span>
@@ -74,6 +87,10 @@
           <a href="./gallery.html">גלריית תמונות</a>
           <a href="./press.html">בתקשורת</a>
           <a href="./contact.html">צרו קשר</a>
+          <span class="is-group-title">מידע</span>
+          <a class="is-sub" href="./terms.html">תקנון</a>
+          <a class="is-sub" href="./privacy.html">מדיניות פרטיות</a>
+          <a class="is-sub" href="./accessibility.html">הצהרת נגישות</a>
           <a href="./donate.html">לתרומות</a>
         </div>
       </nav>
@@ -257,9 +274,9 @@
         <div class="footer__bottom">
           <p class="footer__copy">© <span id="ftYear">2026</span> אהבת חינ״מ. כל הזכויות שמורות.</p>
           <ul class="footer__legal">
-            <li><a href="#">תקנון</a></li>
-            <li><a href="#">מדיניות פרטיות</a></li>
-            <li><a href="#">הצהרת נגישות</a></li>
+            <li><a href="./terms.html">תקנון</a></li>
+            <li><a href="./privacy.html">מדיניות פרטיות</a></li>
+            <li><a href="./accessibility.html">הצהרת נגישות</a></li>
           </ul>
         </div>
 
@@ -269,5 +286,6 @@
 
 <script src="./public/js/pages.js"></script>
 <script src="./public/js/dome-gallery.js"></script>
+<script src="./public/js/accessibility.js"></script>
 </body>
 </html>

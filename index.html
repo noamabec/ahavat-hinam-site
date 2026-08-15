@@ -783,6 +783,11 @@ html:not(.js) .progress{display:none}
   }
   .nav>.nav__link,.nav>.nav__cta{display:none}
   .nav[data-open="true"] .nav__links{display:flex}
+  .nav__links .is-group-title{
+    font-size:clamp(12px,3vw,13px);font-weight:500;color:var(--ink);
+    margin-top:4px;opacity:.7;
+  }
+  .nav__links .is-sub{padding-inline-start:14px}
   .nav__toggle{
     display:grid;place-items:center;width:44px;height:44px;flex:none;
   }
@@ -854,6 +859,7 @@ html:not(.js) .progress{display:none}
   .footer__bottom{justify-content:flex-start}
 }
 </style>
+<link rel="stylesheet" href="./public/css/accessibility.css" />
 </head>
 <body>
 <div class="progress" aria-hidden="true"><div class="progress__bar" id="progressBar"></div></div>
@@ -891,6 +897,10 @@ html:not(.js) .progress{display:none}
           <a href="./gallery.html">גלריית תמונות</a>
           <a href="./press.html">בתקשורת</a>
           <a href="./contact.html">צרו קשר</a>
+          <span class="is-group-title">מידע</span>
+          <a class="is-sub" href="./terms.html">תקנון</a>
+          <a class="is-sub" href="./privacy.html">מדיניות פרטיות</a>
+          <a class="is-sub" href="./accessibility.html">הצהרת נגישות</a>
           <a href="./donate.html">לתרומות</a>
         </div>
       </nav>
@@ -1299,9 +1309,9 @@ html:not(.js) .progress{display:none}
         <div class="footer__bottom">
           <p class="footer__copy">© <span id="ftYear">2026</span> אהבת חינ״מ. כל הזכויות שמורות.</p>
           <ul class="footer__legal">
-            <li><a href="#">תקנון</a></li>
-            <li><a href="#">מדיניות פרטיות</a></li>
-            <li><a href="#">הצהרת נגישות</a></li>
+            <li><a href="./terms.html">תקנון</a></li>
+            <li><a href="./privacy.html">מדיניות פרטיות</a></li>
+            <li><a href="./accessibility.html">הצהרת נגישות</a></li>
           </ul>
         </div>
 
@@ -2050,5 +2060,6 @@ html:not(.js) .progress{display:none}
   });
 })();
 </script>
+<script src="./public/js/accessibility.js"></script>
 </body>
 </html>

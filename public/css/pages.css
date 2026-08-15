@@ -356,6 +356,10 @@ html:not(.js) .progress{display:none}
 .prose p+p{margin-top:.95em}
 .prose strong{font-weight:500;color:var(--ink)}
 .prose h3{font-size:var(--fs-h3);margin-top:1.4em;margin-bottom:.5em;text-align:right}
+.prose ul{margin-top:.7em;padding-inline-end:1.4em;list-style:disc}
+.prose ul+h3{margin-top:1.4em}
+.prose li{font-size:var(--fs-prose);font-weight:300;line-height:var(--lh-prose);text-align:right}
+.prose li+li{margin-top:.5em}
 .prose--2col{columns:2;column-gap:clamp(28px,3.472vw,50px)}
 .prose--2col p{break-inside:avoid}
 
