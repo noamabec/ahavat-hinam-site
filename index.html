@@ -1564,10 +1564,9 @@ html:not(.js) .progress{display:none}
                  : innerHeight - stickyOffset;
     if(stageH <= 0) return;
     stage.style.height = stageH + 'px';
-    /* הבמה במובייל נמוכה פי ~3.4, לכן מרחק הגלילה מוכפל בהתאם.
-       hold=0 במובייל: ברגע שהסרטון מגיע לרוחב מלא הוא משתחרר מיד
-       והסקשן הבא מגיע במרווח הרגיל, בלי אזור מת של גלילה בלי שינוי. */
-    scrollDist = mob ? 2 : Math.max(0, opts.scrollDistance);
+    /* במובייל מרחק גלילה קצר: הסרטון נפתח כמעט מיד, בלי אזור לבן ארוך
+       בין ההירו לסקשן הבא. hold=0 - ברגע שהוא ברוחב מלא הוא משתחרר. */
+    scrollDist = mob ? 0.7 : Math.max(0, opts.scrollDistance);
     var hold = mob ? 0 : Math.max(0, opts.holdDistance);
     track.style.height = (stageH * (1 + scrollDist + hold)) + 'px';
   }
