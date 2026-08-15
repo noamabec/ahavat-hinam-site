@@ -1564,17 +1564,24 @@ html:not(.js) .progress{display:none}
                  : innerHeight - stickyOffset;
     if(stageH <= 0) return;
     stage.style.height = stageH + 'px';
-    /* במובייל מרחק גלילה קצר: הסרטון נפתח כמעט מיד, בלי אזור לבן ארוך
-       בין ההירו לסקשן הבא. hold=0 - ברגע שהוא ברוחב מלא הוא משתחרר. */
-    scrollDist = mob ? 0.7 : Math.max(0, opts.scrollDistance);
+    /* hold=0 במובייל - ברגע שהסרטון ברוחב מלא הוא משתחרר מיד,
+       בלי אזור מת של גלילה בלי שינוי לפני הסקשן הבא. */
+    scrollDist = mob ? 2 : Math.max(0, opts.scrollDistance);
     var hold = mob ? 0 : Math.max(0, opts.holdDistance);
     track.style.height = (stageH * (1 + scrollDist + hold)) + 'px';
   }
 
   function readProgress(){
-    var span = stageH * Math.max(0.01, scrollDist);
-    var top = track.getBoundingClientRect().top - stickyOffset;
-    return clamp(-top / span, 0, 1);
+    /* ההתרחבות מתחילה ברגע שהקצה התחתון של הסרטון נכנס למסך (ולא רק
+       כשהוא כבר ננעל מתחת להאדר), וממשיכה עד סוף המסלול - כך שאין
+       קטע גלילה שבו שום דבר לא קורה.
+       בדסקטופ הבמה בגובה מסך מלא, ולכן start יוצא בדיוק stickyOffset
+       וההתנהגות זהה לקודם. */
+    var start = innerHeight - stageH;
+    if(start < stickyOffset) start = stickyOffset;
+    var span = (start - stickyOffset) + stageH * Math.max(0.01, scrollDist);
+    var top = track.getBoundingClientRect().top;
+    return clamp((start - top) / span, 0, 1);
   }
 
   function tick(){
