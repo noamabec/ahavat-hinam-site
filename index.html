@@ -25,34 +25,36 @@
   --ink:#000000;
   --surface:#FFFFFF;
 
-  --container:1240px;
+  /* עד 1440 העמודה נשארת 1240px בדיוק כמו בפיגמה; מעל זה היא גדלה
+     פרופורציונלית (1240/1440 = 86.111vw) ונעצרת ב-2560. */
+  --container:max(1240px,min(86.111vw,2205px));
   --gutter:clamp(16px,3vw,40px);
 
   /* type scale - fluid, pixel-exact at 1440px */
-  --fs-h1:clamp(30px,3.333vw,48px);      /* 48 */
+  --fs-h1:clamp(30px,3.333vw,85.33px);      /* 48 */
   /* מוקטן ב-20% בכל האתר; ההירו והפוטר משחזרים את הגודל המקורי מקומית (ראו .hero,.footer) */
-  --fs-h2:clamp(22.4px,2.6664vw,38.4px);      /* 48 * .8 */
-  --fs-h3:clamp(17.6px,2vw,28.8px);           /* 36 * .8 */
-  --fs-band:clamp(18.4px,2.2224vw,32px);      /* 40 * .8 */
-  --fs-body:clamp(12.8px,1.3336vw,19.2px);    /* 24 * .8 */
-  --fs-nav:clamp(12px,1.3336vw,19.2px);       /* 24 * .8 */
+  --fs-h2:clamp(22.4px,2.6664vw,68.27px);      /* 48 * .8 */
+  --fs-h3:clamp(17.6px,2vw,51.2px);           /* 36 * .8 */
+  --fs-band:clamp(18.4px,2.2224vw,56.89px);      /* 40 * .8 */
+  --fs-body:clamp(12.8px,1.3336vw,34.13px);    /* 24 * .8 */
+  --fs-nav:clamp(12px,1.3336vw,34.13px);       /* 24 * .8 */
 
-  --r-sm:clamp(6px,0.694vw,10px);        /* 10 */
-  --r-pill:clamp(12px,1.389vw,20px);     /* 20 */
+  --r-sm:clamp(6px,0.694vw,17.78px);        /* 10 */
+  --r-pill:clamp(12px,1.389vw,35.56px);     /* 20 */
 
   /* vertical rhythm - exact frame offsets at 1440px */
-  --v-header:clamp(70.4px,10.111vw,145.6px); /* 182 * .8 - הותאם לגודל הלוגו המוקטן בהאדר */
-  --v-hero-top:clamp(12px,1.458vw,21px); /* 21  */
-  --v-gap-hero:clamp(16px,1.667vw,24px);       /* hero → רצועת הלוגואים (הוקטן - התמונה קטנה יותר) */
-  --v-gap-partners:clamp(48px,7.639vw,110px);  /* רצועת הלוגואים → "כל מה שקורה אצלנו" (מפצה על הגובה הנמוך יותר של 5 לוגואים נפרדים לעומת הרצועה המקורית) */
-  --v-gap-h2:clamp(24px,4.236vw,61px);   /* 61  */
+  --v-header:clamp(70.4px,10.111vw,258.84px); /* 182 * .8 - הותאם לגודל הלוגו המוקטן בהאדר */
+  --v-hero-top:clamp(12px,1.458vw,37.33px); /* 21  */
+  --v-gap-hero:clamp(16px,1.667vw,42.67px);       /* hero → רצועת הלוגואים (הוקטן - התמונה קטנה יותר) */
+  --v-gap-partners:clamp(48px,7.639vw,195.56px);  /* רצועת הלוגואים → "כל מה שקורה אצלנו" (מפצה על הגובה הנמוך יותר של 5 לוגואים נפרדים לעומת הרצועה המקורית) */
+  --v-gap-h2:clamp(24px,4.236vw,108.44px);   /* 61  */
   /* Fb Coherenti Sans "normal" leading as rendered in Figma = 13/12 */
   --lh:1.0833;
-  --v-gap-about:clamp(56px,7.917vw,114px);/* 114 */
-  --v-gap-gallery:clamp(64px,11.667vw,168px);/* 168 */
-  --v-gap-press:clamp(64px,11.25vw,162px);/* 162 */
-  --v-gap-footer:clamp(72px,14.028vw,202px);/* 202 */
-  --v-page-end:clamp(40px,5.417vw,78px); /* 78  */
+  --v-gap-about:clamp(56px,7.917vw,202.67px);/* 114 */
+  --v-gap-gallery:clamp(64px,11.667vw,298.67px);/* 168 */
+  --v-gap-press:clamp(64px,11.25vw,288px);/* 162 */
+  --v-gap-footer:clamp(72px,14.028vw,359.11px);/* 202 */
+  --v-page-end:clamp(40px,5.417vw,138.67px); /* 78  */
 }
 
 /* ============================================================
@@ -81,7 +83,7 @@ h1,h2,h3{margin:0;font-weight:500;line-height:var(--lh)}
 /* בלי overflow:hidden: הוא מונע position:sticky על הכותרת (עוטף את כל
    העמוד, כך שכל אב ביניים לבין ה-viewport שאינו visible שובר sticky).
    הגנת הבליד האופקי כבר קיימת ברמת body (overflow-x:hidden למעלה). */
-.frame{max-width:1440px;margin-inline:auto;position:relative}
+.frame{max-width:2560px;margin-inline:auto;position:relative}
 .container{width:min(var(--container),100% - 2 * var(--gutter));margin-inline:auto}
 
 /* ============================================================
@@ -101,28 +103,28 @@ h1,h2,h3{margin:0;font-weight:500;line-height:var(--lh)}
    ============================================================ */
 .btn{
   display:inline-flex;align-items:center;justify-content:center;
-  gap:clamp(10px,1.319vw,19px);
+  gap:clamp(10px,1.319vw,33.78px);
   font-size:var(--fs-body);font-weight:500;line-height:1;
   white-space:nowrap;transition:filter .2s ease,transform .2s ease,box-shadow .2s ease;
   box-shadow:4px 4px 4px 0px rgba(0,0,0,.25);
 }
 .btn:active{transform:translateY(1px);box-shadow:0 1px 4px rgba(0,0,0,.10)}
 .btn--pill{
-  width:clamp(112px,11.667vw,168px);
-  height:clamp(38px,3.194vw,46px);
+  width:clamp(112px,11.667vw,298.67px);
+  height:clamp(38px,3.194vw,81.78px);
   border-radius:var(--r-pill);
 }
 .btn--rect{
-  width:clamp(112px,11.667vw,168px);
-  height:clamp(38px,3.194vw,46px);
+  width:clamp(112px,11.667vw,298.67px);
+  height:clamp(38px,3.194vw,81.78px);
   border-radius:var(--r-sm);
 }
 .btn--blue{background:var(--brand-blue);color:#fff}
 .btn--ghost-yellow{background:var(--surface);color:var(--brand-yellow);border:1px solid var(--brand-yellow)}
 .btn--ghost-yellow:hover{filter:none;background:#FFFBF0}
 .btn--wide{
-  width:clamp(150px,15.764vw,227px);
-  height:clamp(38px,3.194vw,46px);
+  width:clamp(150px,15.764vw,403.56px);
+  height:clamp(38px,3.194vw,81.78px);
   border-radius:var(--r-sm);
 }
 .btn--coral{background:var(--brand-coral);color:#fff}
@@ -134,13 +136,13 @@ h1,h2,h3{margin:0;font-weight:500;line-height:var(--lh)}
 .nav{
   height:var(--v-header);
   display:flex;align-items:center;justify-content:flex-start;
-  gap:clamp(14px,2.361vw,34px);
+  gap:clamp(14px,2.361vw,60.44px);
 }
 .nav a{font-size:var(--fs-nav);font-weight:500;white-space:nowrap;transition:color .2s ease}
 .nav a:hover{color:var(--brand-blue)}
 .nav__logo{flex:none;display:block}
 .nav__logo img{
-  width:clamp(120px,18.5vw,266.4px);
+  width:clamp(120px,18.5vw,473.6px);
   aspect-ratio:333/182;
   height:auto;
   object-fit:contain;
@@ -166,30 +168,30 @@ h1,h2,h3{margin:0;font-weight:500;line-height:var(--lh)}
    ============================================================ */
 /* שחזור גודל הטקסט המקורי (לפני ההקטנה הגלובלית של 20%) - רק בהירו ובפוטר */
 .hero,.footer{
-  --fs-h2:clamp(28px,3.333vw,48px);
-  --fs-h3:clamp(22px,2.5vw,36px);
-  --fs-band:clamp(23px,2.778vw,40px);
-  --fs-body:clamp(16px,1.667vw,24px);
-  --fs-nav:clamp(15px,1.667vw,24px);
+  --fs-h2:clamp(28px,3.333vw,85.33px);
+  --fs-h3:clamp(22px,2.5vw,64px);
+  --fs-band:clamp(23px,2.778vw,71.11px);
+  --fs-body:clamp(16px,1.667vw,42.67px);
+  --fs-nav:clamp(15px,1.667vw,42.67px);
 }
 .hero{padding-top:var(--v-hero-top)}
-.hero__inner{display:flex;align-items:flex-start;gap:clamp(24px,3.264vw,47px)}
+.hero__inner{display:flex;align-items:flex-start;gap:clamp(24px,3.264vw,83.56px)}
 .hero__copy{flex:1 1 auto;text-align:right;min-width:0}
 .hero h1{font-size:var(--fs-h1)}
 .hero__lead{
-  margin-top:clamp(10px,1.458vw,21px);
+  margin-top:clamp(10px,1.458vw,37.33px);
   font-size:var(--fs-body);font-weight:300;line-height:var(--lh);
-  max-width:clamp(280px,37.5vw,540px);
+  max-width:clamp(280px,37.5vw,960px);
   margin-inline-end:auto;
 }
 .hero__actions{
-  margin-top:clamp(16px,2.083vw,30px);
-  display:flex;align-items:center;gap:clamp(12px,1.806vw,26px);
+  margin-top:clamp(16px,2.083vw,53.33px);
+  display:flex;align-items:center;gap:clamp(12px,1.806vw,46.22px);
 }
 .hero__media{
   position:relative;flex:0 1 auto;isolation:isolate;
-  width:clamp(120px,22.917vw,330px);
-  margin-inline-end:clamp(0px,12.917vw,186px);
+  width:clamp(120px,22.917vw,586.67px);
+  margin-inline-end:clamp(0px,12.917vw,330.67px);
 }
 .hero__media img{width:100%;aspect-ratio:330/302;height:auto;object-fit:contain;position:relative;z-index:0}
 /* decorative dot - anchored to the hero photo box so it scales with it.
@@ -208,8 +210,8 @@ h1,h2,h3{margin:0;font-weight:500;line-height:var(--lh)}
 /* ---------- LogoLoop - רצועת לוגואים נגללת ברצף ---------- */
 .logoloop{
   position:relative;display:flex;justify-content:flex-start;
-  --logoloop-gap:clamp(16px,3.264vw,47px);
-  --logoloop-logoHeight:clamp(48px,7.5vw,108px);
+  --logoloop-gap:clamp(16px,3.264vw,83.56px);
+  --logoloop-logoHeight:clamp(48px,7.5vw,192px);
 }
 .logoloop--scale-hover{
   padding-block:calc(var(--logoloop-logoHeight) * 0.1);
@@ -297,12 +299,12 @@ h1,h2,h3{margin:0;font-weight:500;line-height:var(--lh)}
 .programs h2,.gallery h2,.press h2{font-size:var(--fs-h2);text-align:right}
 .cards{
   margin-top:var(--v-gap-h2);
-  display:flex;gap:clamp(12px,1.389vw,20px);align-items:stretch;
+  display:flex;gap:clamp(12px,1.389vw,35.56px);align-items:stretch;
 }
 .card{
   flex:1 1 0;min-width:0;
   border-radius:var(--r-sm);
-  padding:clamp(9.6px,1.2224vw,17.6px) clamp(11.2px,1.3888vw,20px) clamp(12.8px,1.5vw,21.6px);
+  padding:clamp(9.6px,1.2224vw,31.29px) clamp(11.2px,1.3888vw,35.56px) clamp(12.8px,1.5vw,38.4px);
   display:flex;flex-direction:column;color:#fff;
   box-shadow:4px 4px 4px 0px rgba(0,0,0,.25);
 }
@@ -316,7 +318,7 @@ h1,h2,h3{margin:0;font-weight:500;line-height:var(--lh)}
   flex:none;overflow:hidden;
 }
 .card__thumb img{width:100%;height:100%;object-fit:cover}
-.card__title{margin-top:clamp(9.6px,1.2224vw,17.6px);font-size:var(--fs-h3);text-align:right}
+.card__title{margin-top:clamp(9.6px,1.2224vw,31.29px);font-size:var(--fs-h3);text-align:right}
 .card__text{
   margin-top:0;
   font-size:var(--fs-body);font-weight:300;line-height:var(--lh);text-align:right;
@@ -339,17 +341,17 @@ h1,h2,h3{margin:0;font-weight:500;line-height:var(--lh)}
 .about__heading{font-size:var(--fs-h2);text-align:center}
 .about__row{
   display:flex;align-items:center;justify-content:center;
-  gap:clamp(24px,3.472vw,50px);
-  margin-top:clamp(16px,2.222vw,32px);
+  gap:clamp(24px,3.472vw,88.89px);
+  margin-top:clamp(16px,2.222vw,56.89px);
 }
 .about__col{flex:1 1 0;min-width:0;max-width:26em;text-align:right}
 .about__col p{font-size:var(--fs-body);font-weight:300;line-height:var(--lh)}
 .about__col p+p{margin-top:.85em}
 .about__col strong{font-weight:500}
-.about__cta{margin-top:clamp(20px,2.778vw,40px)}
+.about__cta{margin-top:clamp(20px,2.778vw,71.11px)}
 .about__collage{
   position:relative;flex:none;
-  width:clamp(200px,26.667vw,384px);aspect-ratio:676/839;
+  width:clamp(200px,26.667vw,682.67px);aspect-ratio:676/839;
 }
 /* קולאז' - שלוש עיגולי תמונה ממוקמים כמו בעיצוב המקורי, בלי image קבוע אחד */
 .about__collage-photo{
@@ -373,45 +375,45 @@ h1,h2,h3{margin:0;font-weight:500;line-height:var(--lh)}
    ============================================================ */
 .donate{
   position:relative;isolation:isolate;
-  margin-top:calc(-1 * clamp(0px,3.125vw,45px));
+  margin-top:calc(-1 * clamp(0px,3.125vw,80px));
   padding-top:calc(var(--boy-h) - var(--boy-overlap));
-  --boy-h:clamp(190px,34.097vw,491px);
-  --boy-overlap:clamp(24px,13.958vw,201px);
+  --boy-h:clamp(190px,34.097vw,872.89px);
+  --boy-overlap:clamp(24px,13.958vw,357.33px);
 }
 .donate__boy{
   position:absolute;top:0;z-index:3;
-  inset-inline-start:auto;left:clamp(6px,2.083vw,30px);
+  inset-inline-start:auto;left:clamp(6px,2.083vw,53.33px);
   height:var(--boy-h);width:auto;aspect-ratio:305/491;object-fit:contain;
   pointer-events:none;
 }
 .donate__card{
   position:relative;z-index:1;
   background:var(--brand-yellow);border-radius:var(--r-sm);color:#fff;
-  padding:clamp(18px,2.153vw,31px) clamp(14px,1.806vw,26px) clamp(20px,2.847vw,41px);
+  padding:clamp(18px,2.153vw,55.11px) clamp(14px,1.806vw,46.22px) clamp(20px,2.847vw,72.89px);
   display:flex;flex-direction:column;align-items:flex-start;
   box-shadow:4px 4px 4px 0px rgba(0,0,0,.25);
 }
 .donate__card h2{font-size:var(--fs-band);text-align:right;align-self:stretch}
 .donate__br{display:none}
 .donate__text{
-  margin-top:clamp(10px,1.597vw,23px);
+  margin-top:clamp(10px,1.597vw,40.89px);
   font-size:var(--fs-body);font-weight:300;line-height:var(--lh);text-align:right;
-  width:min(100%,clamp(280px,53.194vw,766px));
+  width:min(100%,clamp(280px,53.194vw,1361.78px));
   margin-inline-end:auto;
 }
-.donate__card .btn{margin-top:clamp(10px,1.597vw,23px);align-self:flex-start}
+.donate__card .btn{margin-top:clamp(10px,1.597vw,40.89px);align-self:flex-start}
 .tiers{
   position:relative;z-index:1;
-  display:flex;gap:clamp(12px,2.431vw,35px);
+  display:flex;gap:clamp(12px,2.431vw,62.22px);
   width:min(100%,72.9%);
   margin-inline-start:auto;margin-inline-end:2.42%;
-  margin-top:calc(-1 * clamp(30px,6.528vw,94px));
+  margin-top:calc(-1 * clamp(30px,6.528vw,167.11px));
 }
 .tier{
   flex:1 1 0;min-width:0;aspect-ratio:278/214;
   background:var(--brand-blue);border-radius:var(--r-sm);
   display:flex;flex-direction:column;align-items:center;
-  padding:clamp(16px,3.681vw,53px) clamp(8px,1.736vw,25px) clamp(14px,2.083vw,30px);
+  padding:clamp(16px,3.681vw,94.22px) clamp(8px,1.736vw,44.44px) clamp(14px,2.083vw,53.33px);
   box-shadow:4px 4px 4px 0px rgba(0,0,0,.25);
 }
 .tier__label{
@@ -421,7 +423,7 @@ h1,h2,h3{margin:0;font-weight:500;line-height:var(--lh)}
 .tier .btn{
   margin-top:auto;width:100%;
   background:var(--surface);color:var(--brand-blue);
-  font-size:var(--fs-h3);gap:clamp(6px,0.833vw,12px);
+  font-size:var(--fs-h3);gap:clamp(6px,0.833vw,21.33px);
 }
 
 /* ============================================================
@@ -429,18 +431,18 @@ h1,h2,h3{margin:0;font-weight:500;line-height:var(--lh)}
    ============================================================ */
 .gallery{margin-top:var(--v-gap-gallery)}
 .gallery__strip{
-  margin-top:clamp(18px,3.056vw,44px);
-  height:clamp(320px,36.111vw,520px);
+  margin-top:clamp(18px,3.056vw,78.22px);
+  height:clamp(320px,36.111vw,924.44px);
   border-radius:2px;overflow:hidden;
   cursor:grab;touch-action:pan-y;
 }
-.gallery__cta{margin-top:clamp(18px,2.222vw,32px);width:auto;padding-inline:clamp(22px,2.639vw,38px)}
+.gallery__cta{margin-top:clamp(18px,2.222vw,56.89px);width:auto;padding-inline:clamp(22px,2.639vw,67.56px)}
 .gallery__strip:active{cursor:grabbing}
 .gallery__strip:focus-visible{outline:2px solid var(--brand-green);outline-offset:4px}
 .gallery__strip canvas{display:block}
 /* נפילה לאחור: אם WebGL לא זמין, מציגים את התמונות כרצועה נגללת */
 .gallery__strip--fallback{
-  display:flex;gap:clamp(8px,1.111vw,16px);
+  display:flex;gap:clamp(8px,1.111vw,28.44px);
   overflow-x:auto;cursor:default;
   scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;
 }
@@ -488,7 +490,7 @@ body.gallery-lightbox-lock{overflow:hidden}
    ============================================================ */
 .press{margin-top:var(--v-gap-press)}
 .press .cards{
-  margin-top:clamp(16px,2.153vw,31px);
+  margin-top:clamp(16px,2.153vw,55.11px);
   flex-wrap:nowrap;overflow-x:auto;overflow-y:visible;scroll-snap-type:x mandatory;
   scrollbar-width:none;-ms-overflow-style:none;
   padding-block:clamp(14px,2vw,22px); /* מקום ל-box-shadow של הכרטיסים בלי חיתוך */
@@ -496,15 +498,15 @@ body.gallery-lightbox-lock{overflow:hidden}
   scroll-padding-inline:clamp(10px,1.5vw,16px);
 }
 .press .cards::-webkit-scrollbar{display:none}
-.press .card{flex:0 0 calc((100% - 2*clamp(12px,1.389vw,20px)) / 3);scroll-snap-align:start}
+.press .card{flex:0 0 calc((100% - 2*clamp(12px,1.389vw,35.56px)) / 3);scroll-snap-align:start}
 .press__nav{
   margin-top:clamp(4px,0.7vw,10px);
   display:flex;align-items:center;justify-content:center;
-  gap:clamp(10px,1.667vw,24px);
+  gap:clamp(10px,1.667vw,42.67px);
 }
 .press__nav button{display:grid;place-items:center;padding:0;transition:opacity .2s ease}
 .press__nav button:hover{opacity:.55}
-.press__nav svg{width:clamp(44px,5.799vw,83.5px);height:auto;display:block;filter:drop-shadow(4px 4px 4px rgba(0,0,0,.25))}
+.press__nav svg{width:clamp(44px,5.799vw,148.44px);height:auto;display:block;filter:drop-shadow(4px 4px 4px rgba(0,0,0,.25))}
 
 /* ============================================================
    FOOTER
@@ -524,76 +526,76 @@ body.gallery-lightbox-lock{overflow:hidden}
 }
 .footer__band{
   background:none;border-radius:0;box-shadow:none;color:inherit;
-  padding:clamp(28px,3.472vw,50px) 0 0;
+  padding:clamp(28px,3.472vw,88.89px) 0 0;
 }
 
 /* ---------- רצועת ה-CTA ---------- */
 .footer__cta{
   display:flex;align-items:center;justify-content:space-between;
-  gap:clamp(16px,2.222vw,32px);flex-wrap:wrap;
-  padding-bottom:clamp(20px,2.778vw,40px);
+  gap:clamp(16px,2.222vw,56.89px);flex-wrap:wrap;
+  padding-bottom:clamp(20px,2.778vw,71.11px);
   border-bottom:1px solid var(--footer-line);
 }
 .footer__cta-copy{flex:1 1 320px;min-width:0}
 .footer__cta h2{font-size:var(--fs-band);text-align:right;color:var(--ink)}
 .footer__cta p{
-  margin-top:clamp(6px,0.833vw,12px);
+  margin-top:clamp(6px,0.833vw,21.33px);
   font-size:var(--fs-body);font-weight:300;line-height:var(--lh);text-align:right;
   color:var(--footer-ink-soft);
 }
 .footer__cta .btn--coral{
   flex:none;
-  width:auto;padding-inline:clamp(22px,2.639vw,38px);
+  width:auto;padding-inline:clamp(22px,2.639vw,67.56px);
 }
-.footer__cta-copy{--fs-band:clamp(18.4px,2.2224vw,32px);--fs-body:clamp(12.8px,1.3336vw,19.2px)}
+.footer__cta-copy{--fs-band:clamp(18.4px,2.2224vw,56.89px);--fs-body:clamp(12.8px,1.3336vw,34.13px)}
 
 /* ---------- הגריד הראשי ---------- */
 .footer__grid{
   display:grid;
   grid-template-columns:1.6fr 1fr 1fr 1.3fr;
-  gap:clamp(20px,2.778vw,40px);
-  padding-block:clamp(24px,3.056vw,44px);
+  gap:clamp(20px,2.778vw,71.11px);
+  padding-block:clamp(24px,3.056vw,78.22px);
 }
 .footer__logo{display:block;background:none;border-radius:0;padding:0;width:fit-content}
 .footer__logo img{
-  width:clamp(140px,13.889vw,200px);aspect-ratio:333/182;height:auto;object-fit:contain;
+  width:clamp(140px,13.889vw,355.56px);aspect-ratio:333/182;height:auto;object-fit:contain;
   transition:transform .55s var(--ease-expo);
 }
 .footer__logo:hover img{transform:scale(1.04)}
 .footer__tagline{
-  margin-top:clamp(10px,1.111vw,16px);
-  font-size:clamp(14px,1.111vw,16px);font-weight:300;line-height:1.5;text-align:right;
+  margin-top:clamp(10px,1.111vw,28.44px);
+  font-size:clamp(14px,1.111vw,28.44px);font-weight:300;line-height:1.5;text-align:right;
   max-width:38ch;color:var(--footer-ink-soft);
 }
 .footer__amuta{
-  margin-top:clamp(8px,0.833vw,12px);
-  font-size:clamp(12px,0.903vw,13px);font-weight:300;line-height:1.5;
+  margin-top:clamp(8px,0.833vw,21.33px);
+  font-size:clamp(12px,0.903vw,23.11px);font-weight:300;line-height:1.5;
   opacity:.85;text-align:right;color:var(--footer-ink-soft);
 }
 .footer__title{
-  font-size:clamp(16px,1.319vw,19px);font-weight:500;text-align:right;
-  margin:0 0 clamp(10px,1.111vw,16px);color:var(--ink);
+  font-size:clamp(16px,1.319vw,33.78px);font-weight:500;text-align:right;
+  margin:0 0 clamp(10px,1.111vw,28.44px);color:var(--ink);
 }
 .footer__links,.footer__contact,.footer__legal{list-style:none;margin:0;padding:0}
-.footer__links li+li,.footer__contact li+li{margin-top:clamp(7px,0.694vw,10px)}
+.footer__links li+li,.footer__contact li+li{margin-top:clamp(7px,0.694vw,17.78px)}
 .footer__links a,.footer__contact a,.footer__legal a{
-  font-size:clamp(14px,1.111vw,16px);font-weight:300;line-height:1.4;
+  font-size:clamp(14px,1.111vw,28.44px);font-weight:300;line-height:1.4;
   position:relative;color:var(--footer-ink-soft);transition:color .2s ease;
 }
 .footer__links a:hover,.footer__contact a:hover,.footer__legal a:hover{color:var(--footer-link);text-decoration:underline}
 .footer__contact li{
-  display:flex;align-items:center;gap:clamp(7px,0.694vw,10px);
-  font-size:clamp(14px,1.111vw,16px);font-weight:300;line-height:1.4;
+  display:flex;align-items:center;gap:clamp(7px,0.694vw,17.78px);
+  font-size:clamp(14px,1.111vw,28.44px);font-weight:300;line-height:1.4;
   color:var(--footer-ink-soft);
 }
 .footer__ico{flex:none;display:grid;place-items:center;width:1.15em;height:1.15em;color:var(--footer-link)}
 .footer__ico svg{width:100%;height:100%;display:block}
 
 /* ---------- רשתות חברתיות ---------- */
-.footer__social{display:flex;gap:clamp(8px,0.833vw,12px);margin-top:clamp(14px,1.528vw,22px)}
+.footer__social{display:flex;gap:clamp(8px,0.833vw,21.33px);margin-top:clamp(14px,1.528vw,39.11px)}
 .footer__social a{
   display:grid;place-items:center;
-  width:clamp(34px,2.639vw,38px);height:clamp(34px,2.639vw,38px);
+  width:clamp(34px,2.639vw,67.56px);height:clamp(34px,2.639vw,67.56px);
   border-radius:50%;background:var(--surface);color:var(--footer-ink-soft);
   border:1px solid var(--footer-line);
   transition:background .25s ease,color .25s ease,border-color .25s ease,transform .35s var(--ease-expo);
@@ -604,12 +606,12 @@ body.gallery-lightbox-lock{overflow:hidden}
 /* ---------- שורת התחתית ---------- */
 .footer__bottom{
   display:flex;align-items:center;justify-content:space-between;
-  gap:clamp(10px,1.389vw,20px);flex-wrap:wrap;
-  padding-top:clamp(16px,1.667vw,24px);
+  gap:clamp(10px,1.389vw,35.56px);flex-wrap:wrap;
+  padding-top:clamp(16px,1.667vw,42.67px);
   border-top:1px solid var(--footer-line);
 }
-.footer__copy{font-size:clamp(12px,0.972vw,14px);font-weight:300;color:var(--footer-ink-soft)}
-.footer__legal{display:flex;gap:clamp(12px,1.389vw,20px);flex-wrap:wrap}
+.footer__copy{font-size:clamp(12px,0.972vw,24.89px);font-weight:300;color:var(--footer-ink-soft)}
+.footer__legal{display:flex;gap:clamp(12px,1.389vw,35.56px);flex-wrap:wrap}
 
 /* ============================================================
    MOTION SYSTEM
@@ -770,7 +772,7 @@ html:not(.js) .progress{display:none}
   .hero br{display:none}
   .cards{flex-wrap:wrap}
   .card{flex:1 1 calc(50% - 10px)}
-  .press .card{flex:0 0 calc((100% - clamp(12px,1.389vw,20px)) / 2)}
+  .press .card{flex:0 0 calc((100% - clamp(12px,1.389vw,35.56px)) / 2)}
 }
 
 @media (max-width:899px){
@@ -829,13 +831,13 @@ html:not(.js) .progress{display:none}
   /* הגדלת כל הטקסטים ב-10% במובייל, מלבד ההירו (שכבר משחזר גדלים קבועים
      למעלה ב-.hero,.footer) וסקשן התרומה (מאופס בחזרה כאן). */
   :root{
-    --fs-h2:clamp(24.64px,2.93304vw,42.24px);
-    --fs-h3:clamp(19.36px,2.2vw,31.68px);
-    --fs-band:clamp(20.24px,2.44464vw,35.2px);
-    --fs-body:clamp(14.08px,1.46696vw,21.12px);
+    --fs-h2:clamp(24.64px,2.93304vw,75.09px);
+    --fs-h3:clamp(19.36px,2.2vw,56.32px);
+    --fs-band:clamp(20.24px,2.44464vw,62.58px);
+    --fs-body:clamp(14.08px,1.46696vw,37.55px);
   }
   .donate{
-    --fs-body:clamp(12.8px,1.3336vw,19.2px);
+    --fs-body:clamp(12.8px,1.3336vw,34.13px);
   }
 }
 
