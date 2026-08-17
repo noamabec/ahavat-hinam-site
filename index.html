@@ -1729,14 +1729,20 @@ html:not(.js) .progress{display:none}
     document.addEventListener('keydown', onKey);
   };
 
-  /* שומר-סף: הפולבק חייב לחיות בסקריפט קלאסי ולא בתוך המודול.
-     אם המודול לא רץ בכלל - נחסם, נכשל בפרסור, או שה-CDN לא נענה -
-     שום קוד שבתוכו לא ירוץ, כולל הפולבק, והסקשן היה נשאר ריק.
-     אחרי 2 שניות בלי סימן חיים מהמודול, מציגים את הרצועה הסטטית. */
+  /* שומר-סף: הפולבק חייב לחיות בסקריפט קלאסי ולא בתוך סקריפט הגלריה.
+     אם סקריפט הגלריה לא רץ בכלל - נחסם או נכשל בפרסור - שום קוד שבתוכו
+     לא ירוץ, כולל הפולבק, והסקשן היה נשאר ריק.
+
+     חשוב: בודקים אם הסקריפט *התחיל* (__galleryBooted), ולא אם הוא כבר
+     *סיים* (dataset.done). קודם נבדק dataset.done, שנקבע רק בתום האתחול
+     המלא - אחרי טעינת ספרייה של 133KB ו-16 תמונות כטקסטורות. בחיבור
+     איטי, במכשיר חלש או בכניסה ראשונה בלי מטמון זה עובר 2 שניות, ואז
+     שומר-הסף ניצח טעינה תקינה לגמרי והכריח פולבק סטטי לצמיתות.
+     זו היתה הסיבה שאצל חלק מהמשתמשים האנימציה "לא עבדה". */
   setTimeout(function(){
     var el = document.getElementById('galleryStrip');
-    if(el && !el.dataset.done){
-      console.warn('CircularGallery: המודול לא נטען בזמן - עוברים לרצועה הסטטית.');
+    if(el && !el.dataset.done && !window.__galleryBooted){
+      console.warn('CircularGallery: הסקריפט לא רץ כלל - עוברים לרצועה הסטטית.');
       window.GALLERY_FALLBACK();
     }
   }, 2000);
@@ -1755,18 +1761,32 @@ html:not(.js) .progress{display:none}
   var host = document.getElementById('galleryStrip');
   if(!host) return;
 
+  /* מסמנים מיד שהסקריפט רץ, כדי ששומר-הסף (2 שניות) לא יכפה פולבק
+     בזמן שהטעינה עדיין מתקדמת כרגיל. אם משהו בהמשך נכשל, ה-catch
+     למטה עדיין קורא ל-GALLERY_FALLBACK. */
+  window.__galleryBooted = true;
+
   /* בלי WebGL או עם העדפת תנועה מופחתת - רצועה סטטית */
   var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   var probe  = document.createElement('canvas');
   var hasGL  = !!(probe.getContext('webgl') || probe.getContext('experimental-webgl'));
   if(reduce || !hasGL){ window.GALLERY_FALLBACK(); return; }
 
+  /* מגבלת זמן נדיבה (15 שניות) על טעינת הספרייה: מספיקה בשפע גם
+     לחיבור סלולרי איטי, אבל מונעת מצב שבו הבקשה נתקעת בלי onload
+     ובלי onerror והסקשן נשאר תקוע לנצח. */
   function loadClassicScript(src){
     return new Promise(function(resolve, reject){
+      var done = false;
       var s = document.createElement('script');
+      var timer = setTimeout(function(){
+        if(done) return;
+        done = true;
+        reject(new Error('timeout loading ' + src));
+      }, 15000);
       s.src = src;
-      s.onload = resolve;
-      s.onerror = function(){ reject(new Error('failed to load ' + src)); };
+      s.onload = function(){ if(done) return; done = true; clearTimeout(timer); resolve(); };
+      s.onerror = function(){ if(done) return; done = true; clearTimeout(timer); reject(new Error('failed to load ' + src)); };
       document.head.appendChild(s);
     });
   }
