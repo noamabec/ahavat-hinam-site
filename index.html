@@ -1766,11 +1766,24 @@ html:not(.js) .progress{display:none}
      למטה עדיין קורא ל-GALLERY_FALLBACK. */
   window.__galleryBooted = true;
 
-  /* בלי WebGL או עם העדפת תנועה מופחתת - רצועה סטטית */
+  /* בלי WebGL - רצועה סטטית.
+
+     הערה חשובה: קודם גם prefers-reduced-motion הפיל לרצועה הסטטית, וזו
+     היתה הסיבה שהגלריה "לא עבדה" בכמה מחשבים שונים. ההעדפה הזו דלוקה
+     בלא מעט מכונות (ב-Windows: הגדרות > נגישות > אפקטים חזותיים >
+     אנימציות = כבוי; לעיתים קרובות מוגדר כך ע"י IT או בחיסכון בסוללה),
+     ולכן זה נראה אקראי - אבל היה דטרמיניסטי לגמרי לכל מחשב.
+
+     הגלריה הזו לא זזה מעצמה בכלל: scroll.target משתנה רק בגרירה,
+     בגלגלת או במקלדת של המשתמש. prefers-reduced-motion נועד לאנימציה
+     אוטומטית שהמשתמש לא יזם, ולא לתגובה ישירה לפעולה שלו - ולכן אין
+     סיבה לבטל את הרכיב. במקום זה, כשההעדפה דלוקה מאפסים את ההשהיה
+     (scrollEase=1 למטה) כך שהתמונות עוקבות אחרי האצבע מיידית, בלי
+     תנופה והחלקה. */
   var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   var probe  = document.createElement('canvas');
   var hasGL  = !!(probe.getContext('webgl') || probe.getContext('experimental-webgl'));
-  if(reduce || !hasGL){ window.GALLERY_FALLBACK(); return; }
+  if(!hasGL){ window.GALLERY_FALLBACK(); return; }
 
   /* מגבלת זמן נדיבה (15 שניות) על טעינת הספרייה: מספיקה בשפע גם
      לחיבור סלולרי איטי, אבל מונעת מצב שבו הבקשה נתקעת בלי onload
@@ -2092,7 +2105,8 @@ html:not(.js) .progress{display:none}
     bend: isMobileGallery ? 1 : 3,
     borderRadius: 0.05,
     scrollSpeed: isMobileGallery ? 3.5 : 2,
-    scrollEase: isMobileGallery ? 0.065 : 0.02
+    /* reduce=1 -> בלי השהיה/תנופה, מעקב מיידי אחרי הגרירה */
+    scrollEase: reduce ? 1 : (isMobileGallery ? 0.065 : 0.02)
   });
 })();
 </script>
