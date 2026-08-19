@@ -619,6 +619,13 @@ body.gallery-lightbox-lock{overflow:hidden}
   border-top:1px solid var(--footer-line);
 }
 .footer__copy{font-size:clamp(12px,0.972vw,24.89px);font-weight:300;color:var(--footer-ink-soft)}
+.footer__copy-group{display:flex;align-items:center;flex-wrap:wrap;gap:clamp(8px,1vw,25.6px)}
+.footer__credit{
+  font-size:clamp(12px,0.972vw,24.89px);font-weight:300;color:var(--footer-ink-soft);
+  text-decoration:none;border-inline-start:1px solid var(--footer-line);padding-inline-start:clamp(8px,1vw,25.6px);
+  transition:color .2s ease;
+}
+.footer__credit:hover{color:var(--footer-link);text-decoration:underline}
 .footer__legal{display:flex;gap:clamp(12px,1.389vw,35.56px);flex-wrap:wrap}
 
 /* ============================================================
@@ -1317,7 +1324,10 @@ html:not(.js) .progress{display:none}
 
         <!-- שורת התחתית -->
         <div class="footer__bottom">
-          <p class="footer__copy">© <span id="ftYear">2026</span> אהבת חינ״מ. כל הזכויות שמורות.</p>
+          <div class="footer__copy-group">
+            <p class="footer__copy">© <span id="ftYear">2026</span> אהבת חינ״מ. כל הזכויות שמורות.</p>
+            <a class="footer__credit" href="https://www.abecweb.com/" target="_blank" rel="noopener noreferrer">עוצב ופותח ע"י נועם אבקסיס</a>
+          </div>
           <ul class="footer__legal">
             <li><a href="./terms.html">תקנון</a></li>
             <li><a href="./privacy.html">מדיניות פרטיות</a></li>

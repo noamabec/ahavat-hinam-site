@@ -924,6 +924,13 @@ body.gallery-lightbox-lock{overflow:hidden}
   padding-top:clamp(16px,1.667vw,42.67px);border-top:1px solid var(--footer-line);
 }
 .footer__copy{font-size:clamp(12px,.972vw,24.89px);font-weight:300;color:var(--ink-soft)}
+.footer__copy-group{display:flex;align-items:center;flex-wrap:wrap;gap:clamp(8px,1vw,25.6px)}
+.footer__credit{
+  font-size:clamp(12px,.972vw,24.89px);font-weight:300;color:var(--ink-soft);
+  text-decoration:none;border-inline-start:1px solid var(--footer-line);padding-inline-start:clamp(8px,1vw,25.6px);
+  transition:color .2s ease;
+}
+.footer__credit:hover{color:var(--footer-link);text-decoration:underline}
 .footer__legal{display:flex;gap:clamp(12px,1.389vw,35.56px);flex-wrap:wrap}
 
 /* ============================================================
