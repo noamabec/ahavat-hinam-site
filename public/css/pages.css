@@ -759,8 +759,39 @@ html:not(.js) .progress{display:none}
   margin-top:clamp(6px,0.833vw,21.33px);
   font-size:var(--fs-prose);font-weight:300;line-height:var(--lh-prose);text-align:right;
 }
+.event-card .btn{
+  margin-top:clamp(12px,1.389vw,35.56px);
+  margin-inline-end:auto;   /* RTL: נצמד לימין */
+  background:var(--surface);color:var(--accent-ink);flex:none;
+}
 .event-card:hover .event-card__img{transform:scale(1.06)}
 .event-card:hover .event-card__scrim{background:rgba(0,0,0,.55)}
+
+/* ---------- עמוד אירוע בודד ---------- */
+.event-figure{margin-top:clamp(20px,2.778vw,71.11px)}
+.event-figure img{
+  width:100%;aspect-ratio:16/9;object-fit:cover;
+  border-radius:var(--r-lg);box-shadow:var(--shadow);
+}
+.event-figure figcaption{
+  margin-top:clamp(8px,0.833vw,21.33px);
+  font-size:var(--fs-sm);font-weight:300;color:var(--ink-soft);text-align:right;
+}
+/* ניווט לאירוע הקודם/הבא */
+.event-nav{
+  margin-top:var(--v-sec);
+  display:flex;gap:clamp(12px,1.667vw,42.67px);flex-wrap:wrap;
+}
+.event-nav__item{
+  flex:1 1 240px;min-width:0;
+  display:flex;flex-direction:column;gap:.4em;
+  padding:clamp(14px,1.667vw,42.67px) clamp(16px,1.944vw,49.78px);
+  border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface);
+  transition:border-color .2s ease,transform .3s var(--ease-expo),box-shadow .3s var(--ease-expo);
+}
+.event-nav__item:hover{border-color:var(--accent);transform:translateY(-3px);box-shadow:var(--shadow-soft)}
+.event-nav__label{font-size:var(--fs-sm);font-weight:300;color:var(--ink-soft)}
+.event-nav__title{font-size:var(--fs-h3);text-align:right}
 
 /* ============================================================
    CTA BAND - רצועת סיום לכל עמוד
