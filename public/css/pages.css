@@ -716,6 +716,53 @@ html:not(.js) .progress{display:none}
 .press-card--featured h3{margin-top:0;font-size:var(--fs-h2)}
 
 /* ============================================================
+   EVENT CARDS - כרטיסי אירוע (עמוד האירועים)
+   ------------------------------------------------------------
+   אותה שפה ויזואלית של סקשן "האירועים שהיו" בדף הבית: תמונה
+   במילוי הכרטיס, סקרים שחור מעליה וטקסט לבן שנצמד לתחתית.
+   ============================================================ */
+.event-grid{
+  margin-top:clamp(20px,2.778vw,71.11px);
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:clamp(14px,1.667vw,42.67px);
+}
+.event-card{
+  position:relative;overflow:hidden;
+  aspect-ratio:390/430;
+  border-radius:var(--r-pill);
+  box-shadow:0 5px 10px rgba(0,0,0,.25);
+}
+.event-card__img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  transition:transform .8s var(--ease-expo);
+}
+.event-card__scrim{
+  position:absolute;inset:0;pointer-events:none;
+  background:rgba(0,0,0,.7);transition:background .4s ease;
+}
+.event-card__body{
+  position:relative;height:100%;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:clamp(14px,1.736vw,44.44px) clamp(16px,1.944vw,49.78px) clamp(14px,1.597vw,40.89px);
+  color:#fff;text-align:right;
+}
+.event-card__date{
+  align-self:flex-start;   /* RTL: נצמד לימין */
+  margin-bottom:clamp(8px,0.833vw,21.33px);
+  padding:.35em .9em;border-radius:var(--r-pill);
+  background:rgba(255,255,255,.16);
+  border:1px solid rgba(255,255,255,.28);
+  font-size:var(--fs-sm);font-weight:300;white-space:nowrap;
+}
+.event-card h3{font-size:var(--fs-h3);text-align:right}
+.event-card p{
+  margin-top:clamp(6px,0.833vw,21.33px);
+  font-size:var(--fs-prose);font-weight:300;line-height:var(--lh-prose);text-align:right;
+}
+.event-card:hover .event-card__img{transform:scale(1.06)}
+.event-card:hover .event-card__scrim{background:rgba(0,0,0,.55)}
+
+/* ============================================================
    CTA BAND - רצועת סיום לכל עמוד
    ============================================================ */
 .cta-band{
@@ -973,7 +1020,7 @@ body.gallery-lightbox-lock{overflow:hidden}
   .hero-cluster{width:clamp(220px,32vw,380px)}
   .prose--2col{columns:1}
   .pillars,.pillars--4{grid-template-columns:repeat(2,1fr)}
-  .tiers-grid,.press-grid{grid-template-columns:repeat(2,1fr)}
+  .tiers-grid,.press-grid,.event-grid{grid-template-columns:repeat(2,1fr)}
   .press-card--featured{grid-column:span 2;grid-template-columns:1fr 1.1fr}
 }
 
@@ -1069,7 +1116,8 @@ body.gallery-lightbox-lock{overflow:hidden}
   .footer__bottom{justify-content:flex-start}
   .quote p{max-width:none}
   .mosaic{grid-auto-rows:clamp(100px,30vw,140px)}
-  .pillars,.pillars--4,.tiers-grid,.press-grid,.checklist{grid-template-columns:1fr}
+  .pillars,.pillars--4,.tiers-grid,.press-grid,.event-grid,.checklist{grid-template-columns:1fr}
+  .event-card{aspect-ratio:16/12}
   .press-card--featured{grid-column:span 1;grid-template-columns:1fr}
   .press-card--featured .press-card__thumb{aspect-ratio:350/190}
   .press-card--featured h3{margin-top:clamp(10px,1.222vw,32px);font-size:var(--fs-h3)}
