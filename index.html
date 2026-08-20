@@ -148,7 +148,7 @@ h1,h2,h3{margin:0;font-weight:500;line-height:var(--lh)}
   object-fit:contain;
 }
 .nav__cta{margin-inline-start:auto}
-.nav__cta:hover,.about__cta .btn:hover,.hero__actions .btn--blue:hover,.gallery__cta:hover{
+.nav__cta:hover,.about__cta .btn:hover,.hero__actions .btn--blue:hover,.gallery__cta:hover,.events__cta:hover{
   filter:none;
   background:var(--surface);
   color:var(--brand-blue);
@@ -369,6 +369,73 @@ h1,h2,h3{margin:0;font-weight:500;line-height:var(--lh)}
   width:5.18%;left:51%;top:14.9%;
   border:3px solid #3E9C93;background:none;
 }
+
+/* ============================================================
+   EVENTS  (האירועים שהיו)
+   ============================================================ */
+.events{
+  margin-top:var(--v-gap-about);
+  /* מבטל את המשיכה כלפי מעלה של סקשן התרומה, כדי שהילד לא יעלה על הכרטיסים */
+  margin-bottom:clamp(0px,3.125vw,80px);
+}
+.events h2{font-size:var(--fs-h2);text-align:right}
+/* בנטו לפי הפיגמה. ב-RTL העמודה הראשונה היא הימנית, ולכן כל שורה
+   נקראת מימין לשמאל: e1 הרחב למעלה מימין, e2 הגבוה משמאל וכו'. */
+.events__grid{
+  margin-top:var(--v-gap-h2);
+  display:grid;
+  gap:clamp(12px,1.389vw,35.56px);
+  grid-template-columns:repeat(3,1fr);
+  grid-template-rows:
+    clamp(210px,24.306vw,622.22px)   /* 350 */
+    clamp(250px,29.861vw,764.44px)   /* 430 */
+    clamp(210px,24.306vw,622.22px);  /* 350 */
+  grid-template-areas:
+    "e1 e1 e2"
+    "e4 e3 e2"
+    "e6 e5 e5";
+}
+.events__grid>:nth-child(1){grid-area:e1}
+.events__grid>:nth-child(2){grid-area:e2}
+.events__grid>:nth-child(3){grid-area:e3}
+.events__grid>:nth-child(4){grid-area:e4}
+.events__grid>:nth-child(5){grid-area:e5}
+.events__grid>:nth-child(6){grid-area:e6}
+
+.event{
+  position:relative;overflow:hidden;
+  border-radius:var(--r-pill);
+  box-shadow:0 5px 10px rgba(0,0,0,.25);
+}
+.event__img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  transition:transform .8s var(--ease-expo);
+}
+.event__scrim{
+  position:absolute;inset:0;pointer-events:none;
+  background:rgba(0,0,0,.7);
+  transition:background .4s ease;
+}
+.event__body{
+  position:relative;height:100%;
+  display:flex;flex-direction:column;
+  padding:clamp(14px,1.736vw,44.44px) clamp(16px,1.944vw,49.78px) clamp(14px,1.597vw,40.89px);
+  color:#fff;text-align:right;
+}
+.event__title{font-size:var(--fs-h3)}
+.event__text{
+  margin-top:clamp(6px,0.833vw,21.33px);
+  font-size:var(--fs-body);font-weight:300;line-height:var(--lh);
+  max-width:26em;
+}
+.event__btn{
+  margin-top:auto;
+  margin-inline-end:auto;   /* RTL: נצמד לימין, כמו בפיגמה */
+  background:var(--surface);color:var(--brand-blue);flex:none;
+}
+.event:hover .event__img{transform:scale(1.06)}
+.event:hover .event__scrim{background:rgba(0,0,0,.55)}
+.events__cta{margin-top:clamp(18px,2.222vw,56.89px);width:auto;padding-inline:clamp(22px,2.639vw,67.56px)}
 
 /* ============================================================
    DONATE BAND
@@ -788,6 +855,15 @@ html:not(.js) .progress{display:none}
   .cards{flex-wrap:wrap}
   .card{flex:1 1 calc(50% - 10px)}
   .press .card{flex:0 0 calc((100% - clamp(12px,1.389vw,35.56px)) / 2)}
+
+  /* בטאבלט הבנטו נפרש לשתי עמודות אחידות - שלוש עמודות מוחצות את הטקסט */
+  .events__grid{
+    grid-template-columns:repeat(2,1fr);
+    grid-template-rows:none;
+    grid-template-areas:none;
+    grid-auto-rows:minmax(clamp(250px,34vw,360px),auto);
+  }
+  .events__grid>:nth-child(n){grid-area:auto}
 }
 
 @media (max-width:899px){
@@ -865,6 +941,8 @@ html:not(.js) .progress{display:none}
   .card{flex:1 1 auto;aspect-ratio:auto}
   .press .cards{flex-direction:row}
   .press .card{flex:0 0 calc(100% - 40px);aspect-ratio:auto}
+  .events__grid{grid-template-columns:1fr;grid-auto-rows:minmax(280px,auto)}
+  .events__cta{width:100%;padding-inline:0}
   .hero__actions{flex-wrap:wrap}
   .btn--pill,.btn--rect{width:auto;min-width:140px;padding-inline:16px}
   .btn--wide{width:100%}
@@ -1067,6 +1145,114 @@ html:not(.js) .progress{display:none}
           </span>
         </a>
       </div>
+    </div>
+  </section>
+
+  <!-- ===================== EVENTS ===================== -->
+  <section class="events">
+    <div class="container">
+      <h2 data-reveal="up">האירועים שהיו</h2>
+
+      <div class="events__grid" data-stagger="110">
+
+        <article class="event" data-reveal="up">
+          <img class="event__img" src="./public/images/gallery-full/d26.jpg" alt="ילדים ומבוגרים משחקים בחצר בית ש״י ביום כיף" loading="lazy" />
+          <span class="event__scrim" aria-hidden="true"></span>
+          <div class="event__body">
+            <h3 class="event__title">יום כיף בחצר בית ש”י</h3>
+            <p class="event__text">יום שלם של משחק, תחפושות וצחוק בחצר - ילדי העמותה, אחים, הורים ומתנדבים, כולם יחד.</p>
+            <a href="./beit-shai.html" class="btn btn--rect event__btn">
+              <span>קראו עוד</span>
+              <span class="ico ico--sm" aria-hidden="true">
+                <svg viewBox="0 0 19.3848 14.7279" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M19.0919 8.07107C19.4824 7.68054 19.4824 7.04738 19.0919 6.65685L12.7279 0.292893C12.3374 -0.097631 11.7042 -0.097631 11.3137 0.292893C10.9232 0.683418 10.9232 1.31658 11.3137 1.70711L16.9706 7.36396L11.3137 13.0208C10.9232 13.4113 10.9232 14.0445 11.3137 14.435C11.7042 14.8256 12.3374 14.8256 12.7279 14.435L19.0919 8.07107ZM0 7.36396V8.36396H18.3848V7.36396V6.36396H0V7.36396Z" fill="currentColor"/></svg>
+              </span>
+            </a>
+          </div>
+        </article>
+
+        <article class="event" data-reveal="up">
+          <img class="event__img" src="./public/images/gallery-full/d49.jpg" alt="ילדים משחקים עם בועות סבון בבריכה בחצר בית ש״י" loading="lazy" />
+          <span class="event__scrim" aria-hidden="true"></span>
+          <div class="event__body">
+            <h3 class="event__title">פעילות הקיץ בחצר</h3>
+            <p class="event__text">בועות סבון, מים ומשחקים באוויר הפתוח. הקיץ בבית ש”י מלא בפעילות שמותאמת לכל ילד וילדה, בקצב שלהם.</p>
+            <a href="./beit-shai.html" class="btn btn--rect event__btn">
+              <span>קראו עוד</span>
+              <span class="ico ico--sm" aria-hidden="true">
+                <svg viewBox="0 0 19.3848 14.7279" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M19.0919 8.07107C19.4824 7.68054 19.4824 7.04738 19.0919 6.65685L12.7279 0.292893C12.3374 -0.097631 11.7042 -0.097631 11.3137 0.292893C10.9232 0.683418 10.9232 1.31658 11.3137 1.70711L16.9706 7.36396L11.3137 13.0208C10.9232 13.4113 10.9232 14.0445 11.3137 14.435C11.7042 14.8256 12.3374 14.8256 12.7279 14.435L19.0919 8.07107ZM0 7.36396V8.36396H18.3848V7.36396V6.36396H0V7.36396Z" fill="currentColor"/></svg>
+              </span>
+            </a>
+          </div>
+        </article>
+
+        <article class="event" data-reveal="up">
+          <img class="event__img" src="./public/images/gallery-full/d17.jpg" alt="ילדה עם איפור פנים של פרפר במסיבת פורים" loading="lazy" />
+          <span class="event__scrim" aria-hidden="true"></span>
+          <div class="event__body">
+            <h3 class="event__title">מסיבת פורים</h3>
+            <p class="event__text">תחפושות, איפור פנים וכיבוד. חגגנו יחד, כל אחד בדרך שנוחה לו.</p>
+            <a href="./gallery.html" class="btn btn--rect event__btn">
+              <span>קראו עוד</span>
+              <span class="ico ico--sm" aria-hidden="true">
+                <svg viewBox="0 0 19.3848 14.7279" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M19.0919 8.07107C19.4824 7.68054 19.4824 7.04738 19.0919 6.65685L12.7279 0.292893C12.3374 -0.097631 11.7042 -0.097631 11.3137 0.292893C10.9232 0.683418 10.9232 1.31658 11.3137 1.70711L16.9706 7.36396L11.3137 13.0208C10.9232 13.4113 10.9232 14.0445 11.3137 14.435C11.7042 14.8256 12.3374 14.8256 12.7279 14.435L19.0919 8.07107ZM0 7.36396V8.36396H18.3848V7.36396V6.36396H0V7.36396Z" fill="currentColor"/></svg>
+              </span>
+            </a>
+          </div>
+        </article>
+
+        <article class="event" data-reveal="up">
+          <img class="event__img" src="./public/images/gallery-full/d08.jpg" alt="ילד אוחז בדגל ישראל בטקס עירוני בנהריה" loading="lazy" />
+          <span class="event__scrim" aria-hidden="true"></span>
+          <div class="event__body">
+            <h3 class="event__title">בטקס העירוני בנהריה</h3>
+            <p class="event__text">ילדי העמותה השתתפו בטקס העירוני יחד עם תושבי נהריה - שייכות אמיתית לקהילה.</p>
+            <a href="./vahavta.html" class="btn btn--rect event__btn">
+              <span>קראו עוד</span>
+              <span class="ico ico--sm" aria-hidden="true">
+                <svg viewBox="0 0 19.3848 14.7279" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M19.0919 8.07107C19.4824 7.68054 19.4824 7.04738 19.0919 6.65685L12.7279 0.292893C12.3374 -0.097631 11.7042 -0.097631 11.3137 0.292893C10.9232 0.683418 10.9232 1.31658 11.3137 1.70711L16.9706 7.36396L11.3137 13.0208C10.9232 13.4113 10.9232 14.0445 11.3137 14.435C11.7042 14.8256 12.3374 14.8256 12.7279 14.435L19.0919 8.07107ZM0 7.36396V8.36396H18.3848V7.36396V6.36396H0V7.36396Z" fill="currentColor"/></svg>
+              </span>
+            </a>
+          </div>
+        </article>
+
+        <article class="event" data-reveal="up">
+          <img class="event__img" src="./public/images/gallery-full/d38.jpg" alt="מתנדבות יושבות ליד דוכן מאפים לטובת בית ש״י" loading="lazy" />
+          <span class="event__scrim" aria-hidden="true"></span>
+          <div class="event__body">
+            <h3 class="event__title">דוכן ההתרמה הקהילתי</h3>
+            <p class="event__text">מתנדבות ותומכות של העמותה הקימו דוכן מאפים לטובת ילדי בית ש”י. כל עוגה הפכה לתרומה.</p>
+            <a href="./donate.html" class="btn btn--rect event__btn">
+              <span>קראו עוד</span>
+              <span class="ico ico--sm" aria-hidden="true">
+                <svg viewBox="0 0 19.3848 14.7279" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M19.0919 8.07107C19.4824 7.68054 19.4824 7.04738 19.0919 6.65685L12.7279 0.292893C12.3374 -0.097631 11.7042 -0.097631 11.3137 0.292893C10.9232 0.683418 10.9232 1.31658 11.3137 1.70711L16.9706 7.36396L11.3137 13.0208C10.9232 13.4113 10.9232 14.0445 11.3137 14.435C11.7042 14.8256 12.3374 14.8256 12.7279 14.435L19.0919 8.07107ZM0 7.36396V8.36396H18.3848V7.36396V6.36396H0V7.36396Z" fill="currentColor"/></svg>
+              </span>
+            </a>
+          </div>
+        </article>
+
+        <article class="event" data-reveal="up">
+          <img class="event__img" src="./public/images/gallery-full/d22.jpg" alt="מבוגרים וילדים יוצרים יחד סביב שולחן צבעים" loading="lazy" />
+          <span class="event__scrim" aria-hidden="true"></span>
+          <div class="event__body">
+            <h3 class="event__title">סדנת יצירה משותפת</h3>
+            <p class="event__text">צבע, בד ודמיון - ילדים, הורים ומתנדבים יצרו יחד יצירה קהילתית אחת גדולה.</p>
+            <a href="./breshit.html" class="btn btn--rect event__btn">
+              <span>קראו עוד</span>
+              <span class="ico ico--sm" aria-hidden="true">
+                <svg viewBox="0 0 19.3848 14.7279" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M19.0919 8.07107C19.4824 7.68054 19.4824 7.04738 19.0919 6.65685L12.7279 0.292893C12.3374 -0.097631 11.7042 -0.097631 11.3137 0.292893C10.9232 0.683418 10.9232 1.31658 11.3137 1.70711L16.9706 7.36396L11.3137 13.0208C10.9232 13.4113 10.9232 14.0445 11.3137 14.435C11.7042 14.8256 12.3374 14.8256 12.7279 14.435L19.0919 8.07107ZM0 7.36396V8.36396H18.3848V7.36396V6.36396H0V7.36396Z" fill="currentColor"/></svg>
+              </span>
+            </a>
+          </div>
+        </article>
+
+      </div>
+
+      <a href="./gallery.html" class="btn btn--pill btn--blue events__cta">
+        <span>לגלריית האירועים</span>
+        <span class="ico ico--sm" aria-hidden="true">
+          <svg viewBox="0 0 19.3848 14.7279" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M19.0919 8.07107C19.4824 7.68054 19.4824 7.04738 19.0919 6.65685L12.7279 0.292893C12.3374 -0.097631 11.7042 -0.097631 11.3137 0.292893C10.9232 0.683418 10.9232 1.31658 11.3137 1.70711L16.9706 7.36396L11.3137 13.0208C10.9232 13.4113 10.9232 14.0445 11.3137 14.435C11.7042 14.8256 12.3374 14.8256 12.7279 14.435L19.0919 8.07107ZM0 7.36396V8.36396H18.3848V7.36396V6.36396H0V7.36396Z" fill="currentColor"/></svg>
+        </span>
+      </a>
     </div>
   </section>
 
