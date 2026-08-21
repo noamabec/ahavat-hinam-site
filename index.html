@@ -1061,16 +1061,27 @@ html:not(.js) .progress{display:none}
   /* הכפתור בבאנר התרומה נשאר צר ונצמד לימין, כמו בפיגמה (153.6/340) */
   .donate__card .btn--wide{align-self:flex-start;width:45.176%;min-width:130px}
   .press__nav{margin-top:clamp(6px,1.5vw,12px)}
-  /* הפוטר במובייל: "מפת האתר" ו"תמכו בנו" יושבים זה לצד זה במקום זה מתחת
-     לזה, וכך הפוטר מתקצר בערך בשליש. "צרו קשר" נשאר ברוחב מלא בכוונה -
-     המייל והכתובת ארוכים מכדי להיכנס לחצי עמודה במסך צר. */
+  /* הפוטר במובייל: שתי עמודות במקום ערימה אחת ארוכה.
+     שורה 1: "מפת האתר" (ימין) ו"תמכו בנו" (שמאל).
+     שורה 2: "צרו קשר" (ימין) והלוגו/תקציר העמותה (שמאל). */
   .footer__grid{
     grid-template-columns:1fr 1fr;
+    grid-template-areas:
+      "site support"
+      "contact brand";
     gap:clamp(18px,5vw,28px) clamp(12px,4vw,20px);
     padding-block:clamp(20px,5vw,30px);
   }
-  .footer__brand{grid-column:1 / -1}
-  .footer__col:last-child{grid-column:1 / -1}
+  .footer__grid>:nth-child(1){grid-area:brand}
+  .footer__grid>:nth-child(2){grid-area:site}
+  .footer__grid>:nth-child(3){grid-area:support}
+  .footer__grid>:nth-child(4){grid-area:contact}
+  /* בחצי עמודה המייל הארוך היה גולש החוצה - מאפשרים לו להישבר */
+  .footer__contact li{align-items:flex-start}
+  .footer__contact li>a,.footer__contact li>span:not(.footer__ico){
+    min-width:0;overflow-wrap:anywhere;
+  }
+  .footer__ico{margin-top:.15em}
   .footer__cta .btn--wide{width:100%}
   .footer__bottom{justify-content:flex-start}
 }
