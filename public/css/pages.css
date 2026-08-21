@@ -1220,7 +1220,10 @@ body.gallery-lightbox-lock{overflow:hidden}
     grid-template-areas:
       "site support"
       "contact brand";
-    gap:clamp(18px,5vw,28px) clamp(12px,4vw,20px);
+    /* רווח-שורות מוגדל בכוונה: עמודת הלוגו נמשכת כלפי מעלה ב-54px
+       (ראו .footer__brand למטה), וצריך מקום פנוי מעל כדי שלא תתנגש
+       ב"תמכו בנו" שמעליה */
+    gap:clamp(30px,9vw,40px) clamp(12px,4vw,20px);
     padding-block:clamp(20px,5vw,30px);
   }
   .footer__grid>:nth-child(1){grid-area:brand}
@@ -1233,9 +1236,12 @@ body.gallery-lightbox-lock{overflow:hidden}
     min-width:0;overflow-wrap:anywhere;
   }
   .footer__ico{margin-top:.15em}
-  /* הלוגו מוקטן והמרווחים נדחסים, כדי שהתקציר יעלה למעלה ויישב לצד
-     שורות פרטי הקשר ולא הרבה מתחתיהן */
-  .footer__logo img{width:clamp(92px,26vw,112px)}
+  /* הלוגו נשאר בגודלו הרגיל. במקום להקטין אותו, כל עמודת הלוגו נמשכת
+     כלפי מעלה כך שהתקציר ("עמותה לילדים על הרצף...") יתיישר בדיוק על
+     הקו של "יצחק שדה". 54px = גובה הלוגו (77) + המרווח מתחתיו (5)
+     פחות גובה הכותרת "צרו קשר" והמרווח שלה (28). כל הרכיבים האלה
+     קבועים במובייל, ולכן הערך יציב לכל רוחב מסך בטווח. */
+  .footer__brand{margin-top:-54px}
   .footer__tagline{margin-top:clamp(4px,1.4vw,8px)}
   .footer__amuta{margin-top:clamp(5px,1.6vw,9px)}
   .footer__cta .btn--wide{width:100%}

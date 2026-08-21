@@ -1001,8 +1001,10 @@ html:not(.js) .progress{display:none}
     line-height:1.07;
   }
   .donate__br{display:block}
-  .donate__text{width:100%;margin-top:11%;font-size:clamp(13px,3.7vw,16px)}
-  .donate__card .btn--wide{margin-top:1.5%;width:45.176%;min-width:130px}
+  /* מרווחים שווים: כותרת ← טקסט ← כפתור. שני ה-margin נמדדים באותו
+     אחוז מרוחב הכרטיס, ולכן יוצאים זהים בפיקסלים בכל רוחב מסך. */
+  .donate__text{width:100%;margin-top:5%;font-size:clamp(13px,3.7vw,16px)}
+  .donate__card .btn--wide{margin-top:5%;width:45.176%;min-width:130px}
 
   .footer__grid{grid-template-columns:1fr 1fr}
   .footer__brand{grid-column:1 / -1}
@@ -1018,6 +1020,15 @@ html:not(.js) .progress{display:none}
   .donate{
     --fs-body:clamp(12.8px,1.3336vw,34.13px);
   }
+}
+
+/* ----- מסכי טלפון צרים בלבד -----
+   רק כאן שורות הכותרת בבאנר התרומה רחבות מספיק ביחס לכרטיס כדי
+   להיחתך ע"י כף רגלו של הילד. נמדד: מתנגש ב-500px ומטה, נקי כבר
+   ב-520px. לכן הכותרת יורדת אל מתחת לתחתית התמונה - רק בטווח הזה,
+   ובמסכים רחבים יותר ה-padding נשאר כפי שהיה. */
+@media (max-width:520px){
+  .donate__card{padding-top:27%}
 }
 
 @media (max-width:639px){
@@ -1069,7 +1080,10 @@ html:not(.js) .progress{display:none}
     grid-template-areas:
       "site support"
       "contact brand";
-    gap:clamp(18px,5vw,28px) clamp(12px,4vw,20px);
+    /* רווח-שורות מוגדל בכוונה: עמודת הלוגו נמשכת כלפי מעלה ב-54px
+       (ראו .footer__brand למטה), וצריך מקום פנוי מעל כדי שלא תתנגש
+       ב"תמכו בנו" שמעליה */
+    gap:clamp(30px,9vw,40px) clamp(12px,4vw,20px);
     padding-block:clamp(20px,5vw,30px);
   }
   .footer__grid>:nth-child(1){grid-area:brand}
@@ -1082,9 +1096,12 @@ html:not(.js) .progress{display:none}
     min-width:0;overflow-wrap:anywhere;
   }
   .footer__ico{margin-top:.15em}
-  /* הלוגו מוקטן והמרווחים נדחסים, כדי שהתקציר יעלה למעלה ויישב לצד
-     שורות פרטי הקשר ולא הרבה מתחתיהן */
-  .footer__logo img{width:clamp(92px,26vw,112px)}
+  /* הלוגו נשאר בגודלו הרגיל. במקום להקטין אותו, כל עמודת הלוגו נמשכת
+     כלפי מעלה כך שהתקציר ("עמותה לילדים על הרצף...") יתיישר בדיוק על
+     הקו של "יצחק שדה". 54px = גובה הלוגו (77) + המרווח מתחתיו (5)
+     פחות גובה הכותרת "צרו קשר" והמרווח שלה (28). כל הרכיבים האלה
+     קבועים במובייל, ולכן הערך יציב לכל רוחב מסך בטווח. */
+  .footer__brand{margin-top:-54px}
   .footer__tagline{margin-top:clamp(4px,1.4vw,8px)}
   .footer__amuta{margin-top:clamp(5px,1.6vw,9px)}
   .footer__cta .btn--wide{width:100%}
