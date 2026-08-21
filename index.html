@@ -1082,8 +1082,19 @@ html:not(.js) .progress{display:none}
     min-width:0;overflow-wrap:anywhere;
   }
   .footer__ico{margin-top:.15em}
+  /* הלוגו מוקטן והמרווחים נדחסים, כדי שהתקציר יעלה למעלה ויישב לצד
+     שורות פרטי הקשר ולא הרבה מתחתיהן */
+  .footer__logo img{width:clamp(92px,26vw,112px)}
+  .footer__tagline{margin-top:clamp(4px,1.4vw,8px)}
+  .footer__amuta{margin-top:clamp(5px,1.6vw,9px)}
   .footer__cta .btn--wide{width:100%}
-  .footer__bottom{justify-content:flex-start}
+  /* בשורה התחתונה: קודם קישורי התקנון/פרטיות/נגישות, ורק מתחתיהם
+     זכויות היוצרים והקרדיט */
+  .footer__bottom{
+    flex-direction:column;align-items:flex-start;
+    justify-content:flex-start;gap:clamp(10px,3vw,16px);
+  }
+  .footer__legal{order:-1}
 }
 </style>
 <link rel="stylesheet" href="./public/css/accessibility.css" />
