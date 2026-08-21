@@ -992,7 +992,12 @@ html:not(.js) .progress{display:none}
     height:auto;
   }
   .donate__card{
-    padding:6.117% 3.989% 3.324% 5.585%;  /* 23 / 15 / 12.5 / 21 */
+    /* --dgap הוא המרווח האחיד בתוך הכרטיס: כותרת ← טקסט ← כפתור ←
+       תחתית המלבן. הוא ביחידות vw ולא באחוזים, כי אחוז ב-margin נמדד
+       מול רוחב התוכן של הכרטיס ואילו אחוז ב-padding נמדד מול רוחב
+       הסקשן - שני ערכים שונים, שהיו נותנים מרווחים לא שווים. */
+    --dgap:clamp(14px,4.4vw,34px);
+    padding:6.117% 3.989% var(--dgap) 5.585%;  /* 23 / 15 / --dgap / 21 */
   }
   .donate__card h2{
     align-self:flex-start;            /* RTL: נצמד לימין */
@@ -1001,10 +1006,9 @@ html:not(.js) .progress{display:none}
     line-height:1.07;
   }
   .donate__br{display:block}
-  /* מרווחים שווים: כותרת ← טקסט ← כפתור. שני ה-margin נמדדים באותו
-     אחוז מרוחב הכרטיס, ולכן יוצאים זהים בפיקסלים בכל רוחב מסך. */
-  .donate__text{width:100%;margin-top:5%;font-size:clamp(13px,3.7vw,16px)}
-  .donate__card .btn--wide{margin-top:5%;width:45.176%;min-width:130px}
+  /* שלושת המרווחים נשענים על אותו --dgap, ולכן זהים לפיקסל */
+  .donate__text{width:100%;margin-top:var(--dgap);font-size:clamp(13px,3.7vw,16px)}
+  .donate__card .btn--wide{margin-top:var(--dgap);width:45.176%;min-width:130px}
 
   .footer__grid{grid-template-columns:1fr 1fr}
   .footer__brand{grid-column:1 / -1}
