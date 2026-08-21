@@ -571,7 +571,12 @@ body.gallery-lightbox-lock{overflow:hidden}
 .press{margin-top:var(--v-gap-press)}
 .press .cards{
   margin-top:clamp(16px,2.153vw,55.11px);
-  flex-wrap:nowrap;overflow-x:auto;overflow-y:visible;scroll-snap-type:x mandatory;
+  flex-wrap:nowrap;
+  /* overflow-y חייב ערך מפורש - "visible" לצד overflow-x:auto מחושב כ-auto
+     ע"י הדפדפן, מה שהפך את הקרוסלה למכל גלילה אנכי שבלע גלילת עמוד. */
+  overflow-x:auto;overflow-y:hidden;
+  touch-action:pan-x pinch-zoom;overscroll-behavior-x:contain;
+  scroll-snap-type:x mandatory;
   scrollbar-width:none;-ms-overflow-style:none;
   padding-block:clamp(14px,2vw,22px); /* מקום ל-box-shadow של הכרטיסים בלי חיתוך */
   padding-inline:clamp(10px,1.5vw,16px); /* אותו דבר בציר האופקי - הצל יוצא גם ימינה/שמאלה */
@@ -958,10 +963,18 @@ html:not(.js) .progress{display:none}
   .events__grid{
     display:flex;
     grid-template-columns:none;grid-template-rows:none;grid-template-areas:none;
-    flex-wrap:nowrap;overflow-x:auto;overflow-y:visible;
+    flex-wrap:nowrap;
+    /* overflow-y חייב להיות מפורש: כש-overflow-x הוא auto, הדפדפן מחשב
+       "visible" בציר השני כ-auto - וזה הפך את הקרוסלה למכל גלילה אנכי
+       שבלע את מחוות הגלילה של העמוד במובייל (34px של אנימציית החשיפה
+       גלשו החוצה ויצרו פס גלילה אנכי אמיתי). */
+    overflow-x:auto;overflow-y:hidden;
+    /* מחוות אנכיות עוברות לעמוד; pinch-zoom נשמר לטובת נגישות */
+    touch-action:pan-x pinch-zoom;
+    overscroll-behavior-x:contain;
     scroll-snap-type:x mandatory;
     scrollbar-width:none;-ms-overflow-style:none;
-    padding-block:clamp(14px,2vw,22px);   /* מקום ל-box-shadow בלי חיתוך */
+    padding-block:clamp(16px,2vw,22px);   /* מקום ל-box-shadow בלי חיתוך */
     padding-inline:clamp(10px,1.5vw,16px);
     scroll-padding-inline:clamp(10px,1.5vw,16px);
   }

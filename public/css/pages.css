@@ -1073,12 +1073,14 @@ body.gallery-lightbox-lock{overflow:hidden}
   .nav__links .is-sub{padding-inline-start:14px}
   /* align-content:center חיוני - בלעדיו שורות ה-grid נמתחות לגובה הכפתור (44px),
      המרווח בין הפסים נעשה ~16.7px במקום 7px, והם לא נפגשים ל-X בפתיחה. */
-  .nav__toggle{display:grid;place-items:center;align-content:center;gap:5px;width:44px;height:44px;flex:none;order:2}
+  /* order תואם ל-.nav במסך הבית (index.html): ההמבורגר ראשון (order:1)
+     כדי שיישאר צמוד לימין ב-RTL בכל עמודי האתר, לא רק בדף הבית. */
+  .nav__toggle{display:grid;place-items:center;align-content:center;gap:5px;width:44px;height:44px;flex:none;order:1}
   .nav__toggle span{display:block;width:24px;height:2px;background:var(--ink);border-radius:2px;transition:transform .3s var(--ease-expo),opacity .2s ease}
   .nav[data-open="true"] .nav__toggle span:nth-child(1){transform:translateY(7px) rotate(45deg)}
   .nav[data-open="true"] .nav__toggle span:nth-child(2){opacity:0}
   .nav[data-open="true"] .nav__toggle span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
-  .nav__logo{order:1}
+  .nav__logo{order:2}
   .nav__logo img{width:clamp(140px,34vw,220px)}
 
   .page-hero__inner{flex-direction:column;align-items:stretch}
