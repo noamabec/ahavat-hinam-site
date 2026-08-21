@@ -18,6 +18,10 @@
   var nav = document.getElementById('nav');
   var toggle = nav && nav.querySelector('.nav__toggle');
   if (nav && toggle) {
+    /* אינדקס לכל פריט בתפריט - ה-CSS משתמש בו לחישוב ההשהיה המדורגת */
+    Array.prototype.forEach.call(nav.querySelectorAll('.nav__links > *'), function (el, i) {
+      el.style.setProperty('--i', i);
+    });
     toggle.addEventListener('click', function () {
       var open = nav.getAttribute('data-open') === 'true';
       nav.setAttribute('data-open', String(!open));

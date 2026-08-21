@@ -885,25 +885,92 @@ html:not(.js) .progress{display:none}
 }
 
 @media (max-width:899px){
-  .nav{gap:0;justify-content:space-between;height:auto;padding-block:clamp(10px,2vw,18px);position:relative}
+  .nav{
+    gap:0;justify-content:space-between;height:auto;
+    padding-block:clamp(10px,2vw,18px);position:relative;
+    --nav-sheet-w:min(86vw,400px);
+  }
   .nav__links{
-    display:none;position:absolute;top:100%;inset-inline:0;z-index:30;
-    background:#fff;border-radius:var(--r-sm);
-    box-shadow:0 10px 30px rgba(0,0,0,.12);
-    padding:14px 18px;flex-direction:column;gap:12px;text-align:right;
+    display:flex;
+    position:fixed;top:0;right:0;bottom:0;left:auto;
+    width:var(--nav-sheet-w);z-index:29;
+    background:var(--surface);border-radius:0;
+    box-shadow:-14px 0 40px rgba(0,0,0,.16);
+    padding:calc(var(--v-header) + clamp(10px,3vw,18px)) clamp(20px,6vw,34px) clamp(24px,6vw,40px);
+    flex-direction:column;gap:clamp(4px,1.4vw,10px);text-align:right;
+    overflow-y:auto;overscroll-behavior:contain;
+    counter-reset:navItem;
+    transform:translateX(100%);visibility:hidden;
+    transition:transform .5s var(--ease-expo) .12s,visibility 0s linear .62s;
   }
   .nav>.nav__link,.nav>.nav__cta{display:none}
-  .nav[data-open="true"] .nav__links{display:flex}
+
+  /* ===== תפריט מדורג - מובייל וטאבלט בלבד =====
+     שתי שכבות צבע מותגיות נכנסות מימין בזו אחר זו, אחריהן הפאנל הלבן,
+     ואז פריטי התפריט עולים בהדרגה עם מספור. הכל ב-CSS על מערכת התנועה
+     הקיימת של האתר (--ease-expo) - בלי ספריית אנימציה. */
+  .nav::before,.nav::after{
+    content:"";position:fixed;top:0;right:0;bottom:0;
+    width:var(--nav-sheet-w);z-index:28;pointer-events:none;
+    transform:translateX(100%);
+    transition:transform .5s var(--ease-expo);
+  }
+  .nav::before{background:var(--brand-yellow);transition-delay:.14s}
+  .nav::after{background:var(--brand-blue);transition-delay:.07s}
+  .nav[data-open="true"]::before{transform:none;transition-delay:0s}
+  .nav[data-open="true"]::after{transform:none;transition-delay:.07s}
+
+  /* הלוגו והכפתור נשארים מעל הפאנל כדי שאפשר יהיה לסגור */
+  .nav__logo{position:relative;z-index:30}
+  .nav__toggle{position:relative;z-index:31}
+
+  .nav[data-open="true"] .nav__links{
+    transform:none;visibility:visible;
+    transition:transform .62s var(--ease-expo) .14s,visibility 0s linear 0s;
+  }
+  /* כל פריט עולה מלמטה עם סיבוב קל; --i נקבע ב-JS לפי סדר הפריטים */
+  .nav__links>*{
+    opacity:0;transform:translateY(120%) rotate(6deg);transform-origin:100% 100%;
+    transition:opacity .45s ease,transform .8s var(--ease-expo);
+  }
+  .nav[data-open="true"] .nav__links>*{
+    opacity:1;transform:none;
+    transition-delay:calc(.24s + var(--i,0) * .045s);
+  }
+  .nav__links a{
+    position:relative;display:block;
+    font-size:clamp(17px,4.6vw,24px);font-weight:500;
+    padding-block:clamp(3px,.9vw,7px);padding-inline-end:2.7em;
+    transition:color .2s ease;
+  }
+  .nav__links a:hover,.nav__links a:focus-visible{color:var(--brand-blue)}
+  /* המספור יושב בצד השמאלי (ה"סוף" ב-RTL), כמו בעיצוב המקור במראה */
+  .nav__links a::after{
+    counter-increment:navItem;
+    content:counter(navItem,decimal-leading-zero);
+    position:absolute;inset-inline-end:.4em;top:.55em;
+    font-size:.45em;font-weight:400;letter-spacing:.02em;
+    color:var(--brand-blue);opacity:0;
+    transition:opacity .5s ease;
+  }
+  .nav[data-open="true"] .nav__links a::after{
+    opacity:.7;transition-delay:calc(.36s + var(--i,0) * .045s);
+  }
   .nav__links .is-group-title{
-    font-size:clamp(12px,3vw,13px);font-weight:500;color:var(--ink);
-    margin-top:4px;opacity:.7;
+    font-size:clamp(12px,3.2vw,14px);font-weight:500;color:var(--ink);
+    margin-top:clamp(8px,2.4vw,14px);opacity:.65;letter-spacing:.04em;
   }
   .nav__links .is-sub{padding-inline-start:14px}
+  /* המבורגר זהה לזה של העמודים הפנימיים (3 פסים שמתקפלים ל-X).
+     align-content:center חיוני - בלעדיו שורות ה-grid נמתחות לגובה הכפתור. */
   .nav__toggle{
-    display:grid;place-items:center;width:44px;height:44px;flex:none;
+    display:grid;place-items:center;align-content:center;gap:5px;
+    width:44px;height:44px;flex:none;order:1;
   }
-  .nav__toggle-icon{width:26px;height:26px}
-  .nav__toggle{order:1}
+  .nav__toggle span{display:block;width:24px;height:2px;background:var(--ink);border-radius:2px;transition:transform .3s var(--ease-expo),opacity .2s ease}
+  .nav[data-open="true"] .nav__toggle span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+  .nav[data-open="true"] .nav__toggle span:nth-child(2){opacity:0}
+  .nav[data-open="true"] .nav__toggle span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
   .nav__logo{order:2}
   .nav__logo img{width:clamp(140px,34vw,220px)}
   .tiers{display:none}
@@ -1007,7 +1074,7 @@ html:not(.js) .progress{display:none}
     <div class="container">
       <nav class="nav" id="nav" data-stagger="70">
         <button class="nav__toggle" type="button" aria-label="תפריט" aria-expanded="false" onclick="var n=document.getElementById('nav');var o=n.getAttribute('data-open')==='true';n.setAttribute('data-open',String(!o));this.setAttribute('aria-expanded',String(!o));">
-          <img src="./public/images/icons/hamburger.svg" alt="" aria-hidden="true" class="nav__toggle-icon" />
+          <span></span><span></span><span></span>
         </button>
         <a href="./index.html" class="nav__logo" aria-label="אהבת חינ&quot;מ" data-reveal="scale">
           <img src="./public/images/logo.png" alt="לוגו אהבת חינ&quot;מ - עמותה לילדים על הרצף האוטיסטי והחינוך המיוחד" />
@@ -1657,6 +1724,23 @@ initCarousel('eventsGrid', '[data-events-prev]', '[data-events-next]', true);
 
   var yr = document.getElementById('ftYear');
   if(yr) yr.textContent = new Date().getFullYear();
+
+  /* ---------- אינדקס לפריטי התפריט המדורג (ה-CSS מחשב ממנו את ההשהיה) ---------- */
+  Array.prototype.forEach.call(document.querySelectorAll('.nav__links > *'), function(el, i){
+    el.style.setProperty('--i', i);
+  });
+  /* לחיצה מחוץ לתפריט סוגרת אותו */
+  (function(){
+    var nav = document.getElementById('nav');
+    if(!nav) return;
+    document.addEventListener('click', function(e){
+      if(nav.getAttribute('data-open') === 'true' && !nav.contains(e.target)){
+        nav.setAttribute('data-open','false');
+        var t = nav.querySelector('.nav__toggle');
+        if(t) t.setAttribute('aria-expanded','false');
+      }
+    });
+  })();
 
   /* ---------- השהיה מדורגת: כל ילד בקבוצה נכנס אחרי הקודם ---------- */
   Array.prototype.forEach.call(document.querySelectorAll('[data-stagger]'), function(group){
