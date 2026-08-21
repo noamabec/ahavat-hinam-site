@@ -1212,7 +1212,16 @@ body.gallery-lightbox-lock{overflow:hidden}
   .btn--pill,.btn--rect{width:auto;min-width:140px;padding-inline:16px}
   .btn--wide{width:100%}
   .cta-band .btn{width:100%}
-  .footer__grid{grid-template-columns:1fr}
+  /* הפוטר במובייל: "מפת האתר" ו"תמכו בנו" יושבים זה לצד זה במקום זה מתחת
+     לזה, וכך הפוטר מתקצר בערך בשליש. "צרו קשר" נשאר ברוחב מלא בכוונה -
+     המייל והכתובת ארוכים מכדי להיכנס לחצי עמודה במסך צר. */
+  .footer__grid{
+    grid-template-columns:1fr 1fr;
+    gap:clamp(18px,5vw,28px) clamp(12px,4vw,20px);
+    padding-block:clamp(20px,5vw,30px);
+  }
+  .footer__brand{grid-column:1 / -1}
+  .footer__col:last-child{grid-column:1 / -1}
   .footer__cta .btn--wide{width:100%}
   .footer__bottom{justify-content:flex-start}
   .quote p{max-width:none}

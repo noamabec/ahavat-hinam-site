@@ -1061,7 +1061,16 @@ html:not(.js) .progress{display:none}
   /* הכפתור בבאנר התרומה נשאר צר ונצמד לימין, כמו בפיגמה (153.6/340) */
   .donate__card .btn--wide{align-self:flex-start;width:45.176%;min-width:130px}
   .press__nav{margin-top:clamp(6px,1.5vw,12px)}
-  .footer__grid{grid-template-columns:1fr}
+  /* הפוטר במובייל: "מפת האתר" ו"תמכו בנו" יושבים זה לצד זה במקום זה מתחת
+     לזה, וכך הפוטר מתקצר בערך בשליש. "צרו קשר" נשאר ברוחב מלא בכוונה -
+     המייל והכתובת ארוכים מכדי להיכנס לחצי עמודה במסך צר. */
+  .footer__grid{
+    grid-template-columns:1fr 1fr;
+    gap:clamp(18px,5vw,28px) clamp(12px,4vw,20px);
+    padding-block:clamp(20px,5vw,30px);
+  }
+  .footer__brand{grid-column:1 / -1}
+  .footer__col:last-child{grid-column:1 / -1}
   .footer__cta .btn--wide{width:100%}
   .footer__bottom{justify-content:flex-start}
 }
