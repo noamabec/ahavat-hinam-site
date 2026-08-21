@@ -899,7 +899,6 @@ html:not(.js) .progress{display:none}
     padding:calc(var(--v-header) + clamp(10px,3vw,18px)) clamp(20px,6vw,34px) clamp(24px,6vw,40px);
     flex-direction:column;gap:clamp(4px,1.4vw,10px);text-align:right;
     overflow-y:auto;overscroll-behavior:contain;
-    counter-reset:navItem;
     transform:translateX(100%);visibility:hidden;
     transition:transform .5s var(--ease-expo) .12s,visibility 0s linear .62s;
   }
@@ -940,21 +939,25 @@ html:not(.js) .progress{display:none}
   .nav__links a{
     position:relative;display:block;
     font-size:clamp(17px,4.6vw,24px);font-weight:500;
-    padding-block:clamp(3px,.9vw,7px);padding-inline-end:2.7em;
+    padding-block:clamp(3px,.9vw,7px);
     transition:color .2s ease;
   }
   .nav__links a:hover,.nav__links a:focus-visible{color:var(--brand-blue)}
-  /* המספור יושב בצד השמאלי (ה"סוף" ב-RTL), כמו בעיצוב המקור במראה */
-  .nav__links a::after{
-    counter-increment:navItem;
-    content:counter(navItem,decimal-leading-zero);
-    position:absolute;inset-inline-end:.4em;top:.55em;
-    font-size:.45em;font-weight:400;letter-spacing:.02em;
-    color:var(--brand-blue);opacity:0;
-    transition:opacity .5s ease;
+  /* "לתרומות" מודגש ככפתור מלא - אותו כחול של ה-CTA בהאדר בדסקטופ.
+     נבחר לפי ה-href ולא לפי מחלקה, כדי לא לגעת ב-markup של 25 עמודים. */
+  .nav__links a[href*="donate.html"]{
+    margin-top:clamp(16px,4.5vw,26px);
+    background:var(--brand-blue);color:#fff;
+    border-radius:var(--r-pill);
+    padding:clamp(11px,3vw,15px) clamp(18px,5vw,26px);
+    text-align:center;font-size:clamp(17px,4.4vw,22px);
+    box-shadow:4px 4px 4px rgba(0,0,0,.25);
+    transition:background .25s ease,transform .25s var(--ease-expo),box-shadow .25s ease;
   }
-  .nav[data-open="true"] .nav__links a::after{
-    opacity:.7;transition-delay:calc(.36s + var(--i,0) * .045s);
+  .nav__links a[href*="donate.html"]:hover,
+  .nav__links a[href*="donate.html"]:focus-visible{
+    background:var(--brand-coral);color:#fff;
+    transform:translateY(-2px);box-shadow:0 10px 22px rgba(252,84,62,.34);
   }
   .nav__links .is-group-title{
     font-size:clamp(12px,3.2vw,14px);font-weight:500;color:var(--ink);
@@ -1102,10 +1105,6 @@ html:not(.js) .progress{display:none}
           <a href="./gallery.html">גלריית תמונות</a>
           <a href="./press.html">בתקשורת</a>
           <a href="./contact.html">צרו קשר</a>
-          <span class="is-group-title">מידע</span>
-          <a class="is-sub" href="./terms.html">תקנון</a>
-          <a class="is-sub" href="./privacy.html">מדיניות פרטיות</a>
-          <a class="is-sub" href="./accessibility.html">הצהרת נגישות</a>
           <a href="./donate.html">לתרומות</a>
         </div>
       </nav>
