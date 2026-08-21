@@ -575,7 +575,7 @@ body.gallery-lightbox-lock{overflow:hidden}
   /* overflow-y חייב ערך מפורש - "visible" לצד overflow-x:auto מחושב כ-auto
      ע"י הדפדפן, מה שהפך את הקרוסלה למכל גלילה אנכי שבלע גלילת עמוד. */
   overflow-x:auto;overflow-y:hidden;
-  touch-action:pan-x pinch-zoom;overscroll-behavior-x:contain;
+  overscroll-behavior-x:contain;
   scroll-snap-type:x mandatory;
   scrollbar-width:none;-ms-overflow-style:none;
   padding-block:clamp(14px,2vw,22px); /* מקום ל-box-shadow של הכרטיסים בלי חיתוך */
@@ -969,8 +969,10 @@ html:not(.js) .progress{display:none}
        שבלע את מחוות הגלילה של העמוד במובייל (34px של אנימציית החשיפה
        גלשו החוצה ויצרו פס גלילה אנכי אמיתי). */
     overflow-x:auto;overflow-y:hidden;
-    /* מחוות אנכיות עוברות לעמוד; pinch-zoom נשמר לטובת נגישות */
-    touch-action:pan-x pinch-zoom;
+    /* בלי touch-action מוגבל: נעילת הציר המובנית של הדפדפן כבר עושה בדיוק
+       את הדבר הנכון - החלקה אופקית מזיזה את הקרוסלה, אנכית גוללת את העמוד.
+       ‎touch-action:pan-x‎ דווקא *חוסם* גלילה אנכית לחלוטין (הוא לא "מוותר"
+       לאב הקדמון), ולכן הגלילה נתקעה כשהאצבע הייתה על הכרטיסים. */
     overscroll-behavior-x:contain;
     scroll-snap-type:x mandatory;
     scrollbar-width:none;-ms-overflow-style:none;
@@ -1639,14 +1641,10 @@ function initCarousel(trackId, prevSel, nextSel, mobileOnly){
   prevBtn && prevBtn.addEventListener('click', function(){ setActive(prevBtn); go(-1); });
   nextBtn && nextBtn.addEventListener('click', function(){ setActive(nextBtn); go(1); });
 
-  /* גלגלת עכבר/טראק-פד אנכית מעל הכרטיסים לא אמורה "להילכד" בגלילה האופקית
-     של ה-scroll-snap - מעבירים אותה בחזרה לגלילת העמוד הרגילה. */
-  track.addEventListener('wheel', function(e){
-    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-      e.preventDefault();
-      window.scrollBy(0, e.deltaY);
-    }
-  }, { passive:false });
+  /* אין כאן מטפל wheel בכוונה: מרגע ש-overflow-y הוא hidden, גלגלת אנכית
+     מעל הכרטיסים כבר לא נלכדת בקרוסלה ועוברת לעמוד מעצמה. המטפל הקודם
+     עשה preventDefault + window.scrollBy ידני, וזה החליף את הגלילה החלקה
+     של הדפדפן בקפיצות. */
 })();
 }
 initCarousel('pressCards', '[data-press-prev]', '[data-press-next]', false);
