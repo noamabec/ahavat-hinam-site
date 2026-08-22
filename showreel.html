@@ -409,6 +409,7 @@ beat({ at:11, dur:5,
 /* --- 5. באנר התרומה (16-20) --- */
 beat({ at:16, dur:4,
   enter:function(){
+    show(deskD,true); show(phoneD,false);
     setCap('תרומות', 'קומפוזיציה מדויקת לפי המקור', '#FDC122');
     this._y = topOf(fDesk, '.donate');
     this._from = winOf(fDesk) ? winOf(fDesk).scrollY : 0;
@@ -421,6 +422,7 @@ beat({ at:16, dur:4,
 /* --- 6. הגלריה התלת-ממדית (20-25) — שיא הסרטון --- */
 beat({ at:20, dur:5,
   enter:function(){
+    show(deskD,true); show(phoneD,false);
     setCap('גלריה', 'כיפה תלת-ממדית ב-WebGL', '#4DA831');
     this._y = topOf(fDesk, '.gallery');
     this._from = winOf(fDesk) ? winOf(fDesk).scrollY : 0;
@@ -539,6 +541,7 @@ function reset(){
   show(deskD,false); show(phoneD,false);
   deskInner.style.transform='none';
   layoutSolo();
+  closeMenu();
   scrollFrame(fDesk,0); scrollFrame(fPhone,0);
   progBar.style.transform='scaleX(0)';
   t0=null;
