@@ -305,6 +305,15 @@ function setCap(kicker, line, accent){
 }
 function hideCap(){ capEl.classList.remove('is-on'); }
 
+/* סגירת תפריט המובייל בטלפון (איפוס בין ביטים) */
+function closeMenu(){
+  var d=docOf(fPhone); if(!d) return;
+  var n=d.getElementById('nav'); if(!n) return;
+  n.setAttribute('data-open','false');
+  var t=n.querySelector('.nav__toggle');
+  if(t) t.setAttribute('aria-expanded','false');
+}
+
 /* גרירה סינתטית על הגלריה התלת-ממדית (WebGL).
    הגלריה מאזינה ל-mousedown על המכל ול-mousemove/up על החלון שלה. */
 function domeDrag(f, fromX, toX, phase){
@@ -352,123 +361,120 @@ beat({ at:0, dur:2,
   exit:function(){ deskInner.style.transform='none'; }
 });
 
-/* --- 2. ההירו (2-7) --- */
-beat({ at:2, dur:5,
+/* --- 2. ההירו (2-6) --- */
+beat({ at:2, dur:4,
   enter:function(){
     show(deskD,true);
     setCap('דף הבית', 'עברית מלאה, מימין לשמאל', '#18B1F0');
   },
   frame:function(p){
-    var e = easeInOut(clamp01(p*1.05));
-    scrollFrame(fDesk, lerp(0, 780, e));
+    scrollFrame(fDesk, lerp(0, 760, easeInOut(clamp01(p*1.05))));
   }
 });
 
-/* --- 3. הגלריה התלת-ממדית (7-12) --- */
-beat({ at:7, dur:5,
-  enter:function(){
-    setCap('גלריה', 'כיפה תלת-ממדית ב-WebGL', '#4DA831');
-    this._y = topOf(fDesk, '.gallery');
-    this._down = false;
-  },
-  frame:function(p){
-    var y = this._y - 40;
-    if(p < .22){
-      /* גלילה אל הגלריה */
-      scrollFrame(fDesk, lerp(780, y, easeInOut(p/.22)));
-    } else {
-      scrollFrame(fDesk, y);
-      /* גרירה אוטומטית של הכיפה */
-      var q = (p-.22)/.78;
-      var x0 = DESK.w*0.72, x1 = DESK.w*0.20;
-      if(!this._down){ domeDrag(fDesk,x0,x0,'down'); this._down=true; }
-      domeDrag(fDesk, x0, lerp(x0,x1,easeInOut(q)), 'move');
-    }
-  },
-  exit:function(){ if(this._down){ domeDrag(fDesk,0,DESK.w*0.20,'up'); this._down=false; } }
-});
-
-/* --- 4. התפריט המדורג (12-17) --- */
-beat({ at:12, dur:5,
+/* --- 3. התפריט המדורג, על הטלפון (6-11) --- */
+beat({ at:6, dur:5,
   enter:function(){
     show(deskD,false); show(phoneD,true);
     scrollFrame(fPhone,0);
     setCap('ניווט', 'תפריט מדורג בצבעי המותג', '#FDC122');
     this._opened=false; this._closed=false;
-    var d=docOf(fPhone);
-    if(d){ var n=d.getElementById('nav'); if(n) n.setAttribute('data-open','false'); }
+    closeMenu();
   },
   frame:function(p){
     var d = docOf(fPhone); if(!d) return;
     var tgl = d.querySelector('.nav__toggle');
-    if(p>.18 && !this._opened && tgl){ tgl.click(); this._opened=true; }
-    if(p>.80 && !this._closed && tgl){ tgl.click(); this._closed=true; }
+    if(!tgl) return;
+    if(p>.16 && !this._opened){ tgl.click(); this._opened=true; }
+    if(p>.82 && !this._closed){ tgl.click(); this._closed=true; }
   },
-  exit:function(){
-    var d=docOf(fPhone);
-    if(d){ var n=d.getElementById('nav'); if(n) n.setAttribute('data-open','false'); }
-  }
+  exit:function(){ closeMenu(); }
 });
 
-/* --- 5. רשת האירועים (17-22) --- */
-beat({ at:17, dur:5,
+/* --- 4. רשת האירועים (11-16) ---
+   הגלילה ממשיכה כלפי מטה מנקודת ההירו, ולכן חשיפות הגלילה של האתר
+   נורות באופן טבעי בדיוק כאן. (ה-observer באתר עושה unobserve אחרי
+   החשיפה, ולכן אי אפשר "לאפס" אותן - חייבים להגיע אליהן בסדר הנכון.) */
+beat({ at:11, dur:5,
   enter:function(){
     show(phoneD,false); show(deskD,true);
-    setCap('אירועים', 'רשת בנטו, נבנתה מעיצוב Figma', '#FC543E');
+    setCap('אירועים', 'רשת בנטו לפי עיצוב Figma', '#FC543E');
     this._y = topOf(fDesk, '.events');
-    /* מאפסים את חשיפות הגלילה כדי שהכרטיסים ייכנסו מחדש בזמן אמת */
-    var d=docOf(fDesk);
-    if(d){ var g=d.getElementById('eventsGrid');
-      if(g) Array.prototype.forEach.call(g.children,function(c){ c.classList.remove('is-in'); }); }
-    scrollFrame(fDesk, this._y - 620);
   },
   frame:function(p){
-    scrollFrame(fDesk, lerp(this._y-620, this._y-40, easeInOut(clamp01(p*1.25))));
+    scrollFrame(fDesk, lerp(760, this._y - 150, easeInOut(clamp01(p*1.15))));
   }
 });
 
-/* --- 6. באנר התרומה (22-26) --- */
-beat({ at:22, dur:4,
+/* --- 5. באנר התרומה (16-20) --- */
+beat({ at:16, dur:4,
   enter:function(){
     setCap('תרומות', 'קומפוזיציה מדויקת לפי המקור', '#FDC122');
     this._y = topOf(fDesk, '.donate');
+    this._from = winOf(fDesk) ? winOf(fDesk).scrollY : 0;
   },
   frame:function(p){
-    scrollFrame(fDesk, lerp(this._y-560, this._y-90, easeInOut(clamp01(p*1.2))));
+    scrollFrame(fDesk, lerp(this._from, this._y - 120, easeInOut(clamp01(p*1.15))));
   }
 });
 
-/* --- 7. רספונסיביות (26-31) --- */
-beat({ at:26, dur:5,
+/* --- 6. הגלריה התלת-ממדית (20-25) — שיא הסרטון --- */
+beat({ at:20, dur:5,
+  enter:function(){
+    setCap('גלריה', 'כיפה תלת-ממדית ב-WebGL', '#4DA831');
+    this._y = topOf(fDesk, '.gallery');
+    this._from = winOf(fDesk) ? winOf(fDesk).scrollY : 0;
+    this._down = false;
+  },
+  frame:function(p){
+    var y = this._y - 60;
+    if(p < .26){
+      scrollFrame(fDesk, lerp(this._from, y, easeInOut(p/.26)));
+    } else {
+      scrollFrame(fDesk, y);
+      var q = (p-.26)/.74;
+      var x0 = DESK.w*0.74, x1 = DESK.w*0.22;
+      if(!this._down){ domeDrag(fDesk,x0,x0,'down'); this._down=true; }
+      domeDrag(fDesk, x0, lerp(x0,x1,easeInOut(q)), 'move');
+    }
+  },
+  exit:function(){ if(this._down){ domeDrag(fDesk,0,DESK.w*0.22,'up'); this._down=false; } }
+});
+
+/* --- 7. רספונסיביות (25-30) — אותו סקשן, שני רוחבים --- */
+beat({ at:25, dur:5,
   enter:function(){
     show(deskD,true); show(phoneD,true);
-    setCap('רספונסיבי', 'מ-320px ועד 2560px', '#18B1F0');
-    scrollFrame(fPhone, 0);
+    setCap('רספונסיבי', 'אותו סקשן, מ-390px ועד 1440px', '#18B1F0');
     layoutSplit(true);
+    this._dTop = topOf(fDesk, '.events');
+    this._pTop = topOf(fPhone,'.events');
+    scrollFrame(fDesk,  this._dTop - 420);
+    scrollFrame(fPhone, this._pTop - 260);
   },
   frame:function(p){
     var e = easeInOut(clamp01(p*1.1));
-    scrollFrame(fDesk,  lerp(topOf(fDesk,'.programs')-200, topOf(fDesk,'.about')-120, e));
-    scrollFrame(fPhone, lerp(0, 1500, e));
+    scrollFrame(fDesk,  lerp(this._dTop-420, this._dTop+260, e));
+    scrollFrame(fPhone, lerp(this._pTop-260, this._pTop+900, e));
   },
   exit:function(){ layoutSplit(false); }
 });
 
-/* --- 8. כרטיס נתונים (31-34) --- */
-beat({ at:31, dur:3,
+/* --- 8. כרטיס נתונים (30-33) --- */
+beat({ at:30, dur:3,
   enter:function(){ hideCap(); statsEl.classList.add('is-on'); },
   exit:function(){ statsEl.classList.remove('is-on'); }
 });
 
-/* --- 9. סיום (34-38) --- */
-beat({ at:34, dur:4,
+/* --- 9. סיום (33-37) --- */
+beat({ at:33, dur:4,
   enter:function(){
     hideCap(); show(deskD,false); show(phoneD,false);
     endEl.classList.add('is-on');
   }
 });
 
-var TOTAL = 38;
+var TOTAL = 37;
 
 /* ============================================================
    פריסת המכשירים
