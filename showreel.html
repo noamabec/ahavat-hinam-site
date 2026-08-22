@@ -544,10 +544,9 @@ function reset(){
   t0=null;
 }
 
-function tick(now){
-  if(t0===null) t0=now;
-  var t=(now-t0)/1000;
-
+/* מחיל את מצב ציר הזמן בנקודת זמן נתונה. מופרד מ-tick כדי שאפשר
+   יהיה גם לקפוץ לזמן מסוים (scrub) ולא רק לנגן ברצף. */
+function applyAt(t){
   for(var i=0;i<BEATS.length;i++){
     var b=BEATS[i];
     var on = t>=b.at && t<b.at+b.dur;
@@ -556,7 +555,12 @@ function tick(now){
     if(on && b.frame) b.frame(clamp01((t-b.at)/b.dur));
   }
   progBar.style.transform='scaleX('+clamp01(t/TOTAL)+')';
+}
 
+function tick(now){
+  if(t0===null) t0=now;
+  var t=(now-t0)/1000;
+  applyAt(t);
   if(t<TOTAL){ rafId=requestAnimationFrame(tick); }
   else { running=false; onFinish(); }
 }
@@ -573,6 +577,16 @@ function stop(){
 }
 
 var onFinish = function(){};
+
+/* ממשק חיצוני: ניגון, עצירה, וקפיצה לזמן מסוים.
+   ה-seek שימושי גם לבדיקה אוטומטית וגם כדי לבחון ביט בודד. */
+window.showreel = {
+  total: TOTAL,
+  play: function(){ stop(); start(); },
+  stop: stop,
+  seek: function(t){ stop(); reset(); applyAt(Math.max(0,Math.min(TOTAL-0.01,t))); },
+  beats: function(){ return BEATS.map(function(b){ return {at:b.at,dur:b.dur}; }); }
+};
 
 /* ============================================================
    הקלטה
