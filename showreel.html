@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex,nofollow" />
+<title>Showreel · אהבת חינ"מ</title>
+<style>
+/* ============================================================
+   SHOWREEL - סרטון תדמית אוטומטי לאתר אהבת חינ"מ
+   ------------------------------------------------------------
+   עמוד עצמאי שמנגן את האתר האמיתי (דרך iframe מאותו origin) לפי
+   ציר זמן קבוע, ומקליט את עצמו לקובץ וידאו.
+   הוא לא נוגע באף קובץ אחר באתר - רק קורא אותו.
+   ============================================================ */
+@font-face{font-family:'Fb Coherenti Sans';src:url('./public/fonts/fb-coherenti-sans-regular.ttf') format('truetype');font-weight:400;font-display:block}
+@font-face{font-family:'Fb Coherenti Sans';src:url('./public/fonts/fb-coherenti-sans-medium.ttf') format('truetype');font-weight:500;font-display:block}
+
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#07090C;height:100%;overflow:hidden}
+body{
+  font-family:'Fb Coherenti Sans','Heebo','Assistant',system-ui,sans-serif;
+  font-weight:500;color:#fff;
+  display:grid;place-items:center;
+}
+
+/* ---------- הבימה: גודל פיקסלים קבוע, מוקטנת רק לתצוגה מקדימה ---------- */
+#stage{
+  position:relative;flex:none;
+  width:var(--W);height:var(--H);
+  background:
+    radial-gradient(120% 90% at 78% 8%, rgba(24,177,240,.20), transparent 60%),
+    radial-gradient(100% 80% at 12% 92%, rgba(253,193,34,.16), transparent 62%),
+    #0E1116;
+  overflow:hidden;
+  transform-origin:center center;
+}
+/* ה-scale נקבע ב-JS כדי שהבימה תיכנס למסך; בהקלטה הוא חוזר ל-1 */
+
+/* פס המותג העליון - ציטוט של פס ההתקדמות באתר */
+#brandbar{position:absolute;top:0;inset-inline:0;height:6px;z-index:9;
+  background:linear-gradient(90deg,#FC543E,#FDC122,#4DA831,#18B1F0)}
+
+/* ---------- שכבת המכשירים ---------- */
+#deviceLayer{position:absolute;inset:0}
+
+.device{position:absolute;opacity:0;will-change:transform,opacity}
+.device.is-on{opacity:1}
+/* שכבה פנימית נפרדת: הפריסה יושבת על .device והזום הקולנועי על .devInner,
+   כך שהחלפת transform-origin לזום לא מזיזה את המכשיר מהמקום */
+.devInner{will-change:transform}
+
+/* חלון הדפדפן לדסקטופ */
+#deskDevice{transform-origin:center center}
+.chrome{
+  background:#1B2027;border-radius:14px 14px 0 0;
+  height:38px;display:flex;align-items:center;gap:8px;padding:0 16px;
+  border:1px solid #2A313B;border-bottom:none;
+}
+.chrome i{width:11px;height:11px;border-radius:50%;background:#3A424E;flex:none}
+.chrome .url{
+  margin-inline-start:14px;flex:1;height:22px;border-radius:11px;background:#131820;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:400;color:#7B8798;letter-spacing:.02em;direction:ltr;
+}
+.screen{
+  border:1px solid #2A313B;border-top:none;border-radius:0 0 14px 14px;
+  overflow:hidden;background:#fff;
+}
+.device iframe{display:block;border:0;background:#fff}
+
+/* מסגרת הטלפון */
+#phoneDevice .bezel{
+  background:#151A21;border:1px solid #2A313B;
+  border-radius:44px;padding:12px;
+  box-shadow:0 40px 90px rgba(0,0,0,.55);
+}
+#phoneDevice .notch{
+  position:absolute;top:22px;left:50%;transform:translateX(-50%);
+  width:110px;height:26px;border-radius:14px;background:#0B0E13;z-index:3;
+}
+#phoneDevice .screen{border-radius:33px;border:none}
+
+#deskDevice .screen{box-shadow:0 40px 90px rgba(0,0,0,.5)}
+
+/* ---------- כיתוביות ---------- */
+#caption{
+  position:absolute;z-index:8;
+  opacity:0;transform:translateY(14px);
+  transition:opacity .45s cubic-bezier(.16,1,.3,1),transform .45s cubic-bezier(.16,1,.3,1);
+  max-width:min(46ch,74%);
+}
+#caption.is-on{opacity:1;transform:none}
+#caption .kicker{
+  display:inline-flex;align-items:center;gap:9px;
+  font-size:var(--fs-kicker);font-weight:400;color:#8FA0B4;letter-spacing:.06em;
+  margin-bottom:.5em;
+}
+#caption .kicker::before{content:"";width:26px;height:3px;border-radius:2px;background:var(--accent,#18B1F0)}
+#caption .line{font-size:var(--fs-cap);line-height:1.12;color:#fff;text-shadow:0 4px 30px rgba(0,0,0,.6)}
+
+/* ---------- כרטיס הנתונים ---------- */
+#stats{
+  position:absolute;inset:0;z-index:10;display:grid;place-items:center;
+  opacity:0;pointer-events:none;background:rgba(14,17,22,.86);
+  backdrop-filter:blur(3px);transition:opacity .5s ease;
+}
+#stats.is-on{opacity:1}
+#stats .wrap{display:grid;gap:var(--stats-gap);grid-template-columns:repeat(2,auto);justify-content:center}
+#stats .cell{text-align:center;padding:0 var(--stats-pad)}
+#stats .num{font-size:var(--fs-stat);line-height:1;letter-spacing:-.02em}
+#stats .lbl{margin-top:.45em;font-size:var(--fs-statlbl);font-weight:400;color:#9AAABD}
+#stats .c1{color:#18B1F0}#stats .c2{color:#FDC122}
+#stats .c3{color:#4DA831}#stats .c4{color:#FC543E}
+
+/* ---------- כרטיס הסיום ---------- */
+#endcard{
+  position:absolute;inset:0;z-index:11;display:grid;place-items:center;
+  opacity:0;pointer-events:none;background:#0E1116;transition:opacity .6s ease;
+}
+#endcard.is-on{opacity:1}
+#endcard .inner{text-align:center}
+#endcard img{width:var(--end-logo);height:auto;margin-inline:auto;filter:brightness(0) invert(1);opacity:.96}
+#endcard .url{margin-top:1.1em;font-size:var(--fs-url);direction:ltr;color:#fff}
+#endcard .by{margin-top:.85em;font-size:var(--fs-by);font-weight:400;color:#8FA0B4}
+#endcard .by b{color:#fff;font-weight:500}
+#endcard .rule{width:64px;height:3px;border-radius:2px;margin:1.15em auto 0;
+  background:linear-gradient(90deg,#FC543E,#FDC122,#4DA831,#18B1F0)}
+
+/* ---------- פס התקדמות ---------- */
+#prog{position:absolute;bottom:0;inset-inline:0;height:4px;z-index:12;background:rgba(255,255,255,.10)}
+#prog i{display:block;height:100%;width:100%;transform:scaleX(0);transform-origin:right center;
+  background:linear-gradient(90deg,#FC543E,#FDC122,#4DA831,#18B1F0)}
+
+/* ---------- לוח הבקרה (לא נכנס להקלטה של הבימה) ---------- */
+#hud{
+  position:fixed;top:14px;inset-inline-start:14px;z-index:50;
+  display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+  font-size:13px;font-weight:400;
+}
+#hud button{
+  font:inherit;font-weight:500;cursor:pointer;color:#07090C;background:#fff;
+  border:0;border-radius:8px;padding:9px 16px;
+}
+#hud button.ghost{background:transparent;color:#9AAABD;border:1px solid #2A313B}
+#hud button:disabled{opacity:.4;cursor:default}
+#hud .note{color:#7B8798;max-width:44ch;line-height:1.45}
+#hud .warn{color:#FDC122}
+body.recording #hud{opacity:0;pointer-events:none}
+</style>
+</head>
+<body>
+
+<div id="hud">
+  <button id="play">▶ הפעל תצוגה מקדימה</button>
+  <button id="rec">● הקלט לקובץ וידאו</button>
+  <button id="switch" class="ghost">↔ מצב אנכי</button>
+  <span class="note" id="note"></span>
+</div>
+
+<div id="stage">
+  <div id="brandbar"></div>
+
+  <div id="deviceLayer">
+    <div class="device" id="deskDevice">
+      <div class="devInner" id="deskInner">
+        <div class="chrome"><i></i><i></i><i></i><span class="url">noamabec.github.io/ahavat-hinam-site</span></div>
+        <div class="screen"><iframe id="fDesk" src="./index.html" title="דסקטופ"></iframe></div>
+      </div>
+    </div>
+
+    <div class="device" id="phoneDevice">
+      <div class="devInner">
+        <div class="bezel"><span class="notch"></span>
+          <div class="screen"><iframe id="fPhone" src="./index.html" title="מובייל"></iframe></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="caption"><span class="kicker"></span><div class="line"></div></div>
+
+  <div id="stats"><div class="wrap">
+    <div class="cell"><div class="num c1">25</div><div class="lbl">עמודים</div></div>
+    <div class="cell"><div class="num c2">11</div><div class="lbl">עמודי אירוע</div></div>
+    <div class="cell"><div class="num c3">RTL</div><div class="lbl">עברית מלאה</div></div>
+    <div class="cell"><div class="num c4">0</div><div class="lbl">תלויות חיצוניות</div></div>
+  </div></div>
+
+  <div id="endcard"><div class="inner">
+    <img src="./public/images/logo.png" alt="" />
+    <div class="url">noamabec.github.io/ahavat-hinam-site</div>
+    <div class="rule"></div>
+    <div class="by">עוצב ופותח ע״י <b>נועם אבקסיס</b> · <span dir="ltr">Abecweb.com</span></div>
+  </div></div>
+
+  <div id="prog"><i id="progBar"></i></div>
+</div>
+
+<audio id="bgm" src="./public/audio/showreel.mp3" preload="auto"></audio>
+
+<script>
+(function(){
+'use strict';
+
+/* ============================================================
+   הגדרות בימה
+   ============================================================ */
+var qs   = new URLSearchParams(location.search);
+var MODE = qs.get('mode') === 'portrait' ? 'portrait' : 'landscape';
+var PORT = MODE === 'portrait';
+
+var STAGE = PORT ? {w:1080,h:1920} : {w:1920,h:1080};
+
+/* מידות ה-iframe = מידות אמיתיות של דפדפן, לא "מוקטנות".
+   כך האתר מקבל בדיוק את נקודות השבירה שלו ומתנהג כמו במציאות. */
+var DESK = {w:1440,h:900};
+var PHONE= {w:390, h:844};
+
+var CHROME_H = 38;   /* גובה סרגל הדפדפן המדומה - חייב להתאים ל-CSS */
+var BEZEL    = 12;   /* padding של מסגרת הטלפון - חייב להתאים ל-CSS */
+
+var stage = document.getElementById('stage');
+var deskD = document.getElementById('deskDevice');
+var deskInner = document.getElementById('deskInner');
+var phoneD= document.getElementById('phoneDevice');
+var fDesk = document.getElementById('fDesk');
+var fPhone= document.getElementById('fPhone');
+var capEl = document.getElementById('caption');
+var statsEl=document.getElementById('stats');
+var endEl = document.getElementById('endcard');
+var progBar=document.getElementById('progBar');
+var bgm   = document.getElementById('bgm');
+
+stage.style.setProperty('--W', STAGE.w+'px');
+stage.style.setProperty('--H', STAGE.h+'px');
+
+/* טיפוגרפיה שמשתנה לפי הפורמט */
+var T = PORT
+  ? {cap:'62px',kicker:'22px',stat:'104px',statlbl:'22px',url:'30px',by:'25px',endLogo:'360px',sgap:'54px',spad:'18px'}
+  : {cap:'56px',kicker:'20px',stat:'96px', statlbl:'21px',url:'28px',by:'23px',endLogo:'330px',sgap:'70px',spad:'30px'};
+stage.style.setProperty('--fs-cap',T.cap);
+stage.style.setProperty('--fs-kicker',T.kicker);
+stage.style.setProperty('--fs-stat',T.stat);
+stage.style.setProperty('--fs-statlbl',T.statlbl);
+stage.style.setProperty('--fs-url',T.url);
+stage.style.setProperty('--fs-by',T.by);
+stage.style.setProperty('--end-logo',T.endLogo);
+stage.style.setProperty('--stats-gap',T.sgap);
+stage.style.setProperty('--stats-pad',T.spad);
+
+fDesk.width = DESK.w;  fDesk.height = DESK.h;
+fPhone.width= PHONE.w; fPhone.height= PHONE.h;
+deskD.querySelector('.screen').style.width  = DESK.w+'px';
+deskD.querySelector('.screen').style.height = DESK.h+'px';
+deskD.querySelector('.chrome').style.width  = DESK.w+'px';
+phoneD.querySelector('.screen').style.width = PHONE.w+'px';
+phoneD.querySelector('.screen').style.height= PHONE.h+'px';
+
+/* מיקום הכיתובית לפי פורמט */
+if(PORT){ capEl.style.right='70px'; capEl.style.bottom='190px'; }
+else    { capEl.style.right='96px'; capEl.style.bottom='104px'; }
+
+/* התאמת הבימה למסך (תצוגה מקדימה בלבד) */
+function fitStage(){
+  if(document.body.classList.contains('recording')){ stage.style.transform='none'; return; }
+  var s = Math.min(innerWidth/STAGE.w, innerHeight/STAGE.h);
+  stage.style.transform = 'scale('+s+')';
+}
+addEventListener('resize', fitStage); fitStage();
+
+/* ============================================================
+   כלי עזר
+   ============================================================ */
+var easeOut  = function(p){ return 1 - Math.pow(1-p, 3); };
+var easeExpo = function(p){ return p>=1?1:1 - Math.pow(2,-10*p); };
+var easeInOut= function(p){ return p<.5 ? 4*p*p*p : 1 - Math.pow(-2*p+2,3)/2; };
+function lerp(a,b,p){ return a + (b-a)*p; }
+function clamp01(p){ return p<0?0:p>1?1:p; }
+
+function docOf(f){ try{ return f.contentDocument; }catch(e){ return null; } }
+function winOf(f){ try{ return f.contentWindow; }catch(e){ return null; } }
+
+/* מיקום אנכי של סקשן בתוך ה-iframe */
+function topOf(f, sel){
+  var d = docOf(f); if(!d) return 0;
+  var el = d.querySelector(sel); if(!el) return 0;
+  return el.getBoundingClientRect().top + (winOf(f).scrollY||0);
+}
+function scrollFrame(f, y){
+  var w = winOf(f); if(w) w.scrollTo(0, Math.max(0,y));
+}
+
+/* הצגה/הסתרה של מכשיר */
+function show(el,on){ el.classList.toggle('is-on', !!on); }
+
+/* כיתובית */
+var capK = capEl.querySelector('.kicker');
+var capL = capEl.querySelector('.line');
+function setCap(kicker, line, accent){
+  capK.textContent = kicker || '';
+  capL.textContent = line || '';
+  capEl.style.setProperty('--accent', accent || '#18B1F0');
+  capEl.classList.add('is-on');
+}
+function hideCap(){ capEl.classList.remove('is-on'); }
+
+/* גרירה סינתטית על הגלריה התלת-ממדית (WebGL).
+   הגלריה מאזינה ל-mousedown על המכל ול-mousemove/up על החלון שלה. */
+function domeDrag(f, fromX, toX, phase){
+  var d = docOf(f), w = winOf(f); if(!d||!w) return;
+  var strip = d.getElementById('galleryStrip'); if(!strip) return;
+  var r = strip.getBoundingClientRect();
+  var y = r.top + r.height/2;
+  function ev(type,target,x){
+    target.dispatchEvent(new w.MouseEvent(type,{clientX:x,clientY:y,bubbles:true,cancelable:true,view:w}));
+  }
+  if(phase==='down') ev('mousedown',strip,fromX);
+  else if(phase==='move') ev('mousemove',w,toX);
+  else if(phase==='up') ev('mouseup',w,toX);
+}
+
+/* ============================================================
+   ציר הזמן
+   ============================================================ */
+var BEATS = [];
+function beat(o){ BEATS.push(o); return o; }
+
+/* --- 1. פתיחה על הלוגו (0-2) ---
+   הזום יושב על .devInner עם transform-origin על הלוגו עצמו, ולכן הוא
+   "נופל" בדיוק לגודל 1 בסוף הביט בלי לקפוץ. */
+beat({ at:0, dur:2,
+  enter:function(){
+    show(deskD,true); show(phoneD,false);
+    scrollFrame(fDesk,0);
+    hideCap();
+    var origin = '50% 30%';
+    var d = docOf(fDesk);
+    if(d){
+      var logo = d.querySelector('.nav__logo');
+      if(logo){
+        var r = logo.getBoundingClientRect();
+        /* +CHROME_H כי ה-iframe יושב מתחת לסרגל הדפדפן המדומה */
+        origin = (r.left + r.width/2) + 'px ' + (CHROME_H + r.top + r.height/2) + 'px';
+      }
+    }
+    deskInner.style.transformOrigin = origin;
+  },
+  frame:function(p){
+    deskInner.style.transform = 'scale(' + lerp(2.9, 1, easeOut(p)) + ')';
+  },
+  exit:function(){ deskInner.style.transform='none'; }
+});
+
+/* --- 2. ההירו (2-7) --- */
+beat({ at:2, dur:5,
+  enter:function(){
+    show(deskD,true);
+    setCap('דף הבית', 'עברית מלאה, מימין לשמאל', '#18B1F0');
+  },
+  frame:function(p){
+    var e = easeInOut(clamp01(p*1.05));
+    scrollFrame(fDesk, lerp(0, 780, e));
+  }
+});
+
+/* --- 3. הגלריה התלת-ממדית (7-12) --- */
+beat({ at:7, dur:5,
+  enter:function(){
+    setCap('גלריה', 'כיפה תלת-ממדית ב-WebGL', '#4DA831');
+    this._y = topOf(fDesk, '.gallery');
+    this._down = false;
+  },
+  frame:function(p){
+    var y = this._y - 40;
+    if(p < .22){
+      /* גלילה אל הגלריה */
+      scrollFrame(fDesk, lerp(780, y, easeInOut(p/.22)));
+    } else {
+      scrollFrame(fDesk, y);
+      /* גרירה אוטומטית של הכיפה */
+      var q = (p-.22)/.78;
+      var x0 = DESK.w*0.72, x1 = DESK.w*0.20;
+      if(!this._down){ domeDrag(fDesk,x0,x0,'down'); this._down=true; }
+      domeDrag(fDesk, x0, lerp(x0,x1,easeInOut(q)), 'move');
+    }
+  },
+  exit:function(){ if(this._down){ domeDrag(fDesk,0,DESK.w*0.20,'up'); this._down=false; } }
+});
+
+/* --- 4. התפריט המדורג (12-17) --- */
+beat({ at:12, dur:5,
+  enter:function(){
+    show(deskD,false); show(phoneD,true);
+    scrollFrame(fPhone,0);
+    setCap('ניווט', 'תפריט מדורג בצבעי המותג', '#FDC122');
+    this._opened=false; this._closed=false;
+    var d=docOf(fPhone);
+    if(d){ var n=d.getElementById('nav'); if(n) n.setAttribute('data-open','false'); }
+  },
+  frame:function(p){
+    var d = docOf(fPhone); if(!d) return;
+    var tgl = d.querySelector('.nav__toggle');
+    if(p>.18 && !this._opened && tgl){ tgl.click(); this._opened=true; }
+    if(p>.80 && !this._closed && tgl){ tgl.click(); this._closed=true; }
+  },
+  exit:function(){
+    var d=docOf(fPhone);
+    if(d){ var n=d.getElementById('nav'); if(n) n.setAttribute('data-open','false'); }
+  }
+});
+
+/* --- 5. רשת האירועים (17-22) --- */
+beat({ at:17, dur:5,
+  enter:function(){
+    show(phoneD,false); show(deskD,true);
+    setCap('אירועים', 'רשת בנטו, נבנתה מעיצוב Figma', '#FC543E');
+    this._y = topOf(fDesk, '.events');
+    /* מאפסים את חשיפות הגלילה כדי שהכרטיסים ייכנסו מחדש בזמן אמת */
+    var d=docOf(fDesk);
+    if(d){ var g=d.getElementById('eventsGrid');
+      if(g) Array.prototype.forEach.call(g.children,function(c){ c.classList.remove('is-in'); }); }
+    scrollFrame(fDesk, this._y - 620);
+  },
+  frame:function(p){
+    scrollFrame(fDesk, lerp(this._y-620, this._y-40, easeInOut(clamp01(p*1.25))));
+  }
+});
+
+/* --- 6. באנר התרומה (22-26) --- */
+beat({ at:22, dur:4,
+  enter:function(){
+    setCap('תרומות', 'קומפוזיציה מדויקת לפי המקור', '#FDC122');
+    this._y = topOf(fDesk, '.donate');
+  },
+  frame:function(p){
+    scrollFrame(fDesk, lerp(this._y-560, this._y-90, easeInOut(clamp01(p*1.2))));
+  }
+});
+
+/* --- 7. רספונסיביות (26-31) --- */
+beat({ at:26, dur:5,
+  enter:function(){
+    show(deskD,true); show(phoneD,true);
+    setCap('רספונסיבי', 'מ-320px ועד 2560px', '#18B1F0');
+    scrollFrame(fPhone, 0);
+    layoutSplit(true);
+  },
+  frame:function(p){
+    var e = easeInOut(clamp01(p*1.1));
+    scrollFrame(fDesk,  lerp(topOf(fDesk,'.programs')-200, topOf(fDesk,'.about')-120, e));
+    scrollFrame(fPhone, lerp(0, 1500, e));
+  },
+  exit:function(){ layoutSplit(false); }
+});
+
+/* --- 8. כרטיס נתונים (31-34) --- */
+beat({ at:31, dur:3,
+  enter:function(){ hideCap(); statsEl.classList.add('is-on'); },
+  exit:function(){ statsEl.classList.remove('is-on'); }
+});
+
+/* --- 9. סיום (34-38) --- */
+beat({ at:34, dur:4,
+  enter:function(){
+    hideCap(); show(deskD,false); show(phoneD,false);
+    endEl.classList.add('is-on');
+  }
+});
+
+var TOTAL = 38;
+
+/* ============================================================
+   פריסת המכשירים
+   ============================================================ */
+/* כל מכשיר ממוקם ב-right/top ומוקטן מ-origin "top right" (RTL-friendly).
+   הפונקציה מקבלת את הרוחב הכולל של המכשיר כדי למרכז אותו נכון. */
+function put(el, w, scale, top, rightPx){
+  el.style.left='auto';
+  el.style.right = (rightPx !== undefined ? rightPx : (STAGE.w - w*scale)/2) + 'px';
+  el.style.top   = top + 'px';
+  el.style.transform = 'scale('+scale+')';
+  el.style.transformOrigin = 'top right';
+}
+
+var DESK_H_TOTAL = DESK.h + CHROME_H;
+var PHONE_W_TOTAL = PHONE.w + BEZEL*2;
+var PHONE_H_TOTAL = PHONE.h + BEZEL*2;
+
+/* פריסה רגילה: מכשיר יחיד, ממורכז אופקית */
+function layoutSolo(){
+  if(PORT){
+    var ds = (STAGE.w - 140) / DESK.w;
+    put(deskD, DESK.w, ds, Math.round((STAGE.h - DESK_H_TOTAL*ds)/2 - 60));
+    var ps = Math.min(1.75, (STAGE.h - 620) / PHONE_H_TOTAL);
+    put(phoneD, PHONE_W_TOTAL, ps, Math.round((STAGE.h - PHONE_H_TOTAL*ps)/2 - 40));
+  } else {
+    var s = Math.min(0.92, (STAGE.h - 190) / DESK_H_TOTAL);
+    put(deskD, DESK.w, s, Math.round((STAGE.h - DESK_H_TOTAL*s)/2));
+    var ps2 = Math.min(1.05, (STAGE.h - 150) / PHONE_H_TOTAL);
+    put(phoneD, PHONE_W_TOTAL, ps2, Math.round((STAGE.h - PHONE_H_TOTAL*ps2)/2));
+  }
+}
+
+/* פריסת "שניים זה לצד זה" לביט הרספונסיביות */
+function layoutSplit(on){
+  if(!on){ layoutSolo(); return; }
+  if(PORT){
+    var ds = (STAGE.w - 140) / DESK.w;
+    put(deskD, DESK.w, ds, 300);
+    var ps = 1.25;
+    put(phoneD, PHONE_W_TOTAL, ps, 300 + DESK_H_TOTAL*ds + 90);
+  } else {
+    var d2 = 0.60, p2 = 0.92;
+    var gap = 70, pad = 90;
+    /* הדסקטופ מימין (עיקרי ב-RTL), הטלפון לצדו משמאל */
+    put(deskD, DESK.w, d2, Math.round((STAGE.h - DESK_H_TOTAL*d2)/2 - 20), pad);
+    put(phoneD, PHONE_W_TOTAL, p2,
+        Math.round((STAGE.h - PHONE_H_TOTAL*p2)/2 - 20),
+        Math.round(pad + DESK.w*d2 + gap));
+  }
+}
+layoutSolo();
+
+/* ============================================================
+   מנוע ההרצה
+   ============================================================ */
+var t0=null, rafId=null, running=false;
+
+function reset(){
+  BEATS.forEach(function(b){ b._on=false; });
+  hideCap(); statsEl.classList.remove('is-on'); endEl.classList.remove('is-on');
+  show(deskD,false); show(phoneD,false);
+  deskInner.style.transform='none';
+  layoutSolo();
+  scrollFrame(fDesk,0); scrollFrame(fPhone,0);
+  progBar.style.transform='scaleX(0)';
+  t0=null;
+}
+
+function tick(now){
+  if(t0===null) t0=now;
+  var t=(now-t0)/1000;
+
+  for(var i=0;i<BEATS.length;i++){
+    var b=BEATS[i];
+    var on = t>=b.at && t<b.at+b.dur;
+    if(on && !b._on){ b._on=true; if(b.enter) b.enter(); }
+    if(!on && b._on){ b._on=false; if(b.exit) b.exit(); }
+    if(on && b.frame) b.frame(clamp01((t-b.at)/b.dur));
+  }
+  progBar.style.transform='scaleX('+clamp01(t/TOTAL)+')';
+
+  if(t<TOTAL){ rafId=requestAnimationFrame(tick); }
+  else { running=false; onFinish(); }
+}
+
+function start(){
+  if(running) return;
+  reset(); running=true;
+  try{ bgm.currentTime=0; bgm.volume=0.85; bgm.play().catch(function(){}); }catch(e){}
+  rafId=requestAnimationFrame(tick);
+}
+function stop(){
+  running=false; if(rafId) cancelAnimationFrame(rafId);
+  try{ bgm.pause(); }catch(e){}
+}
+
+var onFinish = function(){};
+
+/* ============================================================
+   הקלטה
+   ============================================================ */
+var playBtn=document.getElementById('play');
+var recBtn =document.getElementById('rec');
+var swBtn  =document.getElementById('switch');
+var note   =document.getElementById('note');
+
+swBtn.textContent = PORT ? '↔ מצב אופקי' : '↔ מצב אנכי';
+swBtn.onclick=function(){
+  location.search='?mode='+(PORT?'landscape':'portrait');
+};
+
+playBtn.onclick=function(){ stop(); start(); };
+
+if(matchMedia('(prefers-reduced-motion: reduce)').matches){
+  note.innerHTML='<span class="warn">שים לב:</span> במערכת שלך מופעל "צמצום תנועה" — האנימציות באתר יבוטלו וההקלטה תצא סטטית. כבה את זה בהגדרות התצוגה של Windows לפני ההקלטה.';
+}else{
+  note.textContent='ההקלטה מפיקה קובץ .webm בגודל '+STAGE.w+'×'+STAGE.h+'. בחר "הכרטיסייה הזו" בחלון השיתוף.';
+}
+
+recBtn.onclick=async function(){
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia){
+    note.innerHTML='<span class="warn">הדפדפן חוסם הקלטה מכאן.</span> אפשר להריץ תצוגה מקדימה ולהקליט ב-OBS.';
+    return;
+  }
+  recBtn.disabled=true; playBtn.disabled=true;
+  try{
+    var stream = await navigator.mediaDevices.getDisplayMedia({
+      video:{ frameRate:60, width:STAGE.w, height:STAGE.h },
+      audio:true,
+      preferCurrentTab:true
+    });
+
+    document.body.classList.add('recording');
+    stage.style.transform='none';
+    window.scrollTo(0,0);
+
+    var mime = ['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm']
+      .filter(function(m){ return MediaRecorder.isTypeSupported(m); })[0];
+    var chunks=[];
+    var mr=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:12000000});
+    mr.ondataavailable=function(e){ if(e.data.size) chunks.push(e.data); };
+    mr.onstop=function(){
+      stream.getTracks().forEach(function(t){ t.stop(); });
+      var blob=new Blob(chunks,{type:mime});
+      var a=document.createElement('a');
+      a.href=URL.createObjectURL(blob);
+      a.download='ahavat-hinam-showreel-'+MODE+'.webm';
+      a.click();
+      setTimeout(function(){ URL.revokeObjectURL(a.href); },4000);
+      document.body.classList.remove('recording');
+      fitStage(); recBtn.disabled=false; playBtn.disabled=false;
+      note.textContent='הקובץ ירד. אם צריך mp4 — אפשר להמיר, רוב הפלטפורמות מקבלות webm כמו שהוא.';
+    };
+
+    onFinish=function(){ setTimeout(function(){ if(mr.state!=='inactive') mr.stop(); },700); };
+    /* אם המשתמש עוצר את השיתוף באמצע */
+    stream.getVideoTracks()[0].addEventListener('ended',function(){
+      stop(); if(mr.state!=='inactive') mr.stop();
+    });
+
+    mr.start();
+    setTimeout(start, 350);   /* רגע קצר כדי שהפריים הראשון לא ייתפס באמצע מעבר */
+  }catch(err){
+    document.body.classList.remove('recording'); fitStage();
+    recBtn.disabled=false; playBtn.disabled=false;
+    note.innerHTML='<span class="warn">ההקלטה בוטלה.</span> '+(err && err.message ? err.message : '');
+  }
+};
+
+/* המתנה לטעינת שני ה-iframes לפני שמאפשרים הרצה */
+var ready=0;
+function onReady(){
+  ready++;
+  if(ready>=2){
+    playBtn.textContent='▶ הפעל תצוגה מקדימה';
+    playBtn.disabled=false; recBtn.disabled=false;
+  }
+}
+playBtn.disabled=true; recBtn.disabled=true;
+playBtn.textContent='טוען את האתר…';
+fDesk.addEventListener('load',onReady);
+fPhone.addEventListener('load',onReady);
+/* אם כבר נטענו לפני שנרשמנו */
+if(docOf(fDesk) && docOf(fDesk).readyState==='complete') onReady();
+if(docOf(fPhone)&& docOf(fPhone).readyState==='complete') onReady();
+
+reset();
+})();
+</script>
+</body>
+</html>
