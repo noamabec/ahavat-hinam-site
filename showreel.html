@@ -515,9 +515,13 @@ function layoutSplit(on){
   if(!on){ layoutSolo(); return; }
   if(PORT){
     var ds = (STAGE.w - 140) / DESK.w;
-    put(deskD, DESK.w, ds, 300);
-    var ps = 1.25;
-    put(phoneD, PHONE_W_TOTAL, ps, 300 + DESK_H_TOTAL*ds + 90);
+    var dTop = 260;
+    put(deskD, DESK.w, ds, dTop);
+    /* הטלפון מקבל בדיוק את מה שנשאר מתחת לדסקטופ, ולא ערך קשיח -
+       אחרת הוא גולש מתחתית הקאדר האנכי */
+    var pTop = Math.round(dTop + DESK_H_TOTAL*ds + 70);
+    var ps = Math.min(1.15, (STAGE.h - pTop - 70) / PHONE_H_TOTAL);
+    put(phoneD, PHONE_W_TOTAL, ps, pTop);
   } else {
     var d2 = 0.60, p2 = 0.92;
     var gap = 70, pad = 90;
