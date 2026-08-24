@@ -860,8 +860,18 @@ function wireVisual(vf){
   /* סגנון הסימון */
   var st=d.createElement('style'); st.textContent=VSTYLE; d.head.appendChild(st);
 
-  /* מה ניתן לעריכה: כותרות ופסקאות עם תוכן, וכל התמונות */
-  Array.prototype.forEach.call(d.querySelectorAll('h1,h2,h3,h4,p,.eyebrow,.event-card__date'), function(el){
+  /* מה ניתן לעריכה: כל טקסט אמיתי בעמוד - כותרות, פסקאות, תוויות
+     כפתורים, קישורי ניווט וקישורי פוטר. לא רק כותרות/פסקאות כמו
+     קודם, שהחמיצו למשל את "תרמו לנו" ו"הכירו אותנו" (טקסט הכפתור
+     יושב ב-span ראשון בתוך .btn, לצד span נפרד לאייקון). */
+  var TEXT_SEL = [
+    'h1','h2','h3','h4','h5','p','.eyebrow','.event-card__date',
+    '.btn > span:first-child',
+    '.nav__link','.nav__links a',
+    '.footer__links a','.footer__legal a','.footer__contact a',
+    '.footer__contact li > span:not(.footer__ico)','.footer__credit'
+  ].join(',');
+  Array.prototype.forEach.call(d.querySelectorAll(TEXT_SEL), function(el){
     if(!el.textContent.trim()) return;
     if(el.closest('svg')) return;
     if(el.querySelector('img,svg')) return;       /* לא לגעת בעטיפות */
@@ -871,6 +881,12 @@ function wireVisual(vf){
     if(el.closest('.sprite')) return;
     el.setAttribute('data-edimg','1');
   });
+
+  /* רצועת השותפים: מוסיפים אריח "הוספת לוגו" בסוף הרשימה, ומחליפים
+     את הרצועה מחדש דרך ה-API שהאתר עצמו חושף - כך שאם מתווספים
+     מספיק לוגואים כדי לא להיכנס ברוחב המסך, האנימציה נדלקת בדיוק
+     כמו שהיא הייתה נדלקת אצל גולש אמיתי. */
+  wireLogoAdd(d, w);
 
   /* לחיצה: טקסט -> עריכה במקום, תמונה -> בורר מדיה */
   d.addEventListener('click', function(e){
@@ -897,6 +913,59 @@ function wireVisual(vf){
 
   /* מניעת ניווט גם בשליחת טפסים */
   d.addEventListener('submit', function(e){ e.preventDefault(); }, true);
+}
+
+/* אריח "הוספת לוגו" בסוף רצועת השותפים. משתמש בפונקציה שהאתר עצמו
+   חושף (window.__logoloopRebuild) כדי שקביעת "יש מקום/אין מקום" תיעשה
+   באותה לוגיקה בדיוק שגולש אמיתי חווה - לא חישוב מקביל כאן בפאנל. */
+function wireLogoAdd(d, w){
+  var host = d.getElementById('partnersLoop');
+  if(!host || !w.__logoloopRebuild) return;
+
+  function visibleList(){ return host.querySelector('.logoloop__list:not([aria-hidden])'); }
+  function currentLogos(){
+    var list = visibleList(); if(!list) return [];
+    return Array.prototype.map.call(list.querySelectorAll('img'), function(im){
+      return { src: im.getAttribute('src'), alt: im.getAttribute('alt') || '' };
+    });
+  }
+  function addTile(){
+    var list = visibleList();
+    if(!list || list.querySelector('[data-addlogo]')) return;
+    var li = d.createElement('li');
+    li.className = 'logoloop__item'; li.setAttribute('data-addlogo','1');
+    li.style.cssText =
+      'display:flex;align-items:center;justify-content:center;flex:0 0 auto;'+
+      'width:var(--logoloop-logoHeight);height:var(--logoloop-logoHeight);'+
+      'border:2px dashed rgba(24,177,240,.55);border-radius:10px;'+
+      'cursor:pointer;color:#18B1F0';
+    li.innerHTML = '<svg viewBox="0 0 24 24" style="width:38%;height:38%;stroke:currentColor;'+
+      'fill:none;stroke-width:2;stroke-linecap:round"><path d="M12 5v14M5 12h14"/></svg>';
+    list.appendChild(li);
+  }
+  addTile();
+
+  d.addEventListener('click', function(e){
+    var tile = e.target.closest('[data-addlogo]'); if(!tile) return;
+    e.preventDefault(); e.stopPropagation();
+    pickImage(null, function(src){
+      /* setTimeout(0): המודאל הנוכחי עדיין באמצע סגירה כשה-callback הזה
+         רץ (modal() קורא ל-onOk ואז מיד ל-close()) - פתיחת מודאל שני
+         באותו טיק הייתה נסגרת מיד יחד עם הראשון. */
+      setTimeout(function(){
+        modal('שם השותף/ה (לתיאור נגישות)',
+          '<div class="field"><label>שם או תיאור קצר</label>'+
+          '<input id="lgName" placeholder="למשל: חברת ביטוח כלשהי" /></div>',
+          function(){
+            var nameEl = document.getElementById('lgName');
+            var alt = (nameEl && nameEl.value.trim()) || 'שותף חדש';
+            w.__logoloopRebuild(currentLogos().concat([{ src:src, alt:alt }]));
+            addTile();
+            bump(); toast('הלוגו נוסף לרצועה');
+          }, 'הוספת הלוגו');
+      }, 0);
+    });
+  }, true);
 }
 
 function startEdit(el, w){
@@ -1022,6 +1091,27 @@ var PAGES = [
  ]}
 ];
 
+/* שאר עמודי האתר: הפירוק לשדות בנוי רק לעמודים הנפוצים ביותר למעלה.
+   לכל השאר יש עורך תוכן מלא ומדויק במסך "עריכה חזותית" (הוא עובד על
+   כל עמוד לפי המפתח שלו) - כאן רק מפנים אליו, כדי לא לשכפל נתונים. */
+var MORE_PAGES = [
+ ['breshit','בשביל בראשית'], ['vahavta','תנועת ואהב”ת'], ['the-gallery','הגלריה שלנו'],
+ ['events','האירועים שהיו'], ['gallery','גלריית תמונות'], ['press','בתקשורת'],
+ ['donate','תרומות'], ['terms','תקנון'], ['privacy','מדיניות פרטיות'],
+ ['accessibility','הצהרת נגישות'],
+ ['event-opening','אירוע · פתיחת בית ש”י'], ['event-night-race','אירוע · מרוץ הלילה'],
+ ['event-hanukkah','אירוע · חנוכה בבתי הספר'], ['event-jeeps','אירוע · סיור ג’יפים'],
+ ['event-puppetry','אירוע · סדנת בובנאות'], ['event-workshops','אירוע · סדנאות מיומנויות'],
+ ['event-mamanet','אירוע · ליגת מאמאנט'], ['event-lecture','אירוע · הרצאת כרמית הובר'],
+ ['event-keren-nashim','אירוע · קרן נשי האופן הפנימי'], ['event-volunteers-usa','אירוע · מתנדבים מטנסי'],
+ ['event-tu-bishvat','אירוע · ט”ו בשבט']
+];
+MORE_PAGES.forEach(function(p){
+  PAGES.push({k:p[0], n:p[1], secs:[
+    {t:'תוכן העמוד', d:'עריכה מלאה של הטקסטים והתמונות בעמוד', lock:'visual', lockT:'עריכה חזותית'}
+  ]});
+});
+
 var PSTATE = {page:'index'};
 
 R['/pages'] = function(){
@@ -1042,7 +1132,7 @@ R['/pages'] = function(){
       '<button class="btn btn--p btn--sm" id="saveAll">שמירת שינויים</button>'+
     '</div></div>'+
 
-    pg.secs.map(function(s,i){ return secItem(s,i); }).join('');
+    pg.secs.map(function(s,i){ return secItem(s,i,pg.k); }).join('');
 
   /* מעבר בין עמודים */
   view.querySelector('.pagebar').onclick=function(e){
@@ -1069,15 +1159,22 @@ R['/pages'] = function(){
     if(up) toast('בגרסה האמיתית ייפתח חלון בחירת קובץ מהמחשב');
     if(e.target.closest('#saveAll')) toast('כל השינויים בעמוד נשמרו (הדגמה)');
     if(e.target.closest('#toVisual')){ VS.page=PSTATE.page; location.hash='#/visual'; }
+    var tv=e.target.closest('[data-tovisual]');
+    if(tv){ VS.page=tv.dataset.tovisual; }
   });
 };
 
-function secItem(s,i){
+function secItem(s,i,pageKey){
   var body;
   if(s.lock){
+    var href = s.lock==='visual' ? '#/visual' : '#/'+s.lock;
+    var extra = s.lock==='visual' ? ' data-tovisual="'+esc(pageKey)+'"' : '';
+    var msg = s.lock==='visual'
+      ? 'לעמוד הזה עדיין אין טופס שדות מוכן — אפשר לערוך אותו ישירות דרך'
+      : 'הסקשן הזה מתמלא אוטומטית — ערוך אותו במסך';
     body = '<div class="locked">'+
       '<svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/></svg>'+
-      '<span>הסקשן הזה מתמלא אוטומטית — ערוך אותו במסך <a href="#/'+s.lock+'">'+esc(s.lockT)+'</a>.</span></div>';
+      '<span>'+msg+' <a href="'+href+'"'+extra+'>'+esc(s.lockT)+'</a>.</span></div>';
     return '<div class="sec-item"><div class="sec-item__hd">'+
       '<span class="sec-item__n">'+(i+1)+'</span>'+
       '<span class="sec-item__t"><b>'+esc(s.t)+'</b><span>'+esc(s.d)+'</span></span>'+
