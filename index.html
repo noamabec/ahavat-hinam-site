@@ -217,7 +217,7 @@ h1,h2,h3{margin:0;font-weight:500;line-height:var(--lh)}
   padding-block:calc(var(--logoloop-logoHeight) * 0.1);
 }
 .logoloop__track{
-  display:flex;width:max-content;
+  display:flex;gap:var(--logoloop-gap);width:max-content;
   will-change:transform;user-select:none;
   position:relative;z-index:0;
 }
@@ -234,8 +234,20 @@ h1,h2,h3{margin:0;font-weight:500;line-height:var(--lh)}
 }
 .logoloop--scale-hover .logoloop__item{overflow:visible}
 .logoloop--scale-hover .logoloop__item:hover img{transform:scale(1.12);opacity:1;transform-origin:center center}
+/* ---------- מצב אנימציה: רק כשהלוגואים לא נכנסים ברוחב המסך.
+   הרשימה מוכפלת (עותק שני עם aria-hidden), והתזוזה מחושבת בפיקסלים
+   מדויקים (לא באחוזים) כדי שהתפר בין הסיבוב הראשון לשני יהיה חלק
+   בדיוק - ראו --logoloop-shift שנקבע ב-JS. ---------- */
+.logoloop--animate .logoloop__track{
+  animation:logoloop-scroll var(--logoloop-duration,28s) linear infinite;
+}
+.logoloop--animate:hover .logoloop__track{animation-play-state:paused}
+@keyframes logoloop-scroll{
+  from{transform:translate3d(0,0,0)}
+  to{transform:translate3d(calc(-1 * var(--logoloop-shift,50%)),0,0)}
+}
 @media (prefers-reduced-motion:reduce){
-  .logoloop__track{transform:translate3d(0,0,0)!important}
+  .logoloop__track{transform:translate3d(0,0,0)!important;animation:none!important}
   .logoloop__item img{transition:none!important}
 }
 
@@ -1998,9 +2010,12 @@ initCarousel('eventsGrid', '[data-events-prev]', '[data-events-next]', true);
 })();
 </script>
 
-<!-- ===================== לוגואים - שורה קבועה (בלי אנימציה) =====================
-     רק 3 שותפים כרגע - רצועה נגללת לא נראית טוב עם כל כך מעט לוגואים,
-     אז מציגים שורה סטטית אחת, ממורכזת.
+<!-- ===================== לוגואים - רצועה שנעה רק אם היא לא נכנסת =====================
+     עם מעט שותפים מוצגת שורה סטטית ממורכזת (כמו קודם). ברגע שיתווספו
+     מספיק לוגואים כדי שהם לא ייכנסו ברוחב המסך, הרשימה מוכפלת ורצה
+     ברצף אינסופי - בדיוק ההתנהגות המקורית של הרכיב, רק מותנית.
+     window.__logoloopRebuild(newLogos) מאפשר לפאנל הניהול לעדכן את
+     רשימת השותפים ולהפעיל מחדש את הבדיקה, בלי לטעון את העמוד מחדש.
      ================================================================== -->
 <script>
 (function(){
@@ -2012,27 +2027,77 @@ initCarousel('eventsGrid', '[data-events-prev]', '[data-events-next]', true);
     { src:'./public/images/partners/partner-anak-habitoach.jpeg', alt:'ענק הביטוח - אריה רוזן' },
     { src:'./public/images/partners/partner-galila.jpeg',         alt:'גלילה' }
   ];
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var track, resizeTimer;
 
-  var track = document.createElement('div');
-  track.className = 'logoloop__track';
-  host.appendChild(track);
+  function makeList(hidden){
+    var ul = document.createElement('ul');
+    ul.className = 'logoloop__list';
+    ul.setAttribute('role', hidden ? 'presentation' : 'list');
+    if(hidden) ul.setAttribute('aria-hidden','true');
+    LOGOS.forEach(function(logo){
+      var li = document.createElement('li');
+      li.className = 'logoloop__item';
+      var img = new Image();
+      img.src = logo.src; img.alt = hidden ? '' : logo.alt;
+      img.loading = 'lazy'; img.decoding = 'async'; img.draggable = false;
+      li.appendChild(img);
+      ul.appendChild(li);
+    });
+    return ul;
+  }
 
-  var ul = document.createElement('ul');
-  ul.className = 'logoloop__list';
-  ul.setAttribute('role','list');
-  LOGOS.forEach(function(logo){
-    var li = document.createElement('li');
-    li.className = 'logoloop__item';
-    var img = new Image();
-    img.src = logo.src;
-    img.alt = logo.alt;
-    img.loading = 'lazy';
-    img.decoding = 'async';
-    img.draggable = false;
-    li.appendChild(img);
-    ul.appendChild(li);
+  function afterImagesReady(imgs, cb){
+    var left = imgs.filter(function(im){ return !im.complete; }).length;
+    if(!left) return cb();
+    imgs.forEach(function(im){
+      im.addEventListener('load', done); im.addEventListener('error', done);
+    });
+    function done(){ if(--left <= 0) cb(); }
+  }
+
+  function layout(){
+    host.classList.remove('logoloop--animate');
+    track.style.removeProperty('--logoloop-duration');
+    track.style.removeProperty('--logoloop-shift');
+    var clone = track.querySelector('.logoloop__list[aria-hidden]');
+    if(clone) clone.remove();
+
+    var overflow = track.scrollWidth > host.clientWidth + 1;
+    if(!overflow || reduce) return;
+
+    var gapPx = parseFloat(getComputedStyle(track).columnGap) || 0;
+    var oneSetWidth = track.scrollWidth;               /* לפני השכפול = רוחב סט אחד */
+    track.appendChild(makeList(true));
+    var shift = oneSetWidth + gapPx;                    /* בדיוק מקום התחלת הסט השני */
+    var pxPerSecond = 46;                               /* קצב הגלילה - נמוך = איטי יותר */
+    track.style.setProperty('--logoloop-shift', shift + 'px');
+    track.style.setProperty('--logoloop-duration', Math.max(14, shift / pxPerSecond) + 's');
+    host.classList.add('logoloop--animate');
+  }
+
+  function build(){
+    host.innerHTML = '';
+    track = document.createElement('div');
+    track.className = 'logoloop__track';
+    var ul = makeList(false);
+    track.appendChild(ul);
+    host.appendChild(track);
+    afterImagesReady(Array.prototype.slice.call(ul.querySelectorAll('img')), layout);
+  }
+
+  addEventListener('resize', function(){
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(layout, 200);
   });
-  track.appendChild(ul);
+
+  build();
+
+  /* API לפאנל הניהול: מחליף את רשימת השותפים ובונה מחדש */
+  window.__logoloopRebuild = function(newLogos){
+    if(newLogos) LOGOS = newLogos;
+    build();
+  };
 })();
 </script>
 
