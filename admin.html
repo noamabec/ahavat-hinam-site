@@ -260,8 +260,11 @@ tbody tr:hover{background:#FCFDFF}
 }
 @media (max-width:900px){
   #burger{display:grid}
+  /* right/left פיזיים בכוונה ולא inset-inline: במסמך RTL הערך
+     inset-inline-end מתורגם לצד שמאל, והסרגל היה נתקע באמצע המסך
+     במקום להיעלם מימין. */
   #side{
-    position:fixed;inset-block:0;inset-inline-end:0;z-index:50;height:100vh;
+    position:fixed;top:0;bottom:0;right:0;left:auto;z-index:50;height:100vh;
     transform:translateX(100%);transition:transform .32s cubic-bezier(.16,1,.3,1);
   }
   body[data-menu="on"] #side{transform:none}
