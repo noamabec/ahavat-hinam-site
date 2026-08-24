@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex,nofollow" />
+<title>פאנל ניהול · אהבת חינ"מ</title>
+<style>
+/* ============================================================
+   פאנל ניהול - אב טיפוס עיצובי
+   ------------------------------------------------------------
+   נתונים לדוגמה בלבד. שום דבר כאן לא נשמר ולא משנה את האתר החי.
+   הקובץ הזה הוא המפרט העיצובי לבנייה האמיתית ב-Lovable/Supabase.
+   ============================================================ */
+@font-face{font-family:'Fb Coherenti Sans';src:url('./public/fonts/fb-coherenti-sans-light.ttf') format('truetype');font-weight:300;font-display:swap}
+@font-face{font-family:'Fb Coherenti Sans';src:url('./public/fonts/fb-coherenti-sans-regular.ttf') format('truetype');font-weight:400;font-display:swap}
+@font-face{font-family:'Fb Coherenti Sans';src:url('./public/fonts/fb-coherenti-sans-medium.ttf') format('truetype');font-weight:500;font-display:swap}
+
+:root{
+  --blue:#18B1F0; --yellow:#FDC122; --coral:#FC543E; --green:#4DA831;
+  --ink:#0F1720; --ink-2:#46586B; --ink-3:#8296AA;
+  --bg:#F4F6F9; --surface:#FFFFFF; --line:#E4E9EF; --line-2:#EFF3F7;
+  --sidebar:#0F1720; --sidebar-2:#1B2735;
+  --r:14px; --r-sm:9px;
+  --shadow:0 1px 2px rgba(15,23,32,.05),0 8px 24px rgba(15,23,32,.06);
+  --sidebar-w:250px;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg);color:var(--ink);
+  font-family:'Fb Coherenti Sans','Heebo','Assistant',system-ui,sans-serif;
+  font-weight:400;line-height:1.5;-webkit-font-smoothing:antialiased;
+}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+h1,h2,h3,h4{margin:0;font-weight:500;line-height:1.2}
+p{margin:0}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:#C9D4E0;border-radius:6px;border:3px solid var(--bg)}
+
+/* ---------- באנר אב-טיפוס ---------- */
+#demoBar{
+  position:sticky;top:0;z-index:60;
+  background:linear-gradient(90deg,var(--coral),var(--yellow));
+  color:#3A2B00;font-size:13px;font-weight:500;
+  padding:7px 16px;text-align:center;
+}
+
+/* ---------- שלד ---------- */
+#shell{display:flex;min-height:100vh;align-items:stretch}
+
+/* ---------- סרגל צד ---------- */
+#side{
+  width:var(--sidebar-w);flex:none;background:var(--sidebar);color:#DCE6F0;
+  display:flex;flex-direction:column;position:sticky;top:0;align-self:flex-start;
+  height:100vh;
+}
+.brand{display:flex;align-items:center;gap:11px;padding:20px 20px 16px}
+.brand img{width:42px;height:42px;object-fit:contain;background:#fff;border-radius:10px;padding:4px;flex:none}
+.brand b{display:block;font-size:15px;font-weight:500;color:#fff;line-height:1.25}
+.brand span{display:block;font-size:11.5px;color:#7D93A9}
+
+.navlist{padding:6px 12px;overflow-y:auto;flex:1}
+.navlist .grp{font-size:11px;color:#5F7387;padding:14px 10px 6px;letter-spacing:.05em}
+.navlist a{
+  display:flex;align-items:center;gap:11px;
+  padding:10px 11px;border-radius:10px;margin-bottom:2px;
+  font-size:14.5px;color:#C3D2E1;transition:background .16s,color .16s;
+}
+.navlist a:hover{background:#18242F;color:#fff}
+.navlist a.on{background:var(--blue);color:#fff;font-weight:500}
+.navlist a.on .ic{opacity:1}
+.ic{width:19px;height:19px;flex:none;opacity:.75}
+.ic svg{width:100%;height:100%;display:block;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.badge{margin-inline-start:auto;background:var(--coral);color:#fff;font-size:11px;
+  min-width:20px;height:20px;border-radius:10px;display:grid;place-items:center;padding:0 6px}
+
+.sideFoot{padding:12px;border-top:1px solid #1E2B39}
+.who{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px}
+.who .av{width:34px;height:34px;border-radius:50%;background:var(--green);color:#fff;
+  display:grid;place-items:center;font-size:13px;font-weight:500;flex:none}
+.who b{display:block;font-size:13.5px;color:#fff;font-weight:500}
+.who span{display:block;font-size:11.5px;color:#7D93A9}
+
+/* ---------- אזור ראשי ---------- */
+#main{flex:1;min-width:0;display:flex;flex-direction:column}
+#top{
+  background:var(--surface);border-bottom:1px solid var(--line);
+  padding:0 clamp(16px,2.4vw,30px);height:66px;
+  display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:40;
+}
+#burger{display:none;width:40px;height:40px;border-radius:10px;place-items:center}
+#burger svg{width:22px;height:22px;stroke:var(--ink);fill:none;stroke-width:1.9;stroke-linecap:round}
+#top h1{font-size:19px;flex:none}
+.search{
+  margin-inline-start:auto;position:relative;max-width:300px;width:100%;
+}
+.search input{
+  width:100%;height:38px;border-radius:10px;border:1px solid var(--line);
+  background:var(--bg);padding:0 38px 0 12px;font-size:14px;outline:0;
+}
+.search input:focus{border-color:var(--blue);background:#fff}
+.search svg{position:absolute;inset-inline-start:12px;top:10px;width:18px;height:18px;
+  stroke:var(--ink-3);fill:none;stroke-width:1.8}
+.topbtn{
+  width:38px;height:38px;border-radius:10px;border:1px solid var(--line);
+  display:grid;place-items:center;flex:none;background:#fff;position:relative;
+}
+.topbtn svg{width:19px;height:19px;stroke:var(--ink-2);fill:none;stroke-width:1.7}
+.topbtn .dot{position:absolute;top:8px;inset-inline-end:9px;width:7px;height:7px;
+  border-radius:50%;background:var(--coral);border:1.5px solid #fff}
+
+#view{padding:clamp(16px,2.4vw,30px);flex:1}
+
+/* ---------- רכיבים ---------- */
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
+  padding:18px;box-shadow:var(--shadow)}
+.kpi .lbl{font-size:13px;color:var(--ink-3);display:flex;align-items:center;gap:8px}
+.kpi .lbl i{width:9px;height:9px;border-radius:3px;display:block}
+.kpi .val{font-size:30px;font-weight:500;margin-top:9px;letter-spacing:-.02em}
+.kpi .sub{font-size:12.5px;color:var(--ink-3);margin-top:5px}
+.kpi .up{color:var(--green)}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
+  box-shadow:var(--shadow);overflow:hidden}
+.panel__head{display:flex;align-items:center;gap:12px;padding:16px 18px;border-bottom:1px solid var(--line-2)}
+.panel__head h3{font-size:16px}
+.panel__head .sp{margin-inline-start:auto}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  height:38px;padding:0 16px;border-radius:10px;font-size:14px;font-weight:500;
+  transition:filter .15s,background .15s,border-color .15s;white-space:nowrap}
+.btn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.btn--p{background:var(--blue);color:#fff}
+.btn--p:hover{filter:brightness(1.07)}
+.btn--g{border:1px solid var(--line);background:#fff;color:var(--ink-2)}
+.btn--g:hover{border-color:#C9D4E0;background:#FAFCFE}
+.btn--d{border:1px solid #F6C9C2;background:#fff;color:var(--coral)}
+.btn--d:hover{background:#FFF6F4}
+.btn--sm{height:32px;padding:0 11px;font-size:13px;border-radius:8px}
+
+table{width:100%;border-collapse:collapse}
+th{font-size:12.5px;font-weight:500;color:var(--ink-3);text-align:right;
+  padding:11px 18px;background:#FAFCFE;border-bottom:1px solid var(--line-2);white-space:nowrap}
+td{padding:13px 18px;border-bottom:1px solid var(--line-2);font-size:14px;vertical-align:middle}
+tr:last-child td{border-bottom:0}
+tbody tr:hover{background:#FCFDFF}
+.who2{display:flex;align-items:center;gap:10px}
+.who2 .av{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;
+  font-size:13px;font-weight:500;color:#fff;flex:none}
+.who2 b{font-weight:500;display:block;line-height:1.25}
+.who2 span{font-size:12.5px;color:var(--ink-3)}
+.money{font-weight:500;white-space:nowrap}
+
+.pill{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;
+  border-radius:13px;font-size:12.5px;font-weight:500;white-space:nowrap}
+.pill i{width:6px;height:6px;border-radius:50%;background:currentColor}
+.pill--ok{background:#E9F7E3;color:#31761C}
+.pill--wait{background:#FFF4DC;color:#8A6100}
+.pill--err{background:#FDEBE8;color:#C0331F}
+.pill--info{background:#E4F5FE;color:#0B7BAD}
+
+.rowacts{display:flex;gap:7px;justify-content:flex-start}
+
+/* ---------- תעודה ---------- */
+.certWrap{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:20px;align-items:start}
+.certStage{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
+  padding:18px;box-shadow:var(--shadow)}
+.cert{position:relative;width:100%;max-width:460px;margin-inline:auto;
+  aspect-ratio:1131/1600;border-radius:6px;overflow:hidden;
+  box-shadow:0 10px 30px rgba(15,23,32,.14)}
+.cert img{width:100%;height:100%;object-fit:cover;display:block}
+/* התיבה הריקה בתבנית - מיקום באחוזים כדי שיישאר נכון בכל גודל */
+.certName{
+  position:absolute;left:16.2%;right:16.2%;top:39.6%;height:10.2%;
+  display:grid;place-items:center;padding:0 12px;
+}
+.certName span{
+  font-size:clamp(15px,3.6cqw,30px);font-weight:500;color:#6B4E12;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;
+}
+.cert{container-type:inline-size}
+.certHint{margin-top:10px;font-size:12.5px;color:var(--ink-3);text-align:center}
+
+.field{margin-bottom:14px}
+.field label{display:block;font-size:13px;color:var(--ink-2);margin-bottom:6px;font-weight:500}
+.field input,.field select,.field textarea{
+  width:100%;height:40px;border-radius:10px;border:1px solid var(--line);
+  background:#fff;padding:0 12px;font-size:14px;outline:0;
+}
+.field textarea{height:auto;min-height:96px;padding:10px 12px;resize:vertical;line-height:1.55}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(24,177,240,.13)}
+.hint{font-size:12px;color:var(--ink-3);margin-top:5px}
+.seg{display:flex;gap:6px;background:var(--bg);padding:4px;border-radius:10px}
+.seg button{flex:1;height:32px;border-radius:7px;font-size:13.5px;color:var(--ink-2)}
+.seg button.on{background:#fff;color:var(--ink);font-weight:500;box-shadow:0 1px 3px rgba(0,0,0,.09)}
+
+/* ---------- אירועים / גלריה ---------- */
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.ev{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
+  overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.ev__img{aspect-ratio:16/10;background:#DDE5EE;position:relative}
+.ev__img img{width:100%;height:100%;object-fit:cover}
+.ev__img .tag{position:absolute;top:10px;inset-inline-end:10px;background:rgba(15,23,32,.78);
+  color:#fff;font-size:11.5px;padding:4px 9px;border-radius:20px}
+.ev__b{padding:14px;display:flex;flex-direction:column;flex:1}
+.ev__b h4{font-size:15px}
+.ev__b p{font-size:13px;color:var(--ink-3);margin-top:6px;line-height:1.5;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ev__b .acts{margin-top:12px;display:flex;gap:7px}
+
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.gal figure{margin:0;position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;
+  border:1px solid var(--line);background:#DDE5EE}
+.gal img{width:100%;height:100%;object-fit:cover}
+.gal .rm{position:absolute;top:7px;inset-inline-end:7px;width:28px;height:28px;border-radius:8px;
+  background:rgba(15,23,32,.72);display:grid;place-items:center;opacity:0;transition:opacity .15s}
+.gal figure:hover .rm{opacity:1}
+.gal .rm svg{width:15px;height:15px;stroke:#fff;fill:none;stroke-width:2}
+.drop{border:2px dashed #C9D6E3;border-radius:var(--r);padding:26px;text-align:center;
+  color:var(--ink-3);font-size:14px;background:#FAFCFE}
+
+/* ---------- שתי עמודות ---------- */
+.two{display:grid;grid-template-columns:1.5fr 1fr;gap:16px;align-items:start}
+.stack{display:grid;gap:16px}
+
+/* ---------- מודאל ---------- */
+#modal{position:fixed;inset:0;z-index:70;display:none;place-items:center;padding:18px;
+  background:rgba(15,23,32,.5)}
+#modal.on{display:grid}
+#modal .box{background:#fff;border-radius:var(--r);width:min(560px,100%);
+  max-height:88vh;overflow:auto;box-shadow:0 24px 60px rgba(0,0,0,.3)}
+#modal .hd{display:flex;align-items:center;padding:16px 18px;border-bottom:1px solid var(--line-2)}
+#modal .hd h3{font-size:17px}
+#modal .hd button{margin-inline-start:auto;width:32px;height:32px;border-radius:8px;display:grid;place-items:center}
+#modal .hd svg{width:18px;height:18px;stroke:var(--ink-2);fill:none;stroke-width:2}
+#modal .bd{padding:18px}
+#modal .ft{padding:14px 18px;border-top:1px solid var(--line-2);display:flex;gap:9px;justify-content:flex-start}
+
+/* ---------- טוסט ---------- */
+#toast{position:fixed;bottom:22px;inset-inline-start:22px;z-index:90;
+  background:var(--ink);color:#fff;padding:12px 18px;border-radius:11px;font-size:14px;
+  box-shadow:0 12px 30px rgba(0,0,0,.28);opacity:0;transform:translateY(10px);
+  transition:opacity .25s,transform .25s;pointer-events:none}
+#toast.on{opacity:1;transform:none}
+
+/* ---------- רספונסיביות ---------- */
+#scrim{position:fixed;inset:0;background:rgba(15,23,32,.5);z-index:49;display:none}
+#scrim.on{display:block}
+
+@media (max-width:1180px){
+  .cards{grid-template-columns:repeat(2,1fr)}
+  .certWrap{grid-template-columns:1fr}
+  .two{grid-template-columns:1fr}
+  .grid3{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:900px){
+  #burger{display:grid}
+  #side{
+    position:fixed;inset-block:0;inset-inline-end:0;z-index:50;height:100vh;
+    transform:translateX(100%);transition:transform .32s cubic-bezier(.16,1,.3,1);
+  }
+  body[data-menu="on"] #side{transform:none}
+  #top h1{font-size:17px}
+  .search{max-width:none}
+}
+@media (max-width:720px){
+  .search{display:none}
+  .cards{grid-template-columns:repeat(2,1fr);gap:12px}
+  .kpi .val{font-size:25px}
+  .grid3{grid-template-columns:1fr}
+  /* טבלאות הופכות לכרטיסים - במסך צר טבלה עם 6 עמודות פשוט לא קריאה */
+  table,thead,tbody,tr,th,td{display:block}
+  thead{display:none}
+  tbody tr{
+    border:1px solid var(--line);border-radius:12px;margin-bottom:11px;padding:12px;
+    background:#fff;
+  }
+  tbody tr:hover{background:#fff}
+  td{border:0;padding:6px 0;display:flex;align-items:center;gap:12px}
+  td::before{
+    content:attr(data-l);font-size:12.5px;color:var(--ink-3);flex:none;min-width:88px;
+  }
+  td:first-child::before{display:none}
+  td:first-child{padding-top:0}
+  .rowacts{justify-content:stretch}
+  .rowacts .btn{flex:1}
+}
+@media (max-width:420px){
+  .cards{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div id="demoBar">תצוגה מקדימה של פאנל הניהול · הנתונים כאן הם נתוני דוגמה בלבד ולא משפיעים על האתר</div>
+
+<div id="scrim"></div>
+
+<div id="shell">
+
+  <!-- ==================== סרגל צד ==================== -->
+  <aside id="side">
+    <div class="brand">
+      <img src="./public/images/logo.png" alt="" />
+      <span><b>אהבת חינ״מ</b><span>פאנל ניהול</span></span>
+    </div>
+
+    <nav class="navlist" id="nav">
+      <div class="grp">ראשי</div>
+      <a href="#/" data-r="/"><span class="ic"><svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></span>סקירה כללית</a>
+      <a href="#/donations" data-r="/donations"><span class="ic"><svg viewBox="0 0 24 24"><path d="M20.8 5.6a5 5 0 0 0-7.1 0L12 7.3l-1.7-1.7a5 5 0 0 0-7.1 7.1L12 21l8.8-8.3a5 5 0 0 0 0-7.1z"/></svg></span>תרומות ותעודות<span class="badge" id="pendBadge">3</span></a>
+
+      <div class="grp">תוכן האתר</div>
+      <a href="#/events" data-r="/events"><span class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 11h18"/></svg></span>אירועים</a>
+      <a href="#/gallery" data-r="/gallery"><span class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m21 16-5-5L5 20"/></svg></span>גלריית תמונות</a>
+      <a href="#/pages" data-r="/pages"><span class="ic"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg></span>עמודים וטקסטים</a>
+
+      <div class="grp">הגדרות</div>
+      <a href="#/settings" data-r="/settings"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 9 19.4a1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.6 1.6 0 0 0 4.6 9a1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg></span>פרטי העמותה</a>
+    </nav>
+
+    <div class="sideFoot">
+      <div class="who"><span class="av">ר</span><span><b>רונית · מנהלת</b><span>ahavat.org.il</span></span></div>
+    </div>
+  </aside>
+
+  <!-- ==================== ראשי ==================== -->
+  <div id="main">
+    <header id="top">
+      <button id="burger" aria-label="תפריט"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      <h1 id="ttl">סקירה כללית</h1>
+      <div class="search">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input placeholder="חיפוש תורם, אירוע…" />
+      </div>
+      <button class="topbtn" aria-label="התראות"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span class="dot"></span></button>
+    </header>
+
+    <main id="view"></main>
+  </div>
+</div>
+
+<div id="modal"><div class="box">
+  <div class="hd"><h3 id="mTtl">עריכה</h3><button id="mX"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+  <div class="bd" id="mBd"></div>
+  <div class="ft"><button class="btn btn--p" id="mOk">שמירה</button><button class="btn btn--g" id="mCancel">ביטול</button></div>
+</div></div>
+
+<div id="toast"></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ============================================================
+   נתוני דוגמה
+   ============================================================ */
+var DONORS = [
+  {id:1, name:'מיכל אברהמי',  email:'michal@example.com',  amount:360, type:'חד-פעמי',  date:'24.08.2026', cert:'sent',  gender:'f'},
+  {id:2, name:'יוסי בן-דוד',   email:'yossi@example.com',   amount:1000,type:'הוראת קבע',date:'24.08.2026', cert:'sent',  gender:'m'},
+  {id:3, name:'שרה כהן',       email:'sarah@example.com',   amount:180, type:'חד-פעמי',  date:'23.08.2026', cert:'pend',  gender:'f'},
+  {id:4, name:'אבי מזרחי',     email:'avi@example.com',     amount:500, type:'חד-פעמי',  date:'23.08.2026', cert:'pend',  gender:'m'},
+  {id:5, name:'נועה פרידמן',   email:'noa@example.com',     amount:250, type:'הוראת קבע',date:'22.08.2026', cert:'sent',  gender:'f'},
+  {id:6, name:'דוד לוי',       email:'david@example.com',   amount:120, type:'חד-פעמי',  date:'22.08.2026', cert:'fail',  gender:'m'},
+  {id:7, name:'תמר שגיא',      email:'tamar@example.com',   amount:750, type:'חד-פעמי',  date:'21.08.2026', cert:'sent',  gender:'f'},
+  {id:8, name:'רון אלמוג',     email:'ron@example.com',     amount:200, type:'הוראת קבע',date:'21.08.2026', cert:'sent',  gender:'m'}
+];
+
+var EVENTS = [
+  {id:1, t:'אירוע פתיחת בית ש”י',            d:'ראש השנה',            img:'d26.jpg', on:true,  x:'אירוע השקת בית ש”י והרמת כוסית לרגל פתיחת הבית ולכבוד השנה החדשה.'},
+  {id:2, t:'מרוץ הלילה של נהריה',            d:'17.10.19',            img:'d13.jpg', on:true,  x:'מרוץ הלילה של נהריה התקיים זו השנה השישית ברציפות.'},
+  {id:3, t:'פעילויות חנוכה עם בתי הספר',      d:'חנוכה',               img:'d08.jpg', on:true,  x:'בכל אחד משמונת ימי החנוכה התארחו בבית ש”י עשרות אורחים.'},
+  {id:4, t:'סיור ג’יפים בחסות בית ש”י',       d:'14.8.22',             img:'d49.jpg', on:true,  x:'סיור ג’יפים לתלמידי בית הספר “התומר” שבעכו.'},
+  {id:5, t:'סדנת בובנאות',                    d:'סדנה',                img:'d22.jpg', on:true,  x:'סדנה שבה המשתתפים לקחו חלק בכל תהליך הכנת הבובות.'},
+  {id:6, t:'מעגל נשים נהריה בבית ש”י',        d:'ט”ו בשבט',            img:'d02.jpg', on:false, x:'לכבוד ט”ו בשבט הגיעו בנות מעגל נשים נהריה לשמח את ילדי הבית.'}
+];
+
+var GALLERY = ['d26.jpg','d13.jpg','d22.jpg','d02.jpg','d49.jpg','d08.jpg','d38.jpg','d17.jpg','d31.jpg','d44.jpg','d56.jpg','d10.jpg'];
+
+var IMG = './public/images/gallery-full/';
+var AV  = ['#18B1F0','#FDC122','#FC543E','#4DA831'];
+
+/* ============================================================
+   עזרים
+   ============================================================ */
+var $  = function(s,r){ return (r||document).querySelector(s); };
+var view = $('#view'), ttl = $('#ttl');
+
+function esc(s){ return String(s).replace(/[&<>"']/g,function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function ils(n){ return '₪' + n.toLocaleString('he-IL'); }
+function initial(n){ return n.trim().charAt(0); }
+function avColor(i){ return AV[i % AV.length]; }
+
+function toast(msg){
+  var t=$('#toast'); t.textContent=msg; t.classList.add('on');
+  clearTimeout(t._h); t._h=setTimeout(function(){ t.classList.remove('on'); },2300);
+}
+
+var CERT = {
+  sent:{c:'ok',   t:'נשלחה'},
+  pend:{c:'wait', t:'ממתינה'},
+  fail:{c:'err',  t:'נכשלה'}
+};
+function certPill(s){
+  var m=CERT[s]||CERT.pend;
+  return '<span class="pill pill--'+m.c+'"><i></i>'+m.t+'</span>';
+}
+
+/* מודאל */
+function modal(title, bodyHTML, onOk, okLabel){
+  $('#mTtl').textContent=title;
+  $('#mBd').innerHTML=bodyHTML;
+  $('#mOk').textContent=okLabel||'שמירה';
+  $('#modal').classList.add('on');
+  $('#mOk').onclick=function(){ if(onOk) onOk(); close(); };
+  function close(){ $('#modal').classList.remove('on'); }
+  $('#mX').onclick=close; $('#mCancel').onclick=close;
+  $('#modal').onclick=function(e){ if(e.target===$('#modal')) close(); };
+}
+
+/* ============================================================
+   מסכים
+   ============================================================ */
+var R = {};
+
+/* ---------- סקירה כללית ---------- */
+R['/'] = function(){
+  ttl.textContent='סקירה כללית';
+  var total = DONORS.reduce(function(a,d){ return a+d.amount; },0);
+  var pend  = DONORS.filter(function(d){ return d.cert!=='sent'; }).length;
+  var keva  = DONORS.filter(function(d){ return d.type==='הוראת קבע'; }).length;
+
+  var rows = DONORS.slice(0,5).map(function(d,i){
+    return '<tr>'+
+      '<td data-l="תורם"><div class="who2"><span class="av" style="background:'+avColor(i)+'">'+esc(initial(d.name))+'</span>'+
+        '<span><b>'+esc(d.name)+'</b><span>'+esc(d.email)+'</span></span></div></td>'+
+      '<td data-l="סכום"><span class="money">'+ils(d.amount)+'</span></td>'+
+      '<td data-l="סוג">'+esc(d.type)+'</td>'+
+      '<td data-l="תעודה">'+certPill(d.cert)+'</td>'+
+      '<td data-l="תאריך">'+esc(d.date)+'</td></tr>';
+  }).join('');
+
+  view.innerHTML =
+  '<div class="cards">'+
+    kpi('סה״כ החודש', ils(total), '+12% מהחודש שעבר', 'var(--blue)', true)+
+    kpi('תורמים החודש', DONORS.length, 'מתוכם '+keva+' בהוראת קבע', 'var(--green)')+
+    kpi('תעודות שנשלחו', DONORS.filter(function(d){return d.cert==='sent';}).length, 'אוטומטית לאחר תרומה', 'var(--yellow)')+
+    kpi('ממתינות לטיפול', pend, pend? 'דורש בדיקה' : 'הכל תקין', 'var(--coral)')+
+  '</div>'+
+
+  '<div class="two" style="margin-top:16px">'+
+    '<div class="panel">'+
+      '<div class="panel__head"><h3>תרומות אחרונות</h3>'+
+        '<a class="btn btn--g btn--sm sp" href="#/donations">לכל התרומות</a></div>'+
+      '<table><thead><tr><th>תורם</th><th>סכום</th><th>סוג</th><th>תעודה</th><th>תאריך</th></tr></thead>'+
+      '<tbody>'+rows+'</tbody></table>'+
+    '</div>'+
+    '<div class="stack">'+
+      '<div class="panel"><div class="panel__head"><h3>פעולות מהירות</h3></div>'+
+        '<div style="padding:16px;display:grid;gap:9px">'+
+          '<a class="btn btn--p" href="#/events">'+ico('plus')+'הוספת אירוע חדש</a>'+
+          '<a class="btn btn--g" href="#/gallery">'+ico('img')+'העלאת תמונות לגלריה</a>'+
+          '<a class="btn btn--g" href="#/donations">'+ico('mail')+'שליחת תעודה ידנית</a>'+
+        '</div>'+
+      '</div>'+
+      '<div class="panel"><div class="panel__head"><h3>מצב האתר</h3></div>'+
+        '<div style="padding:16px;display:grid;gap:12px;font-size:14px">'+
+          statusRow('האתר פעיל','ok','זמין')+
+          statusRow('סליקה (טרנזילה)','wait','ממתין לחיבור')+
+          statusRow('שליחת תעודות','wait','ממתין לסליקה')+
+          statusRow('רכז/ת נגישות','err','חסר')+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+  '</div>';
+};
+
+function kpi(lbl,val,sub,color,up){
+  return '<div class="card kpi"><div class="lbl"><i style="background:'+color+'"></i>'+esc(lbl)+'</div>'+
+    '<div class="val">'+esc(String(val))+'</div>'+
+    '<div class="sub '+(up?'up':'')+'">'+esc(sub)+'</div></div>';
+}
+function statusRow(name,state,txt){
+  return '<div style="display:flex;align-items:center;gap:10px">'+
+    '<span>'+esc(name)+'</span><span class="sp" style="margin-inline-start:auto"></span>'+
+    '<span class="pill pill--'+(state==='ok'?'ok':state==='wait'?'wait':'err')+'"><i></i>'+esc(txt)+'</span></div>';
+}
+function ico(k){
+  var p={plus:'<path d="M12 5v14M5 12h14"/>',
+         img:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m21 16-5-5L5 20"/>',
+         mail:'<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/>',
+         edit:'<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
+         trash:'<path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>',
+         eye:'<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>',
+         send:'<path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/>'};
+  return '<svg viewBox="0 0 24 24">'+(p[k]||'')+'</svg>';
+}
+
+/* ---------- תרומות ותעודות ---------- */
+R['/donations'] = function(){
+  ttl.textContent='תרומות ותעודות';
+  var rows = DONORS.map(function(d,i){
+    return '<tr>'+
+      '<td data-l="תורם"><div class="who2"><span class="av" style="background:'+avColor(i)+'">'+esc(initial(d.name))+'</span>'+
+        '<span><b>'+esc(d.name)+'</b><span>'+esc(d.email)+'</span></span></div></td>'+
+      '<td data-l="סכום"><span class="money">'+ils(d.amount)+'</span></td>'+
+      '<td data-l="סוג">'+esc(d.type)+'</td>'+
+      '<td data-l="תאריך">'+esc(d.date)+'</td>'+
+      '<td data-l="תעודה">'+certPill(d.cert)+'</td>'+
+      '<td data-l="פעולות"><div class="rowacts">'+
+        '<button class="btn btn--g btn--sm" data-prev="'+d.id+'">'+ico('eye')+'תצוגה</button>'+
+        '<button class="btn btn--g btn--sm" data-send="'+d.id+'">'+ico('send')+'שליחה מחדש</button>'+
+      '</div></td></tr>';
+  }).join('');
+
+  view.innerHTML =
+  '<div class="certWrap">'+
+    '<div class="panel">'+
+      '<div class="panel__head"><h3>כל התרומות</h3>'+
+        '<span class="sp"></span><span class="pill pill--info"><i></i>'+DONORS.length+' רשומות</span></div>'+
+      '<table><thead><tr><th>תורם</th><th>סכום</th><th>סוג</th><th>תאריך</th><th>תעודה</th><th></th></tr></thead>'+
+      '<tbody>'+rows+'</tbody></table>'+
+    '</div>'+
+
+    '<div class="certStage">'+
+      '<h3 style="font-size:16px;margin-bottom:4px">תצוגת התעודה</h3>'+
+      '<p class="hint" style="margin-bottom:14px">השם נכתב על התבנית אוטומטית. הקלד כדי לראות.</p>'+
+      '<div class="field"><label>שם התורם</label><input id="cName" value="מיכל אברהמי" /></div>'+
+      '<div class="field"><label>נוסח התעודה</label>'+
+        '<div class="seg" id="cSeg">'+
+          '<button data-g="f" class="on">נקבה · מלאכית</button>'+
+          '<button data-g="m">זכר · מלאך</button>'+
+        '</div>'+
+        '<p class="hint">התבנית שצורפה היא בלשון נקבה. לגרסת זכר צריך תבנית מקבילה.</p>'+
+      '</div>'+
+      '<div class="cert"><img src="./public/images/certificate-template.jpg" alt="תבנית התעודה" />'+
+        '<div class="certName"><span id="cOut">מיכל אברהמי</span></div></div>'+
+      '<p class="certHint">כך תיראה התעודה שתישלח למייל</p>'+
+    '</div>'+
+  '</div>';
+
+  var nameEl=$('#cName'), outEl=$('#cOut');
+  nameEl.oninput=function(){ outEl.textContent = nameEl.value || 'שם התורם'; };
+  Array.prototype.forEach.call(view.querySelectorAll('#cSeg button'), function(b){
+    b.onclick=function(){
+      Array.prototype.forEach.call(view.querySelectorAll('#cSeg button'),function(x){x.classList.remove('on');});
+      b.classList.add('on');
+      toast(b.dataset.g==='m' ? 'נוסח זכר — דורש תבנית נפרדת' : 'נוסח נקבה — התבנית הקיימת');
+    };
+  });
+  view.addEventListener('click', function(e){
+    var p=e.target.closest('[data-prev]'), s=e.target.closest('[data-send]');
+    if(p){ var d=byId(+p.dataset.prev); nameEl.value=d.name; outEl.textContent=d.name;
+      nameEl.scrollIntoView({behavior:'smooth',block:'center'}); }
+    if(s){ var d2=byId(+s.dataset.send); toast('התעודה נשלחה שוב אל '+d2.email); }
+  });
+};
+function byId(id){ for(var i=0;i<DONORS.length;i++) if(DONORS[i].id===id) return DONORS[i]; }
+
+/* ---------- אירועים ---------- */
+R['/events'] = function(){
+  ttl.textContent='אירועים';
+  view.innerHTML =
+  '<div class="panel" style="margin-bottom:16px"><div class="panel__head">'+
+    '<h3>'+EVENTS.length+' אירועים</h3><span class="sp"></span>'+
+    '<button class="btn btn--p" id="addEv">'+ico('plus')+'אירוע חדש</button></div></div>'+
+  '<div class="grid3">'+ EVENTS.map(function(e){
+    return '<article class="ev">'+
+      '<div class="ev__img"><img src="'+IMG+e.img+'" alt="" loading="lazy" />'+
+        '<span class="tag">'+esc(e.d)+'</span></div>'+
+      '<div class="ev__b"><h4>'+esc(e.t)+'</h4><p>'+esc(e.x)+'</p>'+
+        '<div class="acts">'+
+          '<button class="btn btn--g btn--sm" data-ev="'+e.id+'">'+ico('edit')+'עריכה</button>'+
+          '<button class="btn btn--d btn--sm" data-evx="'+e.id+'">'+ico('trash')+'</button>'+
+          '<span class="sp" style="margin-inline-start:auto"></span>'+
+          '<span class="pill pill--'+(e.on?'ok':'wait')+'"><i></i>'+(e.on?'מוצג':'מוסתר')+'</span>'+
+        '</div></div></article>';
+  }).join('') + '</div>';
+
+  $('#addEv').onclick=function(){ evForm(null); };
+  view.addEventListener('click',function(ev){
+    var b=ev.target.closest('[data-ev]'), x=ev.target.closest('[data-evx]');
+    if(b) evForm(EVENTS.filter(function(e){return e.id===+b.dataset.ev;})[0]);
+    if(x) modal('מחיקת אירוע','<p style="font-size:14.5px">האירוע יימחק מהאתר. אפשר לבטל?</p>',
+      function(){ toast('האירוע נמחק (הדגמה)'); },'מחיקה');
+  });
+};
+function evForm(e){
+  modal(e? 'עריכת אירוע':'אירוע חדש',
+    '<div class="field"><label>כותרת</label><input value="'+(e?esc(e.t):'')+'" /></div>'+
+    '<div class="field"><label>תאריך / תווית</label><input value="'+(e?esc(e.d):'')+'" placeholder="למשל: חנוכה" /></div>'+
+    '<div class="field"><label>תיאור</label><textarea>'+(e?esc(e.x):'')+'</textarea></div>'+
+    '<div class="field"><label>תמונה</label><div class="drop">גרירת תמונה לכאן או לחיצה לבחירה</div></div>'+
+    '<div class="field"><label>מצב</label><select><option>מוצג באתר</option><option>מוסתר</option></select></div>',
+    function(){ toast(e? 'האירוע עודכן (הדגמה)':'האירוע נוסף (הדגמה)'); });
+}
+
+/* ---------- גלריה ---------- */
+R['/gallery'] = function(){
+  ttl.textContent='גלריית תמונות';
+  view.innerHTML =
+  '<div class="panel" style="margin-bottom:16px"><div class="panel__head">'+
+    '<h3>'+GALLERY.length+' תמונות</h3><span class="sp"></span>'+
+    '<button class="btn btn--p" id="up">'+ico('img')+'העלאת תמונות</button></div>'+
+    '<div style="padding:16px"><div class="drop">גרירת תמונות לכאן להעלאה · JPG או PNG</div></div></div>'+
+  '<div class="gal">'+ GALLERY.map(function(g){
+    return '<figure><img src="'+IMG+g+'" alt="" loading="lazy" />'+
+      '<button class="rm" title="הסרה"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button></figure>';
+  }).join('') + '</div>';
+  $('#up').onclick=function(){ toast('בגרסה האמיתית ייפתח חלון בחירת קבצים'); };
+  view.addEventListener('click',function(e){
+    if(e.target.closest('.rm')) toast('התמונה הוסרה (הדגמה)');
+  });
+};
+
+/* ---------- עמודים וטקסטים ---------- */
+R['/pages'] = function(){
+  ttl.textContent='עמודים וטקסטים';
+  var pages=[['דף הבית','index'],['בית ש”י','beit-shai'],['בשביל בראשית','breshit'],
+             ['תנועת ואהב”ת','vahavta'],['הגלריה שלנו','the-gallery'],['מי אנחנו','about'],
+             ['האירועים שהיו','events'],['בתקשורת','press'],['צרו קשר','contact']];
+  view.innerHTML =
+  '<div class="two">'+
+    '<div class="panel"><div class="panel__head"><h3>עמודי האתר</h3></div>'+
+      '<table><tbody>'+ pages.map(function(p){
+        return '<tr><td data-l="עמוד"><b style="font-weight:500">'+esc(p[0])+'</b>'+
+          '<div style="font-size:12.5px;color:var(--ink-3)">'+p[1]+'.html</div></td>'+
+          '<td data-l=""><div class="rowacts" style="justify-content:flex-end">'+
+          '<button class="btn btn--g btn--sm">'+ico('edit')+'עריכה</button></div></td></tr>';
+      }).join('') +'</tbody></table></div>'+
+    '<div class="panel"><div class="panel__head"><h3>עריכה מהירה · דף הבית</h3></div>'+
+      '<div style="padding:16px">'+
+        '<div class="field"><label>כותרת ראשית</label>'+
+          '<textarea>לא צריך לשנות עולם שלם כדי לשנות עולם של ילד אחד.</textarea></div>'+
+        '<div class="field"><label>טקסט התרומה</label>'+
+          '<textarea>התרומה שלכם מאפשרת לילדי בית שי לקבל את הכלים, התמיכה והאהבה שמגיעים להם.</textarea></div>'+
+        '<button class="btn btn--p" onclick="void 0">שמירת שינויים</button>'+
+      '</div></div>'+
+  '</div>';
+  view.addEventListener('click',function(e){
+    if(e.target.closest('.btn--p')) toast('השינויים נשמרו (הדגמה)');
+  });
+};
+
+/* ---------- פרטי העמותה ---------- */
+R['/settings'] = function(){
+  ttl.textContent='פרטי העמותה';
+  view.innerHTML =
+  '<div class="two"><div class="panel"><div class="panel__head"><h3>פרטי קשר</h3></div>'+
+    '<div style="padding:16px">'+
+      f('כתובת','יצחק שדה 18, נהריה')+
+      f('טלפון','054-772-8223')+
+      f('דוא״ל','ah580676369@gmail.com')+
+      f('שעות פעילות','א׳–ה׳, 8:30–13:00')+
+      f('מספר עמותה','58-070-XXX-X','טרם אומת מול רשם העמותות')+
+      '<button class="btn btn--p">שמירה</button>'+
+    '</div></div>'+
+    '<div class="stack">'+
+      '<div class="panel"><div class="panel__head"><h3>רשתות חברתיות</h3></div>'+
+        '<div style="padding:16px">'+f('פייסבוק','facebook.com/…')+f('אינסטגרם','instagram.com/beit_shay_nahariya')+
+        f('וואטסאפ','','עדיין לא חובר')+'</div></div>'+
+      '<div class="panel"><div class="panel__head"><h3>נגישות</h3></div>'+
+        '<div style="padding:16px">'+
+        '<div class="field"><label>רכז/ת נגישות</label><input placeholder="שם מלא" />'+
+        '<p class="hint" style="color:var(--coral)">שדה חובה מבחינה משפטית — עדיין ריק</p></div>'+
+        f('טלפון רכז/ת','')+'</div></div>'+
+    '</div></div>';
+  view.addEventListener('click',function(e){
+    if(e.target.closest('.btn--p')) toast('הפרטים נשמרו (הדגמה)');
+  });
+};
+function f(label,val,hint){
+  return '<div class="field"><label>'+esc(label)+'</label><input value="'+esc(val)+'" />'+
+    (hint? '<p class="hint">'+esc(hint)+'</p>':'')+'</div>';
+}
+
+/* ============================================================
+   ניתוב
+   ============================================================ */
+function route(){
+  var h = location.hash.replace(/^#/,'') || '/';
+  var fn = R[h] || R['/'];
+  Array.prototype.forEach.call(document.querySelectorAll('#nav a'), function(a){
+    a.classList.toggle('on', a.dataset.r === h);
+  });
+  view.innerHTML=''; fn();
+  view.scrollTop=0; window.scrollTo(0,0);
+  document.body.dataset.menu='off';
+  $('#scrim').classList.remove('on');
+}
+addEventListener('hashchange', route);
+
+/* תפריט מובייל */
+$('#burger').onclick=function(){
+  var on = document.body.dataset.menu==='on';
+  document.body.dataset.menu = on?'off':'on';
+  $('#scrim').classList.toggle('on', !on);
+};
+$('#scrim').onclick=function(){
+  document.body.dataset.menu='off'; $('#scrim').classList.remove('on');
+};
+
+route();
+})();
+</script>
+</body>
+</html>
