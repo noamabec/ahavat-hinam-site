@@ -263,6 +263,29 @@ tbody tr:hover{background:#FCFDFF}
 .drop{border:2px dashed #C9D6E3;border-radius:var(--r);padding:26px;text-align:center;
   color:var(--ink-3);font-size:14px;background:#FAFCFE}
 
+/* ---------- עריכה חזותית ---------- */
+.vbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.vbar .grow{margin-inline-start:auto}
+.vstage{background:#E7EDF3;border:1px solid var(--line);border-radius:var(--r);
+  padding:14px;display:flex;justify-content:center;overflow:auto}
+.vstage iframe{
+  width:100%;max-width:1440px;height:72vh;min-height:460px;border:0;background:#fff;
+  border-radius:10px;box-shadow:0 8px 30px rgba(15,23,32,.14);
+  transition:width .3s cubic-bezier(.16,1,.3,1);
+}
+.vstage[data-dev="mob"] iframe{width:390px}
+.vhint{display:flex;align-items:center;gap:9px;font-size:13.5px;color:var(--ink-2);
+  background:#E4F5FE;border:1px solid #BFE6FA;border-radius:10px;padding:10px 13px;margin-bottom:14px}
+.vhint svg{width:17px;height:17px;stroke:var(--blue);fill:none;stroke-width:1.8;flex:none}
+.chg{background:var(--yellow);color:#5A4100;border-radius:20px;height:26px;padding:0 11px;
+  display:inline-flex;align-items:center;font-size:12.5px;font-weight:500}
+
+@media (max-width:720px){
+  .vstage{padding:8px}
+  .vstage iframe{height:60vh}
+  .vbar .btn{flex:1}
+}
+
 /* ---------- עורך העמודים ---------- */
 .pagebar{display:flex;gap:8px;overflow-x:auto;padding:4px;background:var(--bg);
   border-radius:12px;margin-bottom:16px}
@@ -448,6 +471,7 @@ tbody tr:hover{background:#FCFDFF}
       <a href="#/donations" data-r="/donations"><span class="ic"><svg viewBox="0 0 24 24"><path d="M20.8 5.6a5 5 0 0 0-7.1 0L12 7.3l-1.7-1.7a5 5 0 0 0-7.1 7.1L12 21l8.8-8.3a5 5 0 0 0 0-7.1z"/></svg></span>תרומות ותעודות<span class="badge" id="pendBadge">3</span></a>
 
       <div class="grp">תוכן האתר</div>
+      <a href="#/visual" data-r="/visual"><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></span>עריכה חזותית</a>
       <a href="#/events" data-r="/events"><span class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 11h18"/></svg></span>אירועים</a>
       <a href="#/gallery" data-r="/gallery"><span class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m21 16-5-5L5 20"/></svg></span>גלריית תמונות</a>
       <a href="#/pages" data-r="/pages"><span class="ic"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg></span>עמודים וטקסטים</a>
@@ -755,6 +779,156 @@ R['/gallery'] = function(){
   });
 };
 
+/* ---------- עריכה חזותית ----------
+   העמוד האמיתי נטען ב-iframe מאותו origin, ולכן מותר לנו להיכנס אליו:
+   מסמנים אלמנטים לעריכה, לוחצים וכותבים במקום. אין כאן שכפול של העיצוב -
+   זה בדיוק העמוד שהגולש רואה. */
+var VSTYLE =
+  '[data-ed]{outline:1.5px dashed rgba(24,177,240,.5);outline-offset:3px;'+
+    'border-radius:3px;cursor:text;transition:outline-color .15s,background .15s}'+
+  '[data-ed]:hover{outline:1.5px solid #18B1F0;background:rgba(24,177,240,.08)}'+
+  '[data-ed][contenteditable="true"]{outline:2px solid #18B1F0;background:rgba(24,177,240,.06);'+
+    'cursor:text}'+
+  '[data-edimg]{outline:1.5px dashed rgba(253,193,34,.75);outline-offset:3px;cursor:pointer;'+
+    'transition:outline-color .15s,filter .15s}'+
+  '[data-edimg]:hover{outline:2px solid #FDC122;filter:brightness(.94)}'+
+  '[data-edited]{outline-color:#4DA831 !important}'+
+  '.nav__links,.nav__menu{pointer-events:none}';
+
+var VS = {page:'index', changes:0};
+
+R['/visual'] = function(){
+  ttl.textContent='עריכה חזותית';
+  view.innerHTML =
+    '<div class="vhint">'+
+      '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>'+
+      '<span>לחצו על כל טקסט כדי לכתוב במקום, ועל כל תמונה כדי להחליף אותה. '+
+      'זה העמוד האמיתי — מה שרואים כאן הוא מה שיפורסם.</span>'+
+    '</div>'+
+
+    '<div class="vbar">'+
+      '<div class="pagebar" style="margin:0;flex:1;min-width:0">'+ PAGES.map(function(p){
+        return '<button data-vpg="'+p.k+'" class="'+(p.k===VS.page?'on':'')+'">'+esc(p.n)+'</button>';
+      }).join('') +'</div>'+
+      '<div class="seg" id="vdev" style="flex:none">'+
+        '<button data-d="desk" class="on">מחשב</button><button data-d="mob">טלפון</button>'+
+      '</div>'+
+      '<span class="chg" id="vchg" style="display:none"></span>'+
+      '<button class="btn btn--p" id="vsave">שמירה ופרסום</button>'+
+    '</div>'+
+
+    '<div class="vstage" id="vstage" data-dev="desk">'+
+      '<iframe id="vf" src="./'+VS.page+'.html" title="עריכה"></iframe>'+
+    '</div>';
+
+  var vf=$('#vf'), stage=$('#vstage');
+  VS.changes=0; paintChg();
+
+  vf.addEventListener('load', function(){ wireVisual(vf); });
+
+  view.querySelector('.pagebar').onclick=function(e){
+    var b=e.target.closest('[data-vpg]'); if(!b) return;
+    if(VS.changes && !confirm('יש שינויים שלא נשמרו. לעבור עמוד?')) return;
+    VS.page=b.dataset.vpg; R['/visual']();
+  };
+  $('#vdev').onclick=function(e){
+    var b=e.target.closest('button'); if(!b) return;
+    Array.prototype.forEach.call(this.children,function(x){x.classList.remove('on');});
+    b.classList.add('on'); stage.dataset.dev=b.dataset.d;
+  };
+  $('#vsave').onclick=function(){
+    if(!VS.changes){ toast('לא בוצעו שינויים'); return; }
+    toast(VS.changes+' שינויים נשמרו ופורסמו (הדגמה)');
+    VS.changes=0; paintChg();
+    var d=docOfFrame(vf); if(d) Array.prototype.forEach.call(
+      d.querySelectorAll('[data-edited]'), function(el){ el.removeAttribute('data-edited'); });
+  };
+};
+
+function docOfFrame(f){ try{ return f.contentDocument; }catch(e){ return null; } }
+function paintChg(){
+  var el=$('#vchg'); if(!el) return;
+  el.style.display = VS.changes ? 'inline-flex' : 'none';
+  el.textContent = VS.changes+' שינויים שלא נשמרו';
+}
+function bump(){ VS.changes++; paintChg(); }
+
+function wireVisual(vf){
+  var d=docOfFrame(vf); if(!d) return;
+  var w=vf.contentWindow;
+
+  /* סגנון הסימון */
+  var st=d.createElement('style'); st.textContent=VSTYLE; d.head.appendChild(st);
+
+  /* מה ניתן לעריכה: כותרות ופסקאות עם תוכן, וכל התמונות */
+  Array.prototype.forEach.call(d.querySelectorAll('h1,h2,h3,h4,p,.eyebrow,.event-card__date'), function(el){
+    if(!el.textContent.trim()) return;
+    if(el.closest('svg')) return;
+    if(el.querySelector('img,svg')) return;       /* לא לגעת בעטיפות */
+    el.setAttribute('data-ed','1');
+  });
+  Array.prototype.forEach.call(d.querySelectorAll('img'), function(el){
+    if(el.closest('.sprite')) return;
+    el.setAttribute('data-edimg','1');
+  });
+
+  /* לחיצה: טקסט -> עריכה במקום, תמונה -> בורר מדיה */
+  d.addEventListener('click', function(e){
+    var img=e.target.closest('[data-edimg]');
+    if(img){
+      e.preventDefault(); e.stopPropagation();
+      pickImage(img.getAttribute('src'), function(src){
+        img.setAttribute('src', src);
+        img.setAttribute('data-edited','1');
+        bump(); toast('התמונה הוחלפה');
+      });
+      return;
+    }
+    var t=e.target.closest('[data-ed]');
+    if(t){
+      e.preventDefault(); e.stopPropagation();
+      startEdit(t, w);
+      return;
+    }
+    /* בזמן עריכה קישורים לא מנווטים */
+    var a=e.target.closest('a');
+    if(a){ e.preventDefault(); }
+  }, true);
+
+  /* מניעת ניווט גם בשליחת טפסים */
+  d.addEventListener('submit', function(e){ e.preventDefault(); }, true);
+}
+
+function startEdit(el, w){
+  if(el.getAttribute('contenteditable')==='true') return;
+  var before = el.innerHTML;
+  el.setAttribute('contenteditable','true');
+  el.focus();
+  /* סימון כל הטקסט כדי שאפשר יהיה פשוט להקליד מחדש */
+  try{
+    var r=el.ownerDocument.createRange(); r.selectNodeContents(el);
+    var s=w.getSelection(); s.removeAllRanges(); s.addRange(r);
+  }catch(e){}
+
+  function done(save){
+    el.removeAttribute('contenteditable');
+    if(save && el.innerHTML!==before){ el.setAttribute('data-edited','1'); bump(); }
+    else if(!save){ el.innerHTML=before; }
+    el.removeEventListener('blur',onBlur);
+    el.removeEventListener('keydown',onKey);
+  }
+  function onBlur(){ done(true); }
+  function onKey(ev){
+    if(ev.key==='Escape'){ ev.preventDefault(); done(false); el.blur(); }
+    /* Enter מסיים עריכה בכותרת; בפסקה מאפשר שורה חדשה עם Shift */
+    if(ev.key==='Enter' && !ev.shiftKey && /^H[1-4]$/.test(el.tagName)){
+      ev.preventDefault(); done(true); el.blur();
+    }
+  }
+  el.addEventListener('blur',onBlur);
+  el.addEventListener('keydown',onKey);
+}
+
 /* ---------- עמודים וטקסטים ----------
    מודל העריכה: העמוד מפורק לסקשנים האמיתיים שלו, ולכל סקשן יש בדיוק
    את השדות שקיימים בו. הלקוח לא נוגע במבנה, רק בתוכן. */
@@ -864,6 +1038,7 @@ R['/pages'] = function(){
       '<span style="font-size:12.5px;color:var(--ink-3)">'+pg.k+'.html</span>'+
       '<span class="sp"></span>'+
       '<a class="btn btn--g btn--sm" href="./'+pg.k+'.html" target="_blank">'+ico('eye')+'צפייה בעמוד</a>'+
+      '<button class="btn btn--g btn--sm" id="toVisual">'+ico('edit')+'עריכה חזותית</button>'+
       '<button class="btn btn--p btn--sm" id="saveAll">שמירת שינויים</button>'+
     '</div></div>'+
 
@@ -893,6 +1068,7 @@ R['/pages'] = function(){
     }
     if(up) toast('בגרסה האמיתית ייפתח חלון בחירת קובץ מהמחשב');
     if(e.target.closest('#saveAll')) toast('כל השינויים בעמוד נשמרו (הדגמה)');
+    if(e.target.closest('#toVisual')){ VS.page=PSTATE.page; location.hash='#/visual'; }
   });
 };
 
