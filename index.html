@@ -158,8 +158,7 @@ h1,h2,h3{margin:0;font-weight:500;line-height:var(--lh)}
 @keyframes bmFly{from{opacity:0;transform:var(--bm-from)}60%{opacity:1}to{opacity:1;transform:none}}
 @keyframes bmSettle{0%{transform:scale(1)}30%{transform:scale(1.08)}65%{transform:scale(.97)}100%{transform:scale(1)}}
 
-.nav__logo{flex:none;display:flex;align-items:center;gap:.5em}
-.nav__logo .brand-mark__word{font-size:var(--fs-h3);font-weight:500;color:var(--brand-coral);white-space:nowrap}
+.nav__logo{flex:none;display:block}
 .nav__cta{margin-inline-start:auto}
 .nav__cta:hover,.about__cta .btn:hover,.hero__actions .btn--blue:hover,.gallery__cta:hover,.events__cta:hover{
   filter:none;
@@ -681,7 +680,6 @@ body.gallery-lightbox-lock{overflow:hidden}
 .footer__logo .brand-mark__icon,.footer__logo .brand-mark__stage{width:clamp(40px,5.4vw,76px)}
 .footer__logo img{transition:transform .55s var(--ease-expo)}
 .footer__logo:hover img{transform:scale(1.04)}
-.footer__logo .brand-mark__word{font-size:var(--fs-h2);font-weight:500;color:var(--brand-coral);white-space:nowrap}
 .footer__tagline{
   margin-top:clamp(10px,1.111vw,28.44px);
   font-size:clamp(14px,1.111vw,28.44px);font-weight:300;line-height:1.5;text-align:right;
@@ -1003,7 +1001,6 @@ html:not(.js) .progress{display:none}
   .nav[data-open="true"] .nav__toggle span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
   .nav__logo{order:2}
   .nav__logo .brand-mark__icon,.nav__logo .brand-mark__stage{width:clamp(38px,10vw,54px)}
-  .nav__logo .brand-mark__word{font-size:clamp(17px,4.6vw,22px)}
   .tiers{display:none}
 
   /* ----- באנר התרומה לפי הפיגמה (node 105:54), מסגרת ייחוס 376px -----
@@ -1163,7 +1160,7 @@ html:not(.js) .progress{display:none}
           <span></span><span></span><span></span>
         </button>
         <a href="./index.html" class="nav__logo" aria-label="אהבת חינ&quot;מ" data-reveal="scale">
-          <img src="./public/images/logo.png" alt="" class="brand-mark__icon" /><span class="brand-mark__word">אהבת חינ״מ</span>
+          <img src="./public/images/logo.png" alt="" class="brand-mark__icon" />
         </a>
         <a href="./beit-shai.html" class="nav__link" data-reveal="fade">בית ש”י</a>
         <a href="./breshit.html" class="nav__link" data-reveal="fade">בראשית</a>
@@ -1599,7 +1596,7 @@ html:not(.js) .progress{display:none}
 
           <div class="footer__brand">
             <a href="./index.html" class="footer__logo" aria-label="אהבת חינ&quot;מ">
-              <img src="./public/images/logo.png" alt="" class="brand-mark__icon" /><span class="brand-mark__word">אהבת חינ״מ</span>
+              <img src="./public/images/logo.png" alt="" class="brand-mark__icon" />
             </a>
             <p class="footer__tagline">
               עמותה לילדים על הרצף האוטיסטי והחינוך המיוחד. מקימים בית שבו כל ילד
@@ -2553,6 +2550,7 @@ initCarousel('eventsGrid', '[data-events-prev]', '[data-events-next]', true);
   });
 })();
 </script>
+<script src="./public/js/brand-mark.js" defer></script>
 <script src="./public/js/accessibility.js"></script>
 </body>
 </html>
