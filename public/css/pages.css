@@ -165,8 +165,26 @@ ul,ol{margin:0;padding:0}
   gap:clamp(14px,2.361vw,60.44px);
 }
 .nav a{font-size:var(--fs-nav);font-weight:500;white-space:nowrap;transition:color .2s ease}
-.nav__logo{flex:none;display:block}
-.nav__logo img{width:clamp(120px,18.5vw,473.6px);aspect-ratio:333/182;height:auto;object-fit:contain}
+/* ============================================================
+   BRAND MARK - הלוגו (בית הפאזל) + השם, כאייקון + טקסט נפרדים
+   ------------------------------------------------------------
+   הלוגו הישן היה תמונה שטוחה אחת עם הטקסט צרוב בתוכה. עכשיו
+   האייקון וה"אהבת חינ״מ" הם שני אלמנטים אמיתיים זה לצד זה, כדי
+   שאפשר יהיה להריץ עליו אנימציית כניסה (public/js/brand-mark.js
+   מפרק את האייקון לארבעת חלקי הפאזל בטעינה הראשונה בסשן ומרכיב
+   אותם בחזרה) בלי לגעת בטקסט.
+   ============================================================ */
+.brand-mark__icon,.brand-mark__stage{
+  display:block;flex:none;position:relative;
+  width:clamp(34px,4.6vw,64px);aspect-ratio:1493/1600;height:auto;
+}
+.brand-mark__icon{object-fit:contain}
+.brand-mark__piece{position:absolute;display:block;opacity:0;pointer-events:none;will-change:transform,opacity}
+@keyframes bmFly{from{opacity:0;transform:var(--bm-from)}60%{opacity:1}to{opacity:1;transform:none}}
+@keyframes bmSettle{0%{transform:scale(1)}30%{transform:scale(1.08)}65%{transform:scale(.97)}100%{transform:scale(1)}}
+
+.nav__logo{flex:none;display:flex;align-items:center;gap:.5em}
+.nav__logo .brand-mark__word{font-size:var(--fs-h3);font-weight:500;color:var(--brand-coral);white-space:nowrap}
 
 .nav__link{position:relative;color:inherit}
 .nav__link:hover{color:var(--brand-blue)}
@@ -970,9 +988,14 @@ body.gallery-lightbox-lock{overflow:hidden}
   display:grid;grid-template-columns:1.6fr 1fr 1fr 1.3fr;
   gap:clamp(20px,2.778vw,71.11px);padding-block:clamp(24px,3.056vw,78.22px);
 }
-.footer__logo{display:block;background:none;border-radius:0;padding:0;width:fit-content}
-.footer__logo img{width:clamp(140px,13.889vw,355.56px);aspect-ratio:333/182;height:auto;object-fit:contain;transition:transform .55s var(--ease-expo)}
+.footer__logo{
+  display:flex;align-items:center;gap:.55em;
+  background:none;border-radius:0;padding:0;width:fit-content;
+}
+.footer__logo .brand-mark__icon,.footer__logo .brand-mark__stage{width:clamp(40px,5.4vw,76px)}
+.footer__logo img{transition:transform .55s var(--ease-expo)}
 .footer__logo:hover img{transform:scale(1.04)}
+.footer__logo .brand-mark__word{font-size:var(--fs-h2);font-weight:500;color:var(--brand-coral);white-space:nowrap}
 .footer__tagline{margin-top:clamp(10px,1.111vw,28.44px);font-size:clamp(14px,1.111vw,28.44px);font-weight:300;line-height:1.5;text-align:right;max-width:38ch;color:var(--ink-soft)}
 .footer__amuta{margin-top:clamp(8px,.833vw,21.33px);font-size:clamp(12px,.903vw,23.11px);font-weight:300;line-height:1.5;text-align:right;color:var(--ink-soft);opacity:.85}
 .footer__title{font-size:clamp(16px,1.319vw,33.78px);font-weight:500;text-align:right;margin:0 0 clamp(10px,1.111vw,28.44px);color:var(--ink)}
@@ -1149,7 +1172,8 @@ body.gallery-lightbox-lock{overflow:hidden}
   .nav[data-open="true"] .nav__toggle span:nth-child(2){opacity:0}
   .nav[data-open="true"] .nav__toggle span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
   .nav__logo{order:2}
-  .nav__logo img{width:clamp(140px,34vw,220px)}
+  .nav__logo .brand-mark__icon,.nav__logo .brand-mark__stage{width:clamp(38px,10vw,54px)}
+  .nav__logo .brand-mark__word{font-size:clamp(17px,4.6vw,22px)}
 
   .page-hero__inner{flex-direction:column;align-items:stretch}
   .page-hero h1{max-width:none}
