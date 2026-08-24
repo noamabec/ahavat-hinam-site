@@ -41,6 +41,45 @@ p{margin:0}
 ::-webkit-scrollbar{width:10px;height:10px}
 ::-webkit-scrollbar-thumb{background:#C9D4E0;border-radius:6px;border:3px solid var(--bg)}
 
+/* ---------- מסך התחברות ---------- */
+#login{position:fixed;inset:0;z-index:80;display:grid;grid-template-columns:1fr 1fr;background:#fff}
+body[data-auth="in"] #login{display:none}
+body:not([data-auth="in"]) #shell,body:not([data-auth="in"]) #demoBar{display:none}
+
+#login .side{
+  background:
+    radial-gradient(120% 90% at 80% 10%, rgba(24,177,240,.30), transparent 60%),
+    radial-gradient(100% 80% at 10% 90%, rgba(253,193,34,.24), transparent 62%),
+    var(--sidebar);
+  color:#fff;padding:48px;display:flex;flex-direction:column;justify-content:center;
+}
+#login .side img{width:76px;height:76px;background:#fff;border-radius:18px;padding:8px;object-fit:contain}
+#login .side h2{font-size:34px;margin-top:26px;line-height:1.18}
+#login .side p{margin-top:14px;font-size:16px;color:#9FB3C8;max-width:34ch;line-height:1.6}
+#login .side .bar{display:flex;height:5px;width:120px;border-radius:3px;overflow:hidden;margin-top:30px}
+#login .side .bar i{flex:1}
+
+#login .form{display:grid;place-items:center;padding:40px 32px}
+#login .form .box{width:min(360px,100%)}
+#login .form h3{font-size:25px}
+#login .form .sub{font-size:14.5px;color:var(--ink-3);margin-top:7px;margin-bottom:26px}
+#login .demo{
+  background:#FFF8E6;border:1px solid #F5E2B0;color:#7A5A00;
+  border-radius:10px;padding:11px 13px;font-size:13px;line-height:1.55;margin-bottom:20px;
+}
+#login .full{width:100%;height:44px;font-size:15px;margin-top:6px}
+#login .foot{margin-top:20px;font-size:13px;color:var(--ink-3);text-align:center}
+#login .foot a{color:var(--blue)}
+
+@media (max-width:860px){
+  #login{grid-template-columns:1fr}
+  #login .side{padding:34px 26px;min-height:auto}
+  #login .side h2{font-size:26px;margin-top:18px}
+  #login .side p{font-size:14.5px}
+  #login .side .bar{margin-top:20px}
+  #login .form{padding:32px 26px}
+}
+
 /* ---------- באנר אב-טיפוס ---------- */
 #demoBar{
   position:sticky;top:0;z-index:60;
@@ -224,6 +263,69 @@ tbody tr:hover{background:#FCFDFF}
 .drop{border:2px dashed #C9D6E3;border-radius:var(--r);padding:26px;text-align:center;
   color:var(--ink-3);font-size:14px;background:#FAFCFE}
 
+/* ---------- עורך העמודים ---------- */
+.pagebar{display:flex;gap:8px;overflow-x:auto;padding:4px;background:var(--bg);
+  border-radius:12px;margin-bottom:16px}
+.pagebar button{
+  white-space:nowrap;height:36px;padding:0 15px;border-radius:9px;
+  font-size:14px;color:var(--ink-2);flex:none;
+}
+.pagebar button.on{background:#fff;color:var(--ink);font-weight:500;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+
+.sec-item{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
+  box-shadow:var(--shadow);margin-bottom:12px;overflow:hidden}
+.sec-item__hd{display:flex;align-items:center;gap:12px;padding:15px 18px;cursor:pointer;
+  user-select:none;transition:background .15s}
+.sec-item__hd:hover{background:#FAFCFE}
+.sec-item__n{width:30px;height:30px;border-radius:8px;background:var(--bg);color:var(--ink-3);
+  display:grid;place-items:center;font-size:13px;font-weight:500;flex:none}
+.sec-item__t b{display:block;font-size:15px;font-weight:500}
+.sec-item__t span{display:block;font-size:12.5px;color:var(--ink-3);margin-top:1px}
+.sec-item__hd .chev{margin-inline-start:auto;width:20px;height:20px;flex:none;
+  transition:transform .22s;color:var(--ink-3)}
+.sec-item__hd .chev svg{width:100%;height:100%;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.sec-item.open .chev{transform:rotate(180deg)}
+.sec-item__bd{display:none;padding:4px 18px 18px;border-top:1px solid var(--line-2)}
+.sec-item.open .sec-item__bd{display:block}
+.sec-item__bd .field:first-child{margin-top:14px}
+.locked{padding:14px 18px;font-size:13.5px;color:var(--ink-3);background:#FAFCFE;
+  border-top:1px solid var(--line-2);display:flex;align-items:center;gap:9px}
+.locked svg{width:17px;height:17px;stroke:var(--ink-3);fill:none;stroke-width:1.7;flex:none}
+.locked a{color:var(--blue);font-weight:500}
+
+/* שדה תמונה */
+.imgf{display:flex;gap:13px;align-items:flex-start;padding:11px;border:1px solid var(--line);
+  border-radius:11px;background:#FAFCFE}
+.imgf__t{width:88px;height:66px;border-radius:8px;overflow:hidden;background:#DDE5EE;flex:none;
+  border:1px solid var(--line)}
+.imgf__t img{width:100%;height:100%;object-fit:cover}
+.imgf__m{flex:1;min-width:0}
+.imgf__m b{display:block;font-size:13.5px;font-weight:500}
+.imgf__m span{display:block;font-size:12px;color:var(--ink-3);margin-top:2px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.imgf__a{display:flex;gap:7px;margin-top:9px;flex-wrap:wrap}
+
+/* בורר מדיה */
+.mtabs{display:flex;gap:6px;background:var(--bg);padding:4px;border-radius:10px;margin-bottom:14px}
+.mtabs button{flex:1;height:32px;border-radius:7px;font-size:13.5px;color:var(--ink-2)}
+.mtabs button.on{background:#fff;color:var(--ink);font-weight:500;box-shadow:0 1px 3px rgba(0,0,0,.09)}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px;
+  max-height:330px;overflow-y:auto;padding:2px}
+.mgrid figure{margin:0;aspect-ratio:1;border-radius:9px;overflow:hidden;border:2px solid transparent;
+  cursor:pointer;background:#DDE5EE;position:relative}
+.mgrid figure:hover{border-color:#BFD9EA}
+.mgrid figure.sel{border-color:var(--blue)}
+.mgrid figure.sel::after{content:"✓";position:absolute;inset-inline-end:5px;top:4px;
+  width:20px;height:20px;border-radius:50%;background:var(--blue);color:#fff;
+  font-size:12px;display:grid;place-items:center}
+.mgrid img{width:100%;height:100%;object-fit:cover}
+
+@media (max-width:720px){
+  .imgf{flex-direction:column}
+  .imgf__t{width:100%;height:120px}
+  .imgf__a .btn{flex:1}
+}
+
 /* ---------- שתי עמודות ---------- */
 .two{display:grid;grid-template-columns:1.5fr 1fr;gap:16px;align-items:start}
 .stack{display:grid;gap:16px}
@@ -300,6 +402,33 @@ tbody tr:hover{background:#FCFDFF}
 </head>
 <body>
 
+<!-- ==================== מסך התחברות ==================== -->
+<div id="login">
+  <div class="side">
+    <img src="./public/images/logo.png" alt="" />
+    <h2>פאנל הניהול<br>של אהבת חינ״מ</h2>
+    <p>עדכון תוכן האתר, ניהול האירועים והגלריה, ומעקב אחרי תרומות ותעודות — במקום אחד.</p>
+    <span class="bar"><i style="background:#FC543E"></i><i style="background:#FDC122"></i><i style="background:#4DA831"></i><i style="background:#18B1F0"></i></span>
+  </div>
+
+  <div class="form"><div class="box">
+    <h3>כניסה למערכת</h3>
+    <p class="sub">התחברו עם החשבון שקיבלתם מהעמותה</p>
+
+    <div class="demo"><b>זהו אב-טיפוס עיצובי.</b> אין כאן התחברות אמיתית — כל לחיצה על "כניסה" תיכנס לפאנל. בגרסה האמיתית תהיה התחברות מאובטחת דרך Supabase Auth.</div>
+
+    <form id="loginForm" autocomplete="off">
+      <div class="field"><label for="lgEmail">דוא״ל</label>
+        <input id="lgEmail" type="email" dir="ltr" style="text-align:left" placeholder="name@ahavat.org.il" autocomplete="off" /></div>
+      <div class="field"><label for="lgPass">סיסמה</label>
+        <input id="lgPass" type="password" dir="ltr" style="text-align:left" placeholder="••••••••" autocomplete="off" /></div>
+      <button class="btn btn--p full" type="submit">כניסה לפאנל</button>
+    </form>
+
+    <p class="foot">שכחתם סיסמה? <a href="#" id="lgForgot">איפוס דרך העמותה</a></p>
+  </div></div>
+</div>
+
 <div id="demoBar">תצוגה מקדימה של פאנל הניהול · הנתונים כאן הם נתוני דוגמה בלבד ולא משפיעים על האתר</div>
 
 <div id="scrim"></div>
@@ -328,7 +457,11 @@ tbody tr:hover{background:#FCFDFF}
     </nav>
 
     <div class="sideFoot">
-      <div class="who"><span class="av">ר</span><span><b>רונית · מנהלת</b><span>ahavat.org.il</span></span></div>
+      <div class="who"><span class="av">ר</span><span><b>רונית · מנהלת</b><span>ahavat.org.il</span></span>
+        <button id="logout" title="יציאה" style="margin-inline-start:auto;width:32px;height:32px;border-radius:8px;display:grid;place-items:center">
+          <svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:#7D93A9;fill:none;stroke-width:1.8;stroke-linecap:round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/></svg>
+        </button>
+      </div>
     </div>
   </aside>
 
@@ -622,34 +755,222 @@ R['/gallery'] = function(){
   });
 };
 
-/* ---------- עמודים וטקסטים ---------- */
+/* ---------- עמודים וטקסטים ----------
+   מודל העריכה: העמוד מפורק לסקשנים האמיתיים שלו, ולכל סקשן יש בדיוק
+   את השדות שקיימים בו. הלקוח לא נוגע במבנה, רק בתוכן. */
+var SITEIMG = './public/images/';
+var MEDIA = {
+  gallery: GALLERY.concat(['d21.jpg','d36.jpg','d48.jpg','d53.jpg','d66.jpg','d05.jpg']),
+  site:    ['hero.png','about-collage.png','donate-boy.png','video-poster.png',
+            'gallery.png','hanan-cutout.png','hanan-story.png','logo.png']
+};
+
+var PAGES = [
+ {k:'index', n:'דף הבית', secs:[
+   {t:'הירו', d:'הכותרת הראשית והתמונה הפותחת', f:[
+     {y:'area', l:'כותרת ראשית', v:'בית ש”י\nמקום שבו כל ילד\nמתקבל כפי שהוא.'},
+     {y:'area', l:'טקסט מוביל', v:'עמותת אהבת חינ״מ מפעילה מרכז קהילתי טיפולי לילדים על הרצף האוטיסטי ולמשפחותיהם.'},
+     {y:'img',  l:'תמונה ראשית', v:SITEIMG+'hero.png'},
+     {y:'text', l:'כפתור ראשי · טקסט', v:'לתרומות'},
+     {y:'link', l:'כפתור ראשי · קישור', v:'donate.html'},
+     {y:'text', l:'כפתור משני · טקסט', v:'מי אנחנו'}
+   ]},
+   {t:'רצועת השותפים', d:'לוגואים של גופים תומכים', f:[
+     {y:'img', l:'לוגו 1', v:SITEIMG+'partners/1.png'},
+     {y:'img', l:'לוגו 2', v:SITEIMG+'partners/2.png'},
+     {y:'img', l:'לוגו 3', v:SITEIMG+'partners/3.png'}
+   ]},
+   {t:'סרטון', d:'הסרטון שנפתח בגלילה', f:[
+     {y:'img',  l:'תמונת פתיחה לסרטון', v:SITEIMG+'video-poster.png'},
+     {y:'link', l:'קישור לסרטון', v:'https://youtube.com/…'}
+   ]},
+   {t:'כל מה שקורה אצלנו', d:'שלושת כרטיסי התוכניות', f:[
+     {y:'text', l:'כותרת הסקשן', v:'כל מה שקורה אצלנו'},
+     {y:'text', l:'כרטיס 1 · כותרת', v:'בית ש”י'},
+     {y:'area', l:'כרטיס 1 · טקסט', v:'מרכז קהילתי, חברתי וטיפולי בנהריה - חוגים, טיפולים, חצר וכלבים טיפוליים.'},
+     {y:'img',  l:'כרטיס 1 · תמונה', v:IMG+'d26.jpg'},
+     {y:'text', l:'כרטיס 2 · כותרת', v:'בשביל בראשית'},
+     {y:'area', l:'כרטיס 2 · טקסט', v:'מרחב רגשי לאחים, לאחיות ולהורים - כי גם להם מגיע מקום משלהם.'},
+     {y:'img',  l:'כרטיס 2 · תמונה', v:IMG+'d22.jpg'},
+     {y:'text', l:'כרטיס 3 · כותרת', v:'תנועת הנוער ואהב”ת'},
+     {y:'area', l:'כרטיס 3 · טקסט', v:'ילדים על הרצף וילדים מהקהילה נפגשים, מתנדבים וגדלים יחד.'},
+     {y:'img',  l:'כרטיס 3 · תמונה', v:IMG+'d02.jpg'}
+   ]},
+   {t:'אהבת חינ״מ לכולם', d:'טקסט ההסבר והקולאז׳', f:[
+     {y:'text', l:'כותרת', v:'אהבת חינ”מ (חינוך מיוחד) לכולם'},
+     {y:'area', l:'טור ימני', v:'עמותת אהבת חינ"מ לכולם הינה עמותה שהוקמה מתוך צורך אמיתי של ילדים על הספקטרום האוטיסטי ובני משפחותיהם.'},
+     {y:'area', l:'טור שמאלי', v:'העמותה נוסדה על ידי אמהות ואחיות לילדים על הרצף האוטיסטי יחד עם יזמים חברתיים.'},
+     {y:'img',  l:'קולאז׳ · תמונה מרכזית', v:IMG+'d10.jpg'},
+     {y:'img',  l:'קולאז׳ · תמונה עליונה', v:IMG+'d15.jpg'},
+     {y:'img',  l:'קולאז׳ · תמונה תחתונה', v:IMG+'d01.jpg'}
+   ]},
+   {t:'האירועים שהיו', d:'מנוהל ממסך האירועים', lock:'events', lockT:'האירועים'},
+   {t:'באנר התרומה', d:'הכרטיס הצהוב עם הילד', f:[
+     {y:'area', l:'כותרת', v:'לא צריך לשנות עולם שלם כדי לשנות עולם של ילד אחד.'},
+     {y:'area', l:'טקסט', v:'התרומה שלכם מאפשרת לילדי בית שי לקבל את הכלים, התמיכה והאהבה שמגיעים להם.'},
+     {y:'text', l:'כפתור · טקסט', v:'לעמוד התרומות'},
+     {y:'img',  l:'תמונת הילד', v:SITEIMG+'donate-boy.png'}
+   ]},
+   {t:'גלריה', d:'מנוהל ממסך הגלריה', lock:'gallery', lockT:'הגלריה'},
+   {t:'אנחנו בתקשורת', d:'כרטיסי הכתבות', f:[
+     {y:'text', l:'כותרת הסקשן', v:'אנחנו בתקשורת'},
+     {y:'text', l:'כתבה 1 · כותרת', v:'מתחם חדש, תקווה חדשה'},
+     {y:'img',  l:'כתבה 1 · תמונה', v:IMG+'d05.jpg'},
+     {y:'link', l:'כתבה 1 · קישור', v:'https://www.gmaaravionline.com/…'}
+   ]}
+ ]},
+ {k:'beit-shai', n:'בית ש”י', secs:[
+   {t:'הירו', d:'כותרת ותמונות פתיחה', f:[
+     {y:'text', l:'כותרת-על', v:'מרכז קהילתי טיפולי'},
+     {y:'area', l:'כותרת ראשית', v:'בית שמחכה\nלכל ילד וילדה,\nבדיוק כפי שהם.'},
+     {y:'area', l:'טקסט מוביל', v:'חוגים, טיפולים, חצר פתוחה וכלבים טיפוליים - הכל תחת קורת גג אחת בנהריה.'},
+     {y:'img',  l:'תמונה 1', v:IMG+'d26.jpg'},
+     {y:'img',  l:'תמונה 2', v:IMG+'d49.jpg'}
+   ]},
+   {t:'מה יש בבית', d:'רשימת הפעילויות', f:[
+     {y:'text', l:'כותרת', v:'מה יש בבית'},
+     {y:'area', l:'תיאור', v:'כל פעילות מותאמת אישית, בקבוצות קטנות, עם אנשי מקצוע מוסמכים.'}
+   ]}
+ ]},
+ {k:'about', n:'מי אנחנו', secs:[
+   {t:'הירו', d:'הכותרת הפותחת', f:[
+     {y:'area', l:'כותרת ראשית', v:'הכול התחיל\nמאמהות שסירבו\nלוותר.'},
+     {y:'area', l:'טקסט מוביל', v:'הסיפור של אהבת חינ״מ מתחיל במשפחות שחיפשו מקום לילדים שלהן - ולא מצאו.'},
+     {y:'img',  l:'תמונת חנן', v:SITEIMG+'hanan-story.png'}
+   ]}
+ ]},
+ {k:'contact', n:'צרו קשר', secs:[
+   {t:'הירו', d:'כותרת העמוד', f:[
+     {y:'area', l:'כותרת ראשית', v:'נשמח לשמוע\nמכם.'},
+     {y:'area', l:'טקסט מוביל', v:'שאלה, בקשה, רצון להתנדב או פשוט לבוא לבקר - אנחנו כאן.'}
+   ]},
+   {t:'פרטי קשר', d:'מנוהל ממסך פרטי העמותה', lock:'settings', lockT:'פרטי העמותה'}
+ ]}
+];
+
+var PSTATE = {page:'index'};
+
 R['/pages'] = function(){
   ttl.textContent='עמודים וטקסטים';
-  var pages=[['דף הבית','index'],['בית ש”י','beit-shai'],['בשביל בראשית','breshit'],
-             ['תנועת ואהב”ת','vahavta'],['הגלריה שלנו','the-gallery'],['מי אנחנו','about'],
-             ['האירועים שהיו','events'],['בתקשורת','press'],['צרו קשר','contact']];
+  var pg = PAGES.filter(function(p){ return p.k===PSTATE.page; })[0] || PAGES[0];
+
   view.innerHTML =
-  '<div class="two">'+
-    '<div class="panel"><div class="panel__head"><h3>עמודי האתר</h3></div>'+
-      '<table><tbody>'+ pages.map(function(p){
-        return '<tr><td data-l="עמוד"><b style="font-weight:500">'+esc(p[0])+'</b>'+
-          '<div style="font-size:12.5px;color:var(--ink-3)">'+p[1]+'.html</div></td>'+
-          '<td data-l=""><div class="rowacts" style="justify-content:flex-end">'+
-          '<button class="btn btn--g btn--sm">'+ico('edit')+'עריכה</button></div></td></tr>';
-      }).join('') +'</tbody></table></div>'+
-    '<div class="panel"><div class="panel__head"><h3>עריכה מהירה · דף הבית</h3></div>'+
-      '<div style="padding:16px">'+
-        '<div class="field"><label>כותרת ראשית</label>'+
-          '<textarea>לא צריך לשנות עולם שלם כדי לשנות עולם של ילד אחד.</textarea></div>'+
-        '<div class="field"><label>טקסט התרומה</label>'+
-          '<textarea>התרומה שלכם מאפשרת לילדי בית שי לקבל את הכלים, התמיכה והאהבה שמגיעים להם.</textarea></div>'+
-        '<button class="btn btn--p" onclick="void 0">שמירת שינויים</button>'+
-      '</div></div>'+
-  '</div>';
-  view.addEventListener('click',function(e){
-    if(e.target.closest('.btn--p')) toast('השינויים נשמרו (הדגמה)');
+    '<div class="pagebar">'+ PAGES.map(function(p){
+      return '<button data-pg="'+p.k+'" class="'+(p.k===pg.k?'on':'')+'">'+esc(p.n)+'</button>';
+    }).join('') +'</div>'+
+
+    '<div class="panel" style="margin-bottom:14px"><div class="panel__head">'+
+      '<h3>'+esc(pg.n)+'</h3>'+
+      '<span style="font-size:12.5px;color:var(--ink-3)">'+pg.k+'.html</span>'+
+      '<span class="sp"></span>'+
+      '<a class="btn btn--g btn--sm" href="./'+pg.k+'.html" target="_blank">'+ico('eye')+'צפייה בעמוד</a>'+
+      '<button class="btn btn--p btn--sm" id="saveAll">שמירת שינויים</button>'+
+    '</div></div>'+
+
+    pg.secs.map(function(s,i){ return secItem(s,i); }).join('');
+
+  /* מעבר בין עמודים */
+  view.querySelector('.pagebar').onclick=function(e){
+    var b=e.target.closest('[data-pg]'); if(!b) return;
+    PSTATE.page=b.dataset.pg; R['/pages']();
+  };
+
+  /* פתיחה/סגירה של סקשן */
+  Array.prototype.forEach.call(view.querySelectorAll('.sec-item__hd'), function(hd){
+    hd.onclick=function(){ hd.parentNode.classList.toggle('open'); };
+  });
+
+  /* החלפת תמונה */
+  view.addEventListener('click', function(e){
+    var pick=e.target.closest('[data-pick]'), up=e.target.closest('[data-up]');
+    if(pick){
+      var wrap=pick.closest('.imgf'), im=wrap.querySelector('img');
+      pickImage(im.getAttribute('src'), function(src){
+        im.src=src;
+        wrap.querySelector('.imgf__m span').textContent=src.split('/').pop();
+        toast('התמונה הוחלפה (הדגמה)');
+      });
+    }
+    if(up) toast('בגרסה האמיתית ייפתח חלון בחירת קובץ מהמחשב');
+    if(e.target.closest('#saveAll')) toast('כל השינויים בעמוד נשמרו (הדגמה)');
   });
 };
+
+function secItem(s,i){
+  var body;
+  if(s.lock){
+    body = '<div class="locked">'+
+      '<svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/></svg>'+
+      '<span>הסקשן הזה מתמלא אוטומטית — ערוך אותו במסך <a href="#/'+s.lock+'">'+esc(s.lockT)+'</a>.</span></div>';
+    return '<div class="sec-item"><div class="sec-item__hd">'+
+      '<span class="sec-item__n">'+(i+1)+'</span>'+
+      '<span class="sec-item__t"><b>'+esc(s.t)+'</b><span>'+esc(s.d)+'</span></span>'+
+      '<span class="chev"><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></span>'+
+      '</div>'+body+'</div>';
+  }
+  body = '<div class="sec-item__bd">'+ s.f.map(fieldHTML).join('') +'</div>';
+  return '<div class="sec-item"'+(i===0?' data-first':'')+'><div class="sec-item__hd">'+
+    '<span class="sec-item__n">'+(i+1)+'</span>'+
+    '<span class="sec-item__t"><b>'+esc(s.t)+'</b><span>'+esc(s.d)+'</span></span>'+
+    '<span class="chev"><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></span>'+
+    '</div>'+body+'</div>';
+}
+
+function fieldHTML(f){
+  if(f.y==='img'){
+    return '<div class="field"><label>'+esc(f.l)+'</label>'+
+      '<div class="imgf">'+
+        '<span class="imgf__t"><img src="'+esc(f.v)+'" alt="" loading="lazy" /></span>'+
+        '<span class="imgf__m"><b>'+esc(f.l)+'</b><span>'+esc(f.v.split('/').pop())+'</span>'+
+          '<span class="imgf__a">'+
+            '<button class="btn btn--g btn--sm" data-pick="1">'+ico('img')+'בחירה מהמדיה</button>'+
+            '<button class="btn btn--g btn--sm" data-up="1">העלאת תמונה</button>'+
+          '</span>'+
+        '</span>'+
+      '</div></div>';
+  }
+  if(f.y==='area'){
+    return '<div class="field"><label>'+esc(f.l)+'</label><textarea>'+esc(f.v)+'</textarea></div>';
+  }
+  if(f.y==='link'){
+    return '<div class="field"><label>'+esc(f.l)+'</label><input value="'+esc(f.v)+'" dir="ltr" style="text-align:left" /></div>';
+  }
+  return '<div class="field"><label>'+esc(f.l)+'</label><input value="'+esc(f.v)+'" /></div>';
+}
+
+/* בורר המדיה: בוחרים מתוך מה שכבר קיים באתר, או מעלים חדש */
+function pickImage(cur, cb){
+  var sel={tab:'gallery', src:cur};
+  function grid(tab){
+    var arr = tab==='gallery' ? MEDIA.gallery : MEDIA.site;
+    var base= tab==='gallery' ? IMG : SITEIMG;
+    return arr.map(function(f){
+      var src=base+f;
+      return '<figure data-src="'+src+'"'+(src===sel.src?' class="sel"':'')+'>'+
+        '<img src="'+src+'" loading="lazy" alt="" /></figure>';
+    }).join('');
+  }
+  modal('בחירת תמונה',
+    '<div class="mtabs" id="mt">'+
+      '<button data-t="gallery" class="on">תמונות מהגלריה</button>'+
+      '<button data-t="site">תמונות האתר</button>'+
+    '</div>'+
+    '<div class="mgrid" id="mg">'+grid('gallery')+'</div>'+
+    '<div class="drop" style="margin-top:14px;padding:18px">גרירת תמונה חדשה לכאן · או לחיצה להעלאה מהמחשב</div>',
+    function(){ if(sel.src && sel.src!==cur) cb(sel.src); }, 'בחירת התמונה');
+
+  var mg=document.getElementById('mg');
+  document.getElementById('mt').onclick=function(e){
+    var b=e.target.closest('button'); if(!b) return;
+    Array.prototype.forEach.call(this.children,function(x){ x.classList.remove('on'); });
+    b.classList.add('on'); sel.tab=b.dataset.t; mg.innerHTML=grid(sel.tab);
+  };
+  mg.onclick=function(e){
+    var f=e.target.closest('figure'); if(!f) return;
+    Array.prototype.forEach.call(mg.querySelectorAll('figure'),function(x){ x.classList.remove('sel'); });
+    f.classList.add('sel'); sel.src=f.dataset.src;
+  };
+}
 
 /* ---------- פרטי העמותה ---------- */
 R['/settings'] = function(){
@@ -707,6 +1028,30 @@ $('#burger').onclick=function(){
 };
 $('#scrim').onclick=function(){
   document.body.dataset.menu='off'; $('#scrim').classList.remove('on');
+};
+
+/* ============================================================
+   התחברות (הדגמה בלבד)
+   ------------------------------------------------------------
+   אין כאן אימות ואין שמירה של שום פרט - הטופס רק מחליף מסך.
+   בבנייה האמיתית זה יוחלף ב-Supabase Auth.
+   ============================================================ */
+document.getElementById('loginForm').onsubmit=function(e){
+  e.preventDefault();
+  document.getElementById('lgPass').value='';   /* לא מחזיקים סיסמה בזיכרון */
+  document.body.dataset.auth='in';
+  route();
+  toast('ברוכה הבאה, רונית');
+};
+document.getElementById('lgForgot').onclick=function(e){
+  e.preventDefault();
+  toast('בגרסה האמיתית יישלח מייל לאיפוס סיסמה');
+};
+document.getElementById('logout').onclick=function(){
+  document.body.removeAttribute('data-auth');
+  document.getElementById('lgEmail').value='';
+  document.getElementById('lgPass').value='';
+  window.scrollTo(0,0);
 };
 
 route();
