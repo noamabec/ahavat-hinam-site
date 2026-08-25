@@ -1096,6 +1096,9 @@ html:not(.js) .progress{display:none}
   .events__grid::-webkit-scrollbar{display:none}
   .events__grid>:nth-child(n){grid-area:auto}
   .event{flex:0 0 calc(100% - 40px);scroll-snap-align:start;height:clamp(280px,80vw,380px)}
+  /* אין hover במובייל שמבהיר את הכרטיס, אז ברירת המחדל כהה מדי -
+     משאירים אותה קרובה למצב ה-hover בדסקטופ מלכתחילה. */
+  .event__scrim{background:rgba(0,0,0,.5)}
   .events__nav{display:flex}
   .events__cta{width:100%;padding-inline:0}
   .hero__actions{flex-wrap:wrap}
@@ -1165,6 +1168,7 @@ html:not(.js) .progress{display:none}
         <a href="./beit-shai.html" class="nav__link" data-reveal="fade">בית ש”י</a>
         <a href="./breshit.html" class="nav__link" data-reveal="fade">בראשית</a>
         <a href="./vahavta.html" class="nav__link" data-reveal="fade">ואהב”ת</a>
+        <a href="./events.html" class="nav__link" data-reveal="fade">אירועים</a>
         <a href="./about.html" class="nav__link" data-reveal="fade">מי אנחנו</a>
         <a href="./gallery.html" class="nav__link" data-reveal="fade">גלריה</a>
         <a href="./press.html" class="nav__link" data-reveal="fade">בתקשורת</a>
