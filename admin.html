@@ -861,20 +861,28 @@ function wireVisual(vf){
   var st=d.createElement('style'); st.textContent=VSTYLE; d.head.appendChild(st);
 
   /* מה ניתן לעריכה: כל טקסט אמיתי בעמוד - כותרות, פסקאות, תוויות
-     כפתורים, קישורי ניווט וקישורי פוטר. לא רק כותרות/פסקאות כמו
-     קודם, שהחמיצו למשל את "תרמו לנו" ו"הכירו אותנו" (טקסט הכפתור
-     יושב ב-span ראשון בתוך .btn, לצד span נפרד לאייקון). */
+     כפתורים, קישורי ניווט וקישורי פוטר, וגם התפריט הנפתח בהאדר,
+     פירורי לחם, רשימות תוכן, ציטוטים, כיתובי תמונה, ותוויות טפסים -
+     שהיו קודם חורים אמיתיים בעריכה (אפשר היה ללחוץ על "תרמו לנו"
+     אבל לא על "בית ש”י" בתפריט הנפתח, למשל). */
   var TEXT_SEL = [
     'h1','h2','h3','h4','h5','p','.eyebrow','.event-card__date',
     '.btn > span:first-child',
-    '.nav__link','.nav__links a',
+    '.nav__link','.nav__links a','.nav__trigger span','.nav__menu a','.is-group-title',
+    '.crumbs a','.crumbs [aria-current]',
     '.footer__links a','.footer__legal a','.footer__contact a',
-    '.footer__contact li > span:not(.footer__ico)','.footer__credit'
+    '.footer__contact li > span:not(.footer__ico)','.footer__credit',
+    'li','summary','cite','figcaption',
+    '.event-nav__label','.event-nav__title',
+    '.field > span'
   ].join(',');
   Array.prototype.forEach.call(d.querySelectorAll(TEXT_SEL), function(el){
     if(!el.textContent.trim()) return;
     if(el.closest('svg')) return;
-    if(el.querySelector('img,svg')) return;       /* לא לגעת בעטיפות */
+    /* לא לגעת בעטיפות: אלמנט שכל תוכנו הוא תמונה/אייקון, או רשימה/
+       קישור שכבר יש לו יעד עריכה משלו בתוכו (כדי לא ליצור contenteditable
+       מקונן, שדפדפנים מטפלים בו בצורה לא עקבית). */
+    if(el.querySelector('img,svg,a,button')) return;
     el.setAttribute('data-ed','1');
   });
   Array.prototype.forEach.call(d.querySelectorAll('img'), function(el){
