@@ -68,6 +68,11 @@ body:not([data-auth="in"]) #shell,body:not([data-auth="in"]) #demoBar{display:no
   background:#FFF8E6;border:1px solid #F5E2B0;color:#7A5A00;
   border-radius:10px;padding:11px 13px;font-size:13px;line-height:1.55;margin-bottom:20px;
 }
+#login .err{
+  display:none;background:#FDECEA;border:1px solid #F6C9C2;color:#B3271A;
+  border-radius:10px;padding:10px 13px;font-size:13.5px;line-height:1.5;margin-bottom:14px;
+}
+#login .err.on{display:block}
 #login .full{width:100%;height:44px;font-size:15px;margin-top:6px}
 #login .foot{margin-top:20px;font-size:13px;color:var(--ink-3);text-align:center}
 #login .foot a{color:var(--blue)}
@@ -439,11 +444,13 @@ tbody tr:hover{background:#FCFDFF}
     <h3>כניסה למערכת</h3>
     <p class="sub">התחברו עם החשבון שקיבלתם מהעמותה</p>
 
-    <div class="demo"><b>זהו אב-טיפוס עיצובי.</b> אין כאן התחברות אמיתית — כל לחיצה על "כניסה" תיכנס לפאנל. בגרסה האמיתית תהיה התחברות מאובטחת דרך Supabase Auth.</div>
+    <div class="demo"><b>זהו אב-טיפוס עיצובי.</b> הבדיקה כאן היא בצד הדפדפן בלבד ואינה אבטחה אמיתית — מי שיפתח את קוד המקור יראה את הפרטים. בגרסה האמיתית תהיה התחברות מאובטחת דרך Supabase Auth.</div>
+
+    <p class="err" id="lgErr"></p>
 
     <form id="loginForm" autocomplete="off">
       <div class="field"><label for="lgEmail">דוא״ל</label>
-        <input id="lgEmail" type="email" dir="ltr" style="text-align:left" placeholder="name@ahavat.org.il" autocomplete="off" /></div>
+        <input id="lgEmail" type="email" dir="ltr" style="text-align:left" placeholder="ah580676369@gmail.com" autocomplete="off" /></div>
       <div class="field"><label for="lgPass">סיסמה</label>
         <input id="lgPass" type="password" dir="ltr" style="text-align:left" placeholder="••••••••" autocomplete="off" /></div>
       <button class="btn btn--p full" type="submit">כניסה לפאנל</button>
@@ -1312,12 +1319,32 @@ $('#scrim').onclick=function(){
 /* ============================================================
    התחברות (הדגמה בלבד)
    ------------------------------------------------------------
-   אין כאן אימות ואין שמירה של שום פרט - הטופס רק מחליף מסך.
-   בבנייה האמיתית זה יוחלף ב-Supabase Auth.
+   שים לב: הבדיקה כאן רצה בדפדפן של המשתמש, ולכן היא *אינה אבטחה* -
+   כל מי שיפתח את קוד המקור של העמוד יראה את הדוא"ל והסיסמה. זה מספיק
+   כדי שהפאנל לא ייפתח למי שסתם מגיע לכתובת, אבל לא יותר מזה. בבנייה
+   האמיתית האימות יעבור לשרת (Supabase Auth) ורק שם הוא יהיה אמיתי.
    ============================================================ */
+var LOGIN_EMAIL = 'ah580676369@gmail.com';
+var LOGIN_PASS  = '12345678';
+
 document.getElementById('loginForm').onsubmit=function(e){
   e.preventDefault();
-  document.getElementById('lgPass').value='';   /* לא מחזיקים סיסמה בזיכרון */
+  var emailEl=document.getElementById('lgEmail');
+  var passEl =document.getElementById('lgPass');
+  var errEl  =document.getElementById('lgErr');
+  var email=(emailEl.value||'').trim().toLowerCase();
+  var pass = passEl.value||'';
+
+  if(email!==LOGIN_EMAIL || pass!==LOGIN_PASS){
+    /* הודעה אחת לשני המקרים - לא מסגירים איזה מהשדות היה שגוי */
+    errEl.textContent='הדוא״ל או הסיסמה שגויים. נסו שוב.';
+    errEl.classList.add('on');
+    passEl.value=''; passEl.focus();
+    return;
+  }
+
+  errEl.classList.remove('on'); errEl.textContent='';
+  passEl.value='';              /* לא מחזיקים סיסמה בזיכרון */
   document.body.dataset.auth='in';
   route();
   toast('ברוכה הבאה, רונית');
@@ -1330,6 +1357,8 @@ document.getElementById('logout').onclick=function(){
   document.body.removeAttribute('data-auth');
   document.getElementById('lgEmail').value='';
   document.getElementById('lgPass').value='';
+  var errEl=document.getElementById('lgErr');
+  errEl.classList.remove('on'); errEl.textContent='';
   window.scrollTo(0,0);
 };
 
