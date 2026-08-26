@@ -548,6 +548,7 @@ html:not(.js) .progress{display:none}
   gap:clamp(20px,3.472vw,88.89px);align-items:center;
   background:var(--accent-soft);border-radius:var(--r-lg);
   padding:clamp(20px,2.778vw,71.11px);
+  box-shadow:0 2px 6px rgba(0,0,0,.05),0 6px 16px rgba(0,0,0,.05);
 }
 .person__photo{position:relative}
 .person__photo img{
@@ -665,6 +666,7 @@ html:not(.js) .progress{display:none}
   gap:clamp(24px,3.472vw,88.89px);align-items:start;
   background:var(--accent-soft);border-radius:var(--r-lg);
   padding:clamp(22px,3.056vw,78.22px);
+  box-shadow:0 2px 6px rgba(0,0,0,.05),0 6px 16px rgba(0,0,0,.05);
 }
 .donate-box h2{font-size:var(--fs-h2);text-align:right}
 .donate-box__copy p{
@@ -861,6 +863,7 @@ html:not(.js) .progress{display:none}
   display:flex;align-items:flex-start;gap:clamp(12px,1.111vw,28.44px);
   background:var(--accent-soft);border-radius:var(--r-sm);
   padding:clamp(14px,1.528vw,39.11px);
+  box-shadow:0 2px 6px rgba(0,0,0,.05),0 6px 16px rgba(0,0,0,.05);
 }
 .contact-card__ico{
   flex:none;width:clamp(34px,2.778vw,71.11px);height:clamp(34px,2.778vw,71.11px);
