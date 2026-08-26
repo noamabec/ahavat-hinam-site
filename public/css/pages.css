@@ -279,15 +279,17 @@ html:not(.js) .progress{display:none}
 .crumbs span[aria-hidden]{opacity:.45}
 .crumbs [aria-current]{color:var(--accent-ink)}
 
+/* תווית-העל מעל הכותרת: קו מבטא קצר וטקסט נקי, באותה שפה עיצובית של
+   ה-.rule שמתחת לכותרות - במקום "צ'יפ" עם רקע, צל ונקודה, שהוא הקלישאה
+   הגנרית של עמודי נחיתה ומושך תשומת לב על חשבון הכותרת עצמה. */
 .eyebrow{
-  display:inline-flex;align-items:center;gap:.55em;
+  display:inline-flex;align-items:center;gap:.7em;
   font-size:var(--fs-sm);font-weight:500;color:var(--accent-ink);
-  padding:.45em 1em;border-radius:999px;
-  background:var(--surface);box-shadow:0 2px 10px rgba(0,0,0,.07);
+  letter-spacing:.03em;
   margin-bottom:clamp(12px,1.389vw,35.56px);
 }
 .eyebrow::before{
-  content:"";width:.5em;height:.5em;border-radius:50%;
+  content:"";width:1.9em;height:.14em;border-radius:999px;
   background:var(--accent);flex:none;
 }
 .page-hero h1{font-size:var(--fs-h1);max-width:14ch}
@@ -363,10 +365,13 @@ html:not(.js) .progress{display:none}
   font-size:var(--fs-prose);font-weight:300;line-height:var(--lh-prose);color:var(--ink-soft);
 }
 
-/* קו מבטא קצר מתחת לכותרת */
+/* קו מבטא קצר מתחת לכותרת. המידות ב-em ביחס ל-font-size של הקו עצמו,
+   שמקבל את גודל הכותרת - כך הקו גדל ומתכווץ יחד עם ה-h2 שמעליו בכל
+   רוחב מסך, במקום להימדד בנפרד מול ה-viewport ולצאת לא פרופורציונלי. */
 .rule{
-  width:clamp(40px,4.167vw,106.67px);height:4px;border-radius:4px;
-  background:var(--accent);margin-top:clamp(12px,1.111vw,28.44px);
+  font-size:var(--fs-h2);
+  width:1.5625em;height:.175em;border-radius:999px;
+  background:var(--accent);margin-top:.42em;
 }
 .sec__head--center .rule{margin-inline:auto}
 
@@ -458,6 +463,7 @@ html:not(.js) .progress{display:none}
   font-size:var(--fs-prose);font-weight:300;line-height:var(--lh-prose);
   background:var(--accent-soft);border-radius:var(--r-sm);
   padding:clamp(12px,1.181vw,30.22px) clamp(14px,1.319vw,33.78px);
+  box-shadow:0 2px 6px rgba(0,0,0,.05),0 6px 16px rgba(0,0,0,.05);
 }
 .checklist li::before{
   content:"";flex:none;margin-top:.28em;
