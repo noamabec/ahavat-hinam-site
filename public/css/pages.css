@@ -292,7 +292,12 @@ html:not(.js) .progress{display:none}
   content:"";width:1.9em;height:.14em;border-radius:999px;
   background:var(--accent);flex:none;
 }
-.page-hero h1{font-size:var(--fs-h1);max-width:14ch}
+/* שבירת השורות בכותרת נכתבת ידנית ב-.ln, ולכן ה-max-width נועד רק
+   למנוע שורת-מידה ארוכה מדי - לא לשבור את השורות שנכתבו. ב-14ch הוא
+   היה צר מכדי להכיל את השורות הארוכות שכן נכתבו (בית ש"י, מי אנחנו,
+   תרומות, אירועים), ושבר אותן לשתיים בדסקטופ. min() מבטיח שגם כשהוא
+   רחב יותר הוא לעולם לא יגלוש מעמודת הטקסט. */
+.page-hero h1{font-size:var(--fs-h1);max-width:min(22ch,100%)}
 .page-hero__lead{
   margin-top:clamp(12px,1.528vw,39.11px);
   font-size:var(--fs-prose);font-weight:300;line-height:var(--lh-prose);
