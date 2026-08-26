@@ -362,7 +362,7 @@ html:not(.js) .progress{display:none}
 .sec h2,.sec__title{font-size:var(--fs-h2);text-align:right}
 .sec__head--center h2{text-align:center}
 .sec__kicker{
-  font-size:var(--fs-sm);font-weight:500;color:var(--accent-ink);
+  font-size:var(--fs-sm);font-weight:300;color:var(--accent-ink);
   letter-spacing:.02em;margin-bottom:.7em;
 }
 .sec__sub{
