@@ -862,7 +862,27 @@ function paintChg(){
 function bump(){ VS.changes++; paintChg(); }
 
 function wireVisual(vf){
-  var d=docOfFrame(vf); if(!d) return;
+  var d=docOfFrame(vf);
+  /* אם אי אפשר להיכנס למסמך שב-iframe, העריכה החזותית פשוט לא תעבוד.
+     המקרה הנפוץ: פתיחת admin.html כקובץ מקומי (file://) - כרום מתייחס
+     לכל קובץ מקומי כמקור נפרד וחוסם את הגישה. קודם זה נכשל בשקט
+     והמסך נראה תקין אבל שום דבר לא היה לחיץ, אז עכשיו מסבירים למה. */
+  if(!d){
+    var stage=$('#vstage');
+    if(stage){
+      stage.insertAdjacentHTML('afterbegin',
+        '<div style="position:absolute;inset:0;z-index:5;display:grid;place-items:center;'+
+        'background:rgba(255,255,255,.96);padding:26px;text-align:center">'+
+        '<div style="max-width:44ch">'+
+        '<div style="font-size:17px;font-weight:600;margin-bottom:10px">העריכה החזותית לא זמינה כאן</div>'+
+        '<div style="font-size:14px;line-height:1.6;color:var(--ink-2)">'+
+        'הדפדפן חוסם גישה לתוכן העמוד כשפאנל הניהול נפתח כקובץ מקומי. '+
+        'כדי לערוך, פתחו את הפאנל דרך כתובת האתר עצמו (https://…/admin.html) '+
+        'ולא בלחיצה כפולה על הקובץ במחשב.</div></div></div>');
+      stage.style.position='relative';
+    }
+    return;
+  }
   var w=vf.contentWindow;
 
   /* סגנון הסימון */
