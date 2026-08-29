@@ -148,15 +148,29 @@
     openLightbox(trigger.getAttribute('href') || (img && img.src), img && img.alt);
   });
 
-  /* ---------- טופס תרומה: בונה את הקישור לעמוד הסליקה ----------
-     כשיהיה עמוד סליקה אמיתי, מחליפים כאן את DONATE_ENDPOINT בכתובת שלו
-     והפרמטרים amount/freq יעברו אליו כמו שהם. */
-  var DONATE_ENDPOINT = '';   /* לדוגמה: 'https://pay.example.co.il/ahavat-hinam' */
+  /* ---------- טופס תרומה: מעבר לעמוד הסליקה של טרנזילה ----------
+     הסליקה עצמה מתבצעת אצל טרנזילה, בעמוד המאובטח שלהם - פרטי האשראי
+     לא עוברים דרך האתר הזה ולא נשמרים בו בשום שלב. אנחנו רק בונים כתובת
+     עם הסכום ומעבירים אליה.
+
+     כל מה שצריך לשנות אם משהו מתחלף נמצא כאן, ב-TRANZILA:
+       terminal - שם/מזהה המסוף כפי שטרנזילה נתנו. זה מה שמופיע בכתובת
+                  הסליקה שלהם. אם המעבר לעמוד הסליקה מחזיר שגיאה, זה
+                  הדבר הראשון לבדוק מול טרנזילה.
+       currency - 1 = שקל.
+     שימו לב: כדי שההחזרה לעמודי התודה/הכשלון תעבוד, צריך שכתובות
+     ה-success/fail יאושרו גם בהגדרות המסוף בממשק של טרנזילה. */
+  var TRANZILA = {
+    terminal: '5647324',
+    currency: '1'
+  };
+
   var donateForm = document.getElementById('donateForm');
   if (donateForm) {
     var submit = document.getElementById('donateSubmit');
     var custom = document.getElementById('customAmount');
     var note = document.getElementById('donateNote');
+    var noteDefault = note ? note.textContent : '';
 
     /* סכום חופשי מבטל את הבחירה מהכפתורים, וההפך */
     custom.addEventListener('input', function () {
@@ -173,26 +187,75 @@
       var checked = donateForm.querySelector('input[name="amount"]:checked');
       return checked ? checked.value : '';
     }
+    function currentFreq() {
+      var el = donateForm.querySelector('input[name="freq"]:checked');
+      return el ? el.value : '';
+    }
+    function isStandingOrder() {
+      return /קבע/.test(currentFreq());
+    }
+    /* כתובת מוחלטת לעמוד באתר, כדי שטרנזילה תדע לאן להחזיר */
+    function pageUrl(name) {
+      return location.href.replace(/[^/]*$/, '') + name;
+    }
+
+    /* הוראת קבע עדיין לא מחוברת: היא דורשת צד-שרת ולא ניתן לממש אותה
+       בבטחה באתר סטטי. לכן, במקום לחייב חיוב בודד למי שביקש הוראת קבע -
+       מה שהיה מטעה ממש - מסבירים ומפנים ליצירת קשר. */
+    function paintFreqNote() {
+      if (!note) return;
+      if (isStandingOrder()) {
+        note.innerHTML = 'הוראת קבע חודשית מוקמת אצלנו ידנית - ' +
+          '<a href="./contact.html?topic=%D7%AA%D7%A8%D7%95%D7%9E%D7%94">השאירו פרטים</a>' +
+          ' ונחזור אליכם להסדרה. לתרומה חד־פעמית מיידית, בחרו "חד־פעמית".';
+      } else {
+        note.textContent = noteDefault;
+      }
+    }
+    Array.prototype.forEach.call(donateForm.querySelectorAll('input[name="freq"]'), function (r) {
+      r.addEventListener('change', paintFreqNote);
+    });
+    paintFreqNote();
 
     submit.addEventListener('click', function (e) {
+      e.preventDefault();
+
+      if (isStandingOrder()) { paintFreqNote(); return; }
+
       var amount = currentAmount();
-      var freq = (donateForm.querySelector('input[name="freq"]:checked') || {}).value || '';
-      if (!amount) {
-        e.preventDefault();
+      /* בדיקת שפיות על הסכום לפני שמעבירים לסליקה */
+      var n = Number(amount);
+      if (!amount || !isFinite(n) || n <= 0) {
         note.textContent = 'בחרו סכום או הקלידו סכום אחר, ואז המשיכו לתרומה.';
         custom.focus();
         return;
       }
-      if (!DONATE_ENDPOINT) {
-        e.preventDefault();
-        note.textContent = 'תודה! עמוד הסליקה המאובטח עדיין בהקמה. בינתיים אפשר לתרום ' +
-          amount + ' ₪ (' + freq + ') דרך יצירת קשר - ונחזור אליכם מיד.';
-        return;
-      }
-      submit.href = DONATE_ENDPOINT +
-        '?amount=' + encodeURIComponent(amount) +
-        '&freq=' + encodeURIComponent(freq);
+
+      var q = [
+        'sum=' + encodeURIComponent(n),
+        'currency=' + encodeURIComponent(TRANZILA.currency),
+        'cred_type=1',
+        'lang=il',
+        'pdesc=' + encodeURIComponent('תרומה לעמותת אהבת חינ״מ'),
+        'success_url_address=' + encodeURIComponent(pageUrl('thank-you.html') + '?sum=' + n),
+        'fail_url_address=' + encodeURIComponent(pageUrl('payment-failed.html'))
+      ].join('&');
+
+      location.href = 'https://direct.tranzila.com/' + TRANZILA.terminal + '/iframenew.php?' + q;
     });
+  }
+
+  /* ---------- עמוד התודה: מציג את הסכום שנתרם ----------
+     טרנזילה מחזירה את פרטי העסקה בכתובת. מציגים רק את הסכום, ורק אם
+     הוא באמת מספר - לא מהדהדים טקסט חופשי מה-URL אל תוך העמוד. */
+  var tyDetails = document.getElementById('tyDetails');
+  if (tyDetails) {
+    var p = new URLSearchParams(location.search);
+    var sum = Number(p.get('sum') || p.get('sum1') || '');
+    if (isFinite(sum) && sum > 0) {
+      tyDetails.textContent = 'תרמתם ' + sum.toLocaleString('he-IL') + ' ₪';
+      tyDetails.hidden = false;
+    }
   }
 
   /* ---------- עמוד יצירת קשר: בחירת נושא מראש דרך ?topic= ---------- */

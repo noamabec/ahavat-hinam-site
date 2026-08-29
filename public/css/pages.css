@@ -267,6 +267,18 @@ html:not(.js) .progress{display:none}
 .page-hero--slim .crumbs{justify-content:center}
 .page-hero--slim h1{max-width:20ch;margin-inline:auto}
 .page-hero--slim .page-hero__lead{max-width:52ch;margin-inline:auto}
+
+/* עמודי הסיום של התרומה (תודה / כשלון). התוכן ממורכז כמו ההירו שמעליו. */
+.ty-amount{
+  font-size:var(--fs-h3);font-weight:500;color:var(--accent-ink);
+  text-align:center;margin-bottom:.6em;
+}
+.ty-acts{
+  display:flex;flex-wrap:wrap;justify-content:center;
+  gap:clamp(10px,1.111vw,28.44px);
+  margin-top:clamp(20px,2.5vw,64px);
+}
+.ty-acts .btn{width:auto;padding-inline:clamp(22px,2.639vw,67.56px)}
 .page-hero__inner{display:flex;align-items:center;gap:clamp(24px,4.167vw,106.67px)}
 .page-hero__copy{flex:1 1 0;min-width:0;text-align:right}
 .crumbs{
