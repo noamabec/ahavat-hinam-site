@@ -184,7 +184,14 @@
     country: 'Israel',
     city: 'נהריה',
     zip: '2210001',
-    address: 'יצחק שדה 18'
+    address: 'יצחק שדה 18',
+    /* טרנזילה קוראת לכתובת הזו ישירות שרת-לשרת אחרי כל עסקה, בלי
+       תלות בדפדפן של התורם - זה מה שמפעיל בפועל את שליחת תעודת
+       התרומה במייל (פונקציית tranzila-notify ב-Supabase). הטוקן
+       ב-query string הוא הגנה בסיסית שרק אנחנו וטרנזילה מכירים -
+       חייב להיות זהה לסוד TRANZILA_NOTIFY_TOKEN שמוגדר שם. */
+    notifyUrl: 'https://zaphyupuufzpfnbgftes.supabase.co/functions/v1/tranzila-notify' +
+      '?token=7547ae2db3f60508e9375781a24bea58fff3b7d5b64d1520'
   };
 
   var donateForm = document.getElementById('donateForm');
@@ -298,6 +305,7 @@
         city: TRANZILA.city,
         cred_type: '1',
         lang: 'il',
+        notify_url_address: TRANZILA.notifyUrl,
         pdesc: 'תרומה ל' + TRANZILA.orgName,
         success_url_address: pageUrl('thank-you.html') + '?sum=' + n,
         fail_url_address: pageUrl('payment-failed.html')
