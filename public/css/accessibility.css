@@ -1,84 +1,325 @@
 /* ============================================================
-   וידג'ט נגישות צף - עצמאי, בלי שירות חיצוני בתשלום
+   וידג'ט נגישות - אהבת חינ"מ
+   ------------------------------------------------------------
+   עצמאי לחלוטין, בלי שירות חיצוני בתשלום. נטען בכל עמודי האתר
+   יחד עם public/js/accessibility.js, וההעדפות נשמרות ב-localStorage
+   כך שהן חלות אוטומטית בכל מעבר בין עמודים.
+
+   תקינה: ת"י 5568 רמה AA, WCAG 2.1 AA.
    ============================================================ */
+
+/* ------------------------------------------------------------
+   קישור "דילוג לתוכן המרכזי"
+   ------------------------------------------------------------
+   הקישור היה קיים באתר אבל עם .sr-only בלבד - כלומר נשאר מוסתר
+   גם כשמקבל פוקוס, ולכן משתמשי מקלדת רואי-עין לא יכלו לדעת שהוא
+   שם. לפי WCAG 2.4.1 הוא חייב להיות גלוי בזמן פוקוס.
+   ------------------------------------------------------------ */
+.sr-only{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;
+}
+.sr-only:focus,.sr-only:focus-visible{
+  position:fixed;top:12px;inset-inline-start:12px;
+  width:auto;height:auto;margin:0;padding:12px 20px;
+  clip:auto;overflow:visible;white-space:normal;
+  z-index:100000;
+  background:#1a56db;color:#fff;border-radius:10px;
+  font-size:16px;font-weight:600;text-decoration:none;
+  box-shadow:0 6px 24px rgba(0,0,0,.35);
+  outline:3px solid #fff;outline-offset:2px;
+}
+
+/* ------------------------------------------------------------
+   הכפתור הצף
+   ------------------------------------------------------------ */
 .a11y-toggle{
-  position:fixed;inset-inline-end:20px;bottom:20px;z-index:9999;
+  position:fixed;inset-inline-end:20px;bottom:20px;z-index:99998;
   width:52px;height:52px;border-radius:50%;
   display:grid;place-items:center;
   background:#1a56db;color:#fff;border:none;cursor:pointer;
   box-shadow:0 6px 20px rgba(0,0,0,.25);
   transition:transform .2s ease;
 }
-.a11y-toggle:hover,.a11y-toggle:focus-visible{transform:scale(1.06)}
-.a11y-toggle svg{width:28px;height:28px}
+.a11y-toggle:hover{transform:scale(1.06)}
+.a11y-toggle:focus-visible{outline:3px solid #fff;outline-offset:3px;box-shadow:0 0 0 6px #1a56db}
+.a11y-toggle svg{width:28px;height:28px;pointer-events:none}
 
+/* ------------------------------------------------------------
+   הפאנל
+   ------------------------------------------------------------ */
 .a11y-panel{
-  position:fixed;inset-inline-end:20px;bottom:82px;z-index:9999;
-  width:min(320px,calc(100vw - 40px));
+  position:fixed;inset-inline-end:20px;bottom:82px;z-index:99999;
+  width:min(340px,calc(100vw - 32px));
   background:#fff;color:#1a1a1a;border-radius:16px;
   box-shadow:0 12px 40px rgba(0,0,0,.28);
   padding:18px;
   display:none;
-  max-height:calc(100vh - 120px);overflow-y:auto;
+  max-height:min(78vh,620px);overflow-y:auto;overscroll-behavior:contain;
+  font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  text-align:right;
 }
 .a11y-panel.is-open{display:block}
-.a11y-panel h2{font-size:17px;margin:0 0 4px;text-align:right}
-.a11y-panel__sub{font-size:13px;color:#666;margin:0 0 14px;text-align:right}
-.a11y-panel__grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.a11y-btn{
-  display:flex;flex-direction:column;align-items:center;gap:6px;
-  padding:12px 8px;border-radius:10px;border:1px solid #e2e2e2;
-  background:#f7f7f8;color:#1a1a1a;cursor:pointer;font-size:12.5px;
-  text-align:center;line-height:1.25;
+.a11y-panel h2{font-size:17px;margin:0 0 4px;text-align:right;color:#1a1a1a;font-weight:700}
+.a11y-panel__sub{font-size:13px;color:#5a5a5a;margin:0 0 14px;text-align:right}
+
+/* כותרת קבוצה בתוך הפאנל */
+.a11y-group{
+  font-size:12px;font-weight:700;color:#5a5a5a;
+  margin:16px 0 8px;text-align:right;
+  text-transform:none;letter-spacing:.02em;
 }
-.a11y-btn svg{width:22px;height:22px}
-.a11y-btn:hover,.a11y-btn:focus-visible{border-color:#1a56db;background:#eef3ff}
-.a11y-btn[aria-pressed="true"]{background:#1a56db;color:#fff;border-color:#1a56db}
+.a11y-group:first-of-type{margin-top:10px}
+
+.a11y-panel__grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+
+.a11y-btn{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+  padding:11px 7px;border-radius:10px;border:1px solid #d9d9d9;
+  background:#f7f7f8;color:#1a1a1a;cursor:pointer;font-size:12.5px;
+  text-align:center;line-height:1.3;min-height:66px;
+  font-family:inherit;
+}
+.a11y-btn svg{width:22px;height:22px;flex:none;pointer-events:none}
+.a11y-btn:hover{border-color:#1a56db;background:#eef3ff}
+.a11y-btn:focus-visible{outline:3px solid #1a56db;outline-offset:2px}
+/* מצב פעיל - גם צבע וגם וי, כדי לא להסתמך על צבע בלבד (WCAG 1.4.1) */
+.a11y-btn[aria-pressed="true"]{
+  background:#1a56db;color:#fff;border-color:#0b3ea8;font-weight:600;
+}
+.a11y-btn[aria-pressed="true"]::after{
+  content:"✓";font-size:12px;line-height:1;
+}
+
+/* מחוון דרגה (גודל טקסט / גובה שורה / ריווח) */
+.a11y-level{
+  display:flex;gap:3px;justify-content:center;margin-top:2px;
+}
+.a11y-level i{
+  width:14px;height:4px;border-radius:2px;background:#c9c9c9;display:block;
+}
+.a11y-btn[aria-pressed="true"] .a11y-level i{background:rgba(255,255,255,.45)}
+.a11y-level i.on{background:#1a56db}
+.a11y-btn[aria-pressed="true"] .a11y-level i.on{background:#fff}
+
 .a11y-reset{
-  width:100%;margin-top:12px;padding:10px;border-radius:10px;
-  border:1px solid #e2e2e2;background:#fff;color:#1a1a1a;cursor:pointer;font-size:13px;
+  width:100%;margin-top:14px;padding:11px;border-radius:10px;
+  border:1px solid #d9d9d9;background:#fff;color:#1a1a1a;cursor:pointer;
+  font-size:13.5px;font-family:inherit;font-weight:600;
 }
 .a11y-reset:hover{background:#f2f2f2}
+.a11y-reset:focus-visible{outline:3px solid #1a56db;outline-offset:2px}
+
+.a11y-statement{
+  display:block;margin-top:10px;text-align:center;
+  font-size:13px;color:#1a56db;text-decoration:underline;
+}
+.a11y-statement:focus-visible{outline:3px solid #1a56db;outline-offset:2px;border-radius:6px}
+
 .a11y-close{
   position:absolute;top:10px;inset-inline-start:10px;
-  width:28px;height:28px;border-radius:50%;border:none;background:transparent;
-  color:#666;cursor:pointer;display:grid;place-items:center;
+  width:32px;height:32px;border-radius:50%;border:none;background:transparent;
+  color:#444;cursor:pointer;display:grid;place-items:center;
 }
-.a11y-close:hover{background:#f2f2f2}
-.a11y-close svg{width:16px;height:16px}
+.a11y-close:hover{background:#eee}
+.a11y-close:focus-visible{outline:3px solid #1a56db;outline-offset:2px}
+.a11y-close svg{width:16px;height:16px;pointer-events:none}
 
-@media (max-width:480px){
-  .a11y-toggle{inset-inline-end:14px;bottom:14px;width:46px;height:46px}
-  .a11y-panel{inset-inline-end:14px;bottom:68px}
+/* ------------------------------------------------------------
+   רספונסיביות - חייב להיות שמיש עד 320px ומטה
+   ------------------------------------------------------------ */
+@media (max-width:600px){
+  .a11y-toggle{inset-inline-end:14px;bottom:14px;width:48px;height:48px}
+  .a11y-toggle svg{width:26px;height:26px}
+  .a11y-panel{
+    inset-inline-end:8px;inset-inline-start:8px;bottom:70px;
+    width:auto;max-height:min(72vh,560px);padding:15px;
+  }
 }
-
-/* ---------- מצבי נגישות גלובליים (מופעלים על html) ---------- */
-html.a11y-contrast{filter:contrast(1.35) saturate(1.15)}
-html.a11y-contrast body{background:#000;color:#fff}
-html.a11y-contrast .card,
-html.a11y-contrast .pillar,
-html.a11y-contrast .prose,
-html.a11y-contrast .footer,
-html.a11y-contrast .site-header{background:#111 !important;color:#fff !important}
-
-html.a11y-grayscale{filter:grayscale(1)}
-
-html.a11y-underline a{text-decoration:underline !important}
-html.a11y-underline a:not(.btn){text-underline-offset:3px}
-
-html.a11y-stop-anim *,
-html.a11y-stop-anim *::before,
-html.a11y-stop-anim *::after{
-  animation-duration:0s !important;animation-delay:0s !important;
-  transition-duration:0s !important;scroll-behavior:auto !important;
+@media (max-width:360px){
+  .a11y-panel__grid{gap:7px}
+  .a11y-btn{font-size:11.5px;padding:9px 5px;min-height:60px}
+  .a11y-btn svg{width:19px;height:19px}
+}
+/* מסך נמוך מאוד (למשל נייד במצב לרוחב) */
+@media (max-height:520px){
+  .a11y-panel{max-height:calc(100vh - 90px);bottom:64px}
 }
 
-/* font-size על ה-html לא משפיע כאן: כל גדלי הטקסט באתר מוגדרים ב-px/vw
-   (clamp) ולא ב-em/rem, ולכן חסינים לשינוי font-size של השורש.
-   zoom מגדיל את כל התצוגה (טקסט, רווחים, תמונות) יחסית, בלי תלות
-   ביחידות שבהן המפתח בחר להגדיר את הגדלים.
-   שימו לב: zoom על ה-body עצמו עובד באופן עקבי; zoom על ה-html לא
-   השפיע כלל (נבדק) - לכן מפעילים אותו כאן על ה-body. */
+/* ============================================================
+   מצבי התצוגה - מופעלים כמחלקות על <html>
+   ============================================================ */
+
+/* ---------- גודל טקסט ----------
+   כל גדלי הטקסט באתר מוגדרים ב-px/vw (clamp) ולא ב-rem, ולכן שינוי
+   font-size של השורש לא היה משפיע כלל. zoom מגדיל את כל התצוגה
+   באופן יחסי בלי תלות ביחידות. נבדק: zoom על <html> לא עובד, על
+   <body> כן - ולכן הוא מוחל על ה-body. */
 html[data-a11y-fs="1"] body{zoom:1.15}
 html[data-a11y-fs="2"] body{zoom:1.3}
 html[data-a11y-fs="3"] body{zoom:1.5}
+
+/* הווידג'ט עצמו מנוטרל מה-zoom, אחרת הוא גדל יחד עם הדף ועלול
+   לצאת מהמסך בדיוק כשהמשתמש הכי צריך אותו. */
+html[data-a11y-fs="1"] .a11y-toggle,html[data-a11y-fs="1"] .a11y-panel{zoom:.8696}
+html[data-a11y-fs="2"] .a11y-toggle,html[data-a11y-fs="2"] .a11y-panel{zoom:.7692}
+html[data-a11y-fs="3"] .a11y-toggle,html[data-a11y-fs="3"] .a11y-panel{zoom:.6667}
+
+/* ---------- גובה שורה ---------- */
+html[data-a11y-lh="1"] p,html[data-a11y-lh="1"] li,
+html[data-a11y-lh="1"] dd,html[data-a11y-lh="1"] blockquote{line-height:1.9 !important}
+html[data-a11y-lh="2"] p,html[data-a11y-lh="2"] li,
+html[data-a11y-lh="2"] dd,html[data-a11y-lh="2"] blockquote{line-height:2.4 !important}
+
+/* ---------- ריווח אותיות ומילים ---------- */
+html[data-a11y-sp="1"] body{letter-spacing:.06em !important;word-spacing:.14em !important}
+html[data-a11y-sp="2"] body{letter-spacing:.12em !important;word-spacing:.3em !important}
+/* הפאנל עצמו נשאר קריא בריווח רגיל */
+html[data-a11y-sp] .a11y-panel,html[data-a11y-sp] .a11y-toggle{letter-spacing:normal !important;word-spacing:normal !important}
+
+/* ---------- גופן קריא ----------
+   מחליף את הגופן המותאם של האתר בגופן מערכת סטנדרטי, שנוטה להיות
+   קריא יותר עבור חלק מהמשתמשים (כולל דיסלקציה). */
+html.a11y-readable body,
+html.a11y-readable body *:not(.a11y-panel):not(.a11y-panel *){
+  font-family:Arial,"Segoe UI",Tahoma,system-ui,sans-serif !important;
+}
+
+/* ---------- ניגודיות גבוהה ---------- */
+html.a11y-mode-contrast body{background:#000 !important;color:#fff !important}
+html.a11y-mode-contrast body *:not(.a11y-panel):not(.a11y-panel *):not(.a11y-toggle):not(.a11y-toggle *){
+  background-color:transparent !important;
+  color:#fff !important;
+  border-color:#fff !important;
+  text-shadow:none !important;
+}
+html.a11y-mode-contrast section,html.a11y-mode-contrast header,
+html.a11y-mode-contrast footer,html.a11y-mode-contrast main,
+html.a11y-mode-contrast article,html.a11y-mode-contrast aside{background:#000 !important}
+html.a11y-mode-contrast a:not(.a11y-statement){color:#ffdd00 !important;text-decoration:underline !important}
+html.a11y-mode-contrast button:not(.a11y-btn):not(.a11y-reset):not(.a11y-close),
+html.a11y-mode-contrast .btn{
+  background:#000 !important;color:#ffdd00 !important;border:2px solid #ffdd00 !important;
+}
+html.a11y-mode-contrast img,html.a11y-mode-contrast video{
+  filter:grayscale(1) contrast(1.2);
+}
+
+/* ---------- מצב כהה ----------
+   היפוך + סיבוב גוון: הופך רקעים בהירים לכהים ושומר על הצבעים
+   קרובים למקור. התמונות/וידאו מוחזרים להיפוך שני כדי שיישארו נכונים. */
+html.a11y-mode-dark{filter:invert(1) hue-rotate(180deg);background:#fff}
+html.a11y-mode-dark img,html.a11y-mode-dark video,
+html.a11y-mode-dark svg image,html.a11y-mode-dark iframe,
+html.a11y-mode-dark canvas,html.a11y-mode-dark [style*="background-image"]{
+  filter:invert(1) hue-rotate(180deg);
+}
+
+/* ---------- מצב בהיר ---------- */
+html.a11y-mode-light body{background:#fff !important;color:#111 !important}
+html.a11y-mode-light body *:not(.a11y-panel):not(.a11y-panel *):not(.a11y-toggle):not(.a11y-toggle *){
+  background-color:transparent !important;color:#111 !important;
+}
+html.a11y-mode-light section,html.a11y-mode-light header,
+html.a11y-mode-light footer,html.a11y-mode-light main{background:#fff !important}
+html.a11y-mode-light a:not(.a11y-statement){color:#0b3ea8 !important;text-decoration:underline !important}
+
+/* ---------- גווני אפור ---------- */
+html.a11y-mode-mono{filter:grayscale(1)}
+
+/* ---------- היפוך צבעים (עצמאי ממצב כהה) ---------- */
+html.a11y-invert{filter:invert(1)}
+html.a11y-invert.a11y-mode-mono{filter:grayscale(1) invert(1)}
+
+/* הווידג'ט מנוטרל מהפילטרים הגלובליים ע"י היפוך נגדי, אחרת הוא
+   נראה הפוך והופך לבלתי שמיש בדיוק בזמן שמשתמשים בו. */
+html.a11y-mode-dark .a11y-toggle,html.a11y-mode-dark .a11y-panel{filter:invert(1) hue-rotate(180deg)}
+html.a11y-invert .a11y-toggle,html.a11y-invert .a11y-panel{filter:invert(1)}
+html.a11y-mode-mono .a11y-toggle,html.a11y-mode-mono .a11y-panel{filter:grayscale(0)}
+
+/* ---------- הדגשת קישורים ---------- */
+html.a11y-links a{
+  text-decoration:underline !important;text-underline-offset:3px !important;
+  outline:2px dashed currentColor;outline-offset:2px;
+}
+
+/* ---------- הדגשת כותרות ---------- */
+html.a11y-headings h1,html.a11y-headings h2,html.a11y-headings h3,
+html.a11y-headings h4,html.a11y-headings h5,html.a11y-headings h6{
+  outline:2px solid #1a56db;outline-offset:4px;
+  background:rgba(26,86,219,.08) !important;
+}
+
+/* ---------- סמן מוגדל ---------- */
+html.a11y-cursor,html.a11y-cursor *{
+  cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Cpath d='M8 4 8 38 16 30 22 43 29 40 23 27 34 27z' fill='%23fff' stroke='%23000' stroke-width='2.5' stroke-linejoin='round'/%3E%3C/svg%3E") 6 4,auto !important;
+}
+html.a11y-cursor a,html.a11y-cursor button,
+html.a11y-cursor [role="button"],html.a11y-cursor input[type="submit"]{
+  cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Cpath d='M18 4c-2 0-3 1-3 3v16l-4-4c-2-2-5 1-3 3l9 12c1 2 3 3 6 3h8c4 0 7-3 7-7V17c0-3-4-3-4 0v6c0-3-4-3-4 0v-8c0-3-4-3-4 0v8V7c0-2-1-3-3-3z' fill='%23fff' stroke='%23000' stroke-width='2.5' stroke-linejoin='round'/%3E%3C/svg%3E") 14 4,pointer !important;
+}
+
+/* ---------- עצירת אנימציות ---------- */
+html.a11y-stop-anim *,
+html.a11y-stop-anim *::before,
+html.a11y-stop-anim *::after{
+  animation-duration:.001s !important;animation-delay:0s !important;
+  animation-iteration-count:1 !important;
+  transition-duration:.001s !important;transition-delay:0s !important;
+  scroll-behavior:auto !important;
+}
+
+/* ---------- הסתרת תמונות (מצב טקסט בלבד) ---------- */
+html.a11y-no-images img:not(.a11y-panel img),
+html.a11y-no-images video,
+html.a11y-no-images picture,
+html.a11y-no-images canvas{
+  visibility:hidden !important;
+}
+/* רקעים דקורטיביים מוסתרים גם הם, כדי שהטקסט יישאר קריא */
+html.a11y-no-images [style*="background-image"]{background-image:none !important}
+
+/* ---------- הדגשת פוקוס מוגברת ---------- */
+html.a11y-kbd *:focus{
+  outline:4px solid #ffdd00 !important;
+  outline-offset:3px !important;
+  box-shadow:0 0 0 8px rgba(26,86,219,.55) !important;
+}
+
+/* ------------------------------------------------------------
+   סרגל קריאה + מסכת קריאה
+   ------------------------------------------------------------ */
+.a11y-guide{
+  position:fixed;inset-inline:0;height:0;z-index:99997;
+  pointer-events:none;
+  border-top:3px solid #1a56db;
+  box-shadow:0 0 0 1px rgba(255,255,255,.9),0 2px 8px rgba(0,0,0,.35);
+  display:none;
+}
+html.a11y-guide-on .a11y-guide{display:block}
+
+.a11y-mask{
+  position:fixed;inset:0;z-index:99996;pointer-events:none;display:none;
+}
+html.a11y-mask-on .a11y-mask{display:block}
+.a11y-mask i{
+  position:absolute;inset-inline:0;background:rgba(0,0,0,.72);display:block;
+}
+.a11y-mask i.top{top:0}
+.a11y-mask i.bottom{bottom:0}
+
+/* ------------------------------------------------------------
+   כיבוד העדפת מערכת: משתמש שביקש פחות תנועה ברמת מערכת ההפעלה
+   מקבל אתר ללא אנימציות גם בלי לפתוח את הווידג'ט.
+   ------------------------------------------------------------ */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.001s !important;animation-iteration-count:1 !important;
+    transition-duration:.001s !important;scroll-behavior:auto !important;
+  }
+}
+
+/* בהדפסה - להסתיר את הווידג'ט */
+@media print{
+  .a11y-toggle,.a11y-panel,.a11y-guide,.a11y-mask{display:none !important}
+}
