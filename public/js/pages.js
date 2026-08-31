@@ -185,13 +185,18 @@
     city: 'נהריה',
     zip: '2210001',
     address: 'יצחק שדה 18',
-    /* טרנזילה קוראת לכתובת הזו ישירות שרת-לשרת אחרי כל עסקה, בלי
-       תלות בדפדפן של התורם - זה מה שמפעיל בפועל את שליחת תעודת
-       התרומה במייל (פונקציית tranzila-notify ב-Supabase). הטוקן
-       ב-query string הוא הגנה בסיסית שרק אנחנו וטרנזילה מכירים -
-       חייב להיות זהה לסוד TRANZILA_NOTIFY_TOKEN שמוגדר שם. */
-    notifyUrl: 'https://zaphyupuufzpfnbgftes.supabase.co/functions/v1/tranzila-notify' +
-      '?token=7547ae2db3f60508e9375781a24bea58fff3b7d5b64d1520'
+    /* שימו לב: כתובת ה-notify *לא* נמצאת כאן בכוונה.
+       ------------------------------------------------------------
+       בעבר היא נשלחה מכאן כשדה notify_url_address, יחד עם טוקן
+       שנועד להיות סוד. אבל כל מה שנמצא בקובץ הזה מוגש לכל גולש -
+       כלומר הטוקן היה גלוי לחלוטין, וכל אדם יכול היה לקרוא לוובהוק
+       ולגרום לעמותה לשלוח מייל "תעודת תרומה" רשמי-למראה לכל כתובת
+       שירצה, עם טקסט שהוא בחר. ממסר מייל פתוח לכל דבר.
+
+       הפתרון: כתובת ה-notify מוגדרת ישירות בממשק של טרנזילה
+       (הגדרות המסוף -> שדה Notify URL), ולא נשלחת מהדפדפן. כך
+       הטוקן חי רק בשני מקומות סגורים - אצל טרנזילה וב-Secrets של
+       Supabase - ולעולם לא נחשף לגולשים. */
   };
 
   var donateForm = document.getElementById('donateForm');
@@ -305,7 +310,6 @@
         city: TRANZILA.city,
         cred_type: '1',
         lang: 'il',
-        notify_url_address: TRANZILA.notifyUrl,
         pdesc: 'תרומה ל' + TRANZILA.orgName,
         success_url_address: pageUrl('thank-you.html') + '?sum=' + n,
         fail_url_address: pageUrl('payment-failed.html')
