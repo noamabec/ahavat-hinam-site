@@ -248,7 +248,7 @@ tbody tr:hover{background:#FCFDFF}
 .cert img{width:100%;height:100%;object-fit:cover;display:block}
 /* התיבה הריקה בתבנית - מיקום באחוזים כדי שיישאר נכון בכל גודל */
 .certName{
-  position:absolute;left:16.2%;right:16.2%;top:39.6%;height:10.2%;
+  position:absolute;left:15.5%;right:15.5%;top:40%;height:9.5%;
   display:grid;place-items:center;padding:0 12px;
 }
 .certName span{
@@ -742,13 +742,6 @@ R['/donations'] = function(){
       '<h3 style="font-size:16px;margin-bottom:4px">תצוגת התעודה</h3>'+
       '<p class="hint" style="margin-bottom:14px">השם נכתב על התבנית אוטומטית. הקלד כדי לראות.</p>'+
       '<div class="field"><label>שם התורם</label><input id="cName" value="מיכל אברהמי" /></div>'+
-      '<div class="field"><label>נוסח התעודה</label>'+
-        '<div class="seg" id="cSeg">'+
-          '<button data-g="f" class="on">נקבה · מלאכית</button>'+
-          '<button data-g="m">זכר · מלאך</button>'+
-        '</div>'+
-        '<p class="hint">התבנית שצורפה היא בלשון נקבה. לגרסת זכר צריך תבנית מקבילה.</p>'+
-      '</div>'+
       '<div class="cert"><img src="./public/images/certificate-template.jpg" alt="תבנית התעודה" />'+
         '<div class="certName"><span id="cOut">מיכל אברהמי</span></div></div>'+
       '<p class="certHint">כך תיראה התעודה שתישלח למייל</p>'+
@@ -757,13 +750,6 @@ R['/donations'] = function(){
 
   var nameEl=$('#cName'), outEl=$('#cOut');
   nameEl.oninput=function(){ outEl.textContent = nameEl.value || 'שם התורם'; };
-  Array.prototype.forEach.call(view.querySelectorAll('#cSeg button'), function(b){
-    b.onclick=function(){
-      Array.prototype.forEach.call(view.querySelectorAll('#cSeg button'),function(x){x.classList.remove('on');});
-      b.classList.add('on');
-      toast(b.dataset.g==='m' ? 'נוסח זכר — דורש תבנית נפרדת' : 'נוסח נקבה — התבנית הקיימת');
-    };
-  });
   view.addEventListener('click', function(e){
     var p=e.target.closest('[data-prev]'), s=e.target.closest('[data-send]');
     if(p){ var d=byId(+p.dataset.prev); nameEl.value=d.name; outEl.textContent=d.name;
