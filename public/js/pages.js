@@ -149,9 +149,10 @@
   });
 
   /* ---------- טופס תרומה: מעבר לעמוד הסליקה של טרנזילה ----------
-     הסליקה עצמה מתבצעת אצל טרנזילה, בעמוד המאובטח שלהם - פרטי האשראי
-     לא עוברים דרך האתר הזה ולא נשמרים בו בשום שלב. אנחנו רק בונים כתובת
-     עם הסכום ומעבירים אליה.
+     הסליקה עצמה מתבצעת אצל טרנזילה, בעמוד המאובטח שלהם (iframe/הפניה
+     מתועדת - לא ה-API המלא שדורש מפתח סודי בצד-שרת). פרטי האשראי לא
+     עוברים דרך האתר הזה ולא נשמרים בו בשום שלב - אנחנו רק שולחים טופס
+     עם הסכום ופרטי התורם לכתובת שלהם.
 
      כל מה שצריך לשנות אם משהו מתחלף נמצא כאן, ב-TRANZILA:
        enabled  - מתג ראשי. כל עוד הוא false, כפתור התרומה לא שולח לסליקה
@@ -169,11 +170,22 @@
      כדי להפעיל: להחליף terminal בשם הנכון, לשנות enabled ל-true, ולבצע
      תרומת בדיקה אמיתית בסכום קטן. בנוסף - כדי שההחזרה לעמודי התודה/
      הכשלון תעבוד, צריך שכתובות ה-success/fail יאושרו גם בהגדרות המסוף
-     בממשק של טרנזילה. */
+     בממשק של טרנזילה.
+
+     שדות "חובה" לפי התיעוד של טרנזילה (חוץ מסכום ומטבע): שם איש קשר,
+     חברה, אימייל, מדינה, עיר, מיקוד, כתובת. מהתורם עצמו אוספים רק שם
+     ואימייל (גם ככה נדרשים בשביל הקבלה) - שאר השדות (חברה/מדינה/עיר/
+     מיקוד/כתובת) ממולאים בפרטי העמותה עצמה כברירת מחדל קבועה, כדי לא
+     להעמיס על טופס תרומה עם שדות שאין להם שימוש אמיתי אצלנו. */
   var TRANZILA = {
     enabled: false,
     terminal: '',
-    currency: '1'
+    currency: '1',
+    orgName: 'עמותת אהבת חינ״מ',
+    country: 'Israel',
+    city: 'נהריה',
+    zip: '2210001',
+    address: 'יצחק שדה 18'
   };
 
   var donateForm = document.getElementById('donateForm');
@@ -181,6 +193,8 @@
     var submit = document.getElementById('donateSubmit');
     var custom = document.getElementById('customAmount');
     var note = document.getElementById('donateNote');
+    var donorName = document.getElementById('donorName');
+    var donorEmail = document.getElementById('donorEmail');
     var noteDefault = note ? note.textContent : '';
 
     /* סכום חופשי מבטל את הבחירה מהכפתורים, וההפך */
@@ -242,6 +256,19 @@
         return;
       }
 
+      var name = (donorName.value || '').trim();
+      if (!name) {
+        note.textContent = 'צריך שם מלא כדי להנפיק את הקבלה - נא למלא ולנסות שוב.';
+        donorName.focus();
+        return;
+      }
+      var email = (donorEmail.value || '').trim();
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        note.textContent = 'צריך אימייל תקין כדי לשלוח את הקבלה - נא למלא ולנסות שוב.';
+        donorEmail.focus();
+        return;
+      }
+
       /* הסליקה עוד לא פעילה - לא שולחים תורמים לעמוד שבור */
       if (!TRANZILA.enabled || !TRANZILA.terminal) {
         note.innerHTML = 'עמוד הסליקה נמצא בהקמה אחרונה מול חברת האשראי. ' +
@@ -251,17 +278,38 @@
         return;
       }
 
-      var q = [
-        'sum=' + encodeURIComponent(n),
-        'currency=' + encodeURIComponent(TRANZILA.currency),
-        'cred_type=1',
-        'lang=il',
-        'pdesc=' + encodeURIComponent('תרומה לעמותת אהבת חינ״מ'),
-        'success_url_address=' + encodeURIComponent(pageUrl('thank-you.html') + '?sum=' + n),
-        'fail_url_address=' + encodeURIComponent(pageUrl('payment-failed.html'))
-      ].join('&');
+      /* POST מומלץ ע"י טרנזילה על פני GET (בין השאר כדי לא לחשוף
+         את פרטי התורם בכתובת/בהיסטוריית הדפדפן) - בונים טופס חבוי
+         ושולחים אותו, בדיוק כמו בדוגמת האינטגרציה שלהם. */
+      var fields = {
+        sum: n,
+        currency: TRANZILA.currency,
+        contact: name,
+        company: TRANZILA.orgName,
+        email: email,
+        country: TRANZILA.country,
+        zip: TRANZILA.zip,
+        address: TRANZILA.address,
+        city: TRANZILA.city,
+        cred_type: '1',
+        lang: 'il',
+        pdesc: 'תרומה ל' + TRANZILA.orgName,
+        success_url_address: pageUrl('thank-you.html') + '?sum=' + n,
+        fail_url_address: pageUrl('payment-failed.html')
+      };
 
-      location.href = 'https://direct.tranzila.com/' + TRANZILA.terminal + '/iframenew.php?' + q;
+      var f = document.createElement('form');
+      f.method = 'POST';
+      f.action = 'https://directng.tranzila.com/' + TRANZILA.terminal + '/iframenew.php';
+      Object.keys(fields).forEach(function (key) {
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = fields[key];
+        f.appendChild(input);
+      });
+      document.body.appendChild(f);
+      f.submit();
     });
   }
 
