@@ -60,8 +60,16 @@
   text-align:right;
 }
 .a11y-panel.is-open{display:block}
-.a11y-panel h2{font-size:17px;margin:0 0 4px;text-align:right;color:#1a1a1a;font-weight:700}
-.a11y-panel__sub{font-size:13px;color:#5a5a5a;margin:0 0 14px;text-align:right}
+/* padding-inline-start שומר מקום לכפתור הסגירה שיושב בפינה ההתחלתית
+   (שמאל ב-RTL) - בלעדיו הכותרת נמשכת מתחתיו והם חופפים במסכים צרים. */
+.a11y-panel h2{
+  font-size:17px;margin:0 0 4px;text-align:right;color:#1a1a1a;font-weight:700;
+  padding-inline-start:42px;
+}
+.a11y-panel__sub{
+  font-size:13px;color:#5a5a5a;margin:0 0 14px;text-align:right;
+  padding-inline-start:42px;
+}
 
 /* כותרת קבוצה בתוך הפאנל */
 .a11y-group{
