@@ -185,6 +185,35 @@
     city: 'נהריה',
     zip: '2210001',
     address: 'יצחק שדה 18',
+
+    /* ---------- PayPal ----------
+       PayPal רץ *דרך* טרנזילה ולא במקביל לה: הדונר לוחץ "תרומה
+       מאובטחת" כרגיל, ובעמוד הסליקה של טרנזילה מופיע גם כפתור
+       PayPal לצד תשלום בכרטיס. היתרון הגדול - תרומת PayPal עוברת
+       בדיוק באותו צינור: אותו דיווח, אותה קבלה, ואותה תעודת תורם
+       אוטומטית. כפתור PayPal עצמאי היה עוקף את כל זה ויוצר מערכת
+       שנייה שצריך להצליב מולה ידנית.
+
+       כל מה שצריך מהצד שלנו הוא לשלוח ppnewwin=2. אבל זה מופעל רק
+       כשהדגל למטה true, כי אם PayPal לא הוגדר בפועל אצל טרנזילה,
+       הכפתור יופיע לתורם ויוביל לשגיאה - כלומר תרומה שהולכת לאיבוד.
+
+       להפעלה צריך (בצד שלכם, לא בקוד):
+         1. חשבון PayPal *עסקי* (Business).
+         2. בטרנזילה: הגדרות עמוד התשלום -> להפעיל את כפתור PayPal.
+         3. ב-PayPal: Seller Preferences -> API Access -> "View API
+            Signature", ולהעתיק Username / Password / Signature
+            להגדרות ה-PayPal של המסוף בטרנזילה, ולסמן את החשבון פעיל.
+         4. ב-PayPal: Seller Preferences -> Instant Payment
+            Notifications -> להפעיל עם הכתובת:
+            https://secure5.tranzila.com/cgi-bin/tranzila31n.cgi?supplier=betshay
+         5. בטרנזילה: להגדיר את כתובות ההפניה (הצלחה/כישלון) גם
+            בהגדרות המסוף עצמו, לא רק בשדות שאנחנו שולחים.
+
+       שימו לב לאזהרה בתיעוד של טרנזילה: מסוף שעובד מול ה-API המלא
+       לא יכול לעבוד עם PayPal, ונדרש מסוף שמוגדר לכך. betshay הוא
+       מסוף iframe/redirect ולכן אמור להתאים - אבל כדאי לאמת מולם. */
+    paypal: false,
     /* שימו לב: כתובת ה-notify *לא* נמצאת כאן בכוונה.
        ------------------------------------------------------------
        בעבר היא נשלחה מכאן כשדה notify_url_address, יחד עם טוקן
@@ -206,6 +235,13 @@
     var note = document.getElementById('donateNote');
     var donorName = document.getElementById('donorName');
     var donorEmail = document.getElementById('donorEmail');
+
+    /* כשתשלום ב-PayPal פעיל, מודיעים על כך כבר כאן - התורם צריך לדעת
+       שהאפשרות קיימת *לפני* שהוא לוחץ, לא לגלות אותה רק בעמוד הסליקה. */
+    if (TRANZILA.paypal && note) {
+      note.textContent = note.textContent.replace(/\s*$/, '') +
+        ' אפשר לשלם בכרטיס אשראי או ב-PayPal.';
+    }
     var noteDefault = note ? note.textContent : '';
 
     /* סכום חופשי מבטל את הבחירה מהכפתורים, וההפך */
@@ -314,6 +350,10 @@
         success_url_address: pageUrl('thank-you.html') + '?sum=' + n,
         fail_url_address: pageUrl('payment-failed.html')
       };
+
+      /* ppnewwin=2 גורם לכפתור PayPal להופיע בעמוד הסליקה של טרנזילה,
+         לצד התשלום בכרטיס. נשלח רק כשהחיבור באמת מוגדר אצלם. */
+      if (TRANZILA.paypal) fields.ppnewwin = '2';
 
       var f = document.createElement('form');
       f.method = 'POST';
