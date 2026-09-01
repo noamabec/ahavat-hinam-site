@@ -37,13 +37,16 @@
   position:fixed;inset-inline-end:20px;bottom:20px;z-index:99998;
   width:52px;height:52px;border-radius:50%;
   display:grid;place-items:center;
-  background:#1a56db;color:#fff;border:none;cursor:pointer;
+  /* רקע כחול כגיבוי, למקרה שהאייקון (תמונת SVG חיצונית) לא נטען -
+     האייקון עצמו כבר כולל עיגול-רקע בגרדיאנט משלו, אז ברוב המקרים
+     זה פשוט מכוסה ולא נראה. */
+  background:#1a56db;color:#fff;border:none;cursor:pointer;padding:0;overflow:hidden;
   box-shadow:0 6px 20px rgba(0,0,0,.25);
   transition:transform .2s ease;
 }
 .a11y-toggle:hover{transform:scale(1.06)}
 .a11y-toggle:focus-visible{outline:3px solid #fff;outline-offset:3px;box-shadow:0 0 0 6px #1a56db}
-.a11y-toggle svg{width:28px;height:28px;pointer-events:none}
+.a11y-toggle img{width:100%;height:100%;display:block;pointer-events:none}
 
 /* ------------------------------------------------------------
    הפאנל
@@ -138,7 +141,6 @@
    ------------------------------------------------------------ */
 @media (max-width:600px){
   .a11y-toggle{inset-inline-end:14px;bottom:14px;width:48px;height:48px}
-  .a11y-toggle svg{width:26px;height:26px}
   .a11y-panel{
     inset-inline-end:8px;inset-inline-start:8px;bottom:70px;
     width:auto;max-height:min(72vh,560px);padding:15px;

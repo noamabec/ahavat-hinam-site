@@ -163,7 +163,7 @@
     toggle.setAttribute('aria-label', 'תפריט נגישות');
     toggle.setAttribute('aria-expanded', 'false');
     toggle.setAttribute('aria-controls', 'a11yPanel');
-    toggle.innerHTML = icon('<circle cx="12" cy="4" r="2"/><path d="M19 7h-14M12 7v13M8 12l-3 2M16 12l3 2M9 20l3-6 3 6"/>');
+    toggle.innerHTML = '<img src="./public/images/accessibility-icon.svg" alt="" width="52" height="52" />';
 
     /* --- הפאנל --- */
     var panel = document.createElement('div');
