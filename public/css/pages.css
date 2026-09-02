@@ -763,6 +763,90 @@ html:not(.js) .progress{display:none}
    אותה שפה ויזואלית של סקשן "האירועים שהיו" בדף הבית: תמונה
    במילוי הכרטיס, סקרים שחור מעליה וטקסט לבן שנצמד לתחתית.
    ============================================================ */
+/* ===== אירועים קרובים =====
+   כרטיס "הודעה" בהיר - מובחן בכוונה מכרטיסי האירועים שהיו (תמונה + שכבה כהה),
+   כי הוא משרת מטרה אחרת: לא זיכרון להתרשם ממנו אלא הזמנה לפעולה. */
+.upcoming{
+  display:grid;
+  gap:clamp(12px,1.25vw,32px);
+  margin-bottom:clamp(30px,3.75vw,96px);
+}
+.upcoming__card{
+  position:relative;
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;
+  gap:clamp(14px,1.667vw,42.67px);
+  padding:clamp(16px,1.736vw,44.44px);
+  padding-inline-start:clamp(24px,2.5vw,64px);
+  background:var(--surface);
+  border-radius:var(--r-pill);
+  border:1px solid rgba(0,0,0,.08);
+  box-shadow:0 2px 20px rgba(0,0,0,.06);
+}
+.upcoming__card::before{
+  content:"";position:absolute;inset-block:0;inset-inline-start:0;
+  width:clamp(6px,.486vw,12.44px);
+  background:var(--brand-yellow);
+  border-start-start-radius:var(--r-pill);
+  border-end-start-radius:var(--r-pill);
+}
+.upcoming__when{
+  text-align:center;line-height:1;min-width:0;
+  padding-inline-end:clamp(12px,1.25vw,32px);
+  border-inline-end:1px solid rgba(0,0,0,.1);
+}
+.upcoming__day{
+  display:block;
+  font-size:clamp(30px,3.056vw,78.22px);
+  font-weight:300;color:var(--brand-blue);
+}
+.upcoming__month{
+  display:block;margin-top:.3em;
+  font-size:clamp(12px,1.042vw,26.67px);font-weight:300;white-space:nowrap;
+}
+.upcoming__badge{
+  display:inline-block;margin:0;
+  padding:.3em .95em;border-radius:var(--r-pill);
+  background:var(--brand-yellow);color:var(--ink);
+  font-size:clamp(11px,.903vw,23.11px);font-weight:400;line-height:1.4;
+}
+.upcoming__title{
+  margin:.45em 0 0;
+  font-size:clamp(17.6px,1.667vw,42.67px);font-weight:300;line-height:1.2;
+}
+.upcoming__meta{
+  list-style:none;margin:.55em 0 0;padding:0;
+  display:flex;flex-wrap:wrap;align-items:center;
+  gap:.35em clamp(8px,.833vw,21.33px);
+  font-size:clamp(12px,1.042vw,26.67px);font-weight:300;opacity:.72;
+}
+.upcoming__meta li{display:flex;align-items:center;gap:.5em}
+.upcoming__meta li+li::before{content:"·";opacity:.55}
+.upcoming__text{
+  margin:.5em 0 0;
+  font-size:clamp(12.8px,1.181vw,30.22px);font-weight:300;line-height:1.45;opacity:.85;
+}
+.upcoming__cta{
+  flex:none;white-space:nowrap;
+  background:var(--brand-blue);color:var(--surface);
+}
+@media (max-width:820px){
+  .upcoming__card{
+    grid-template-columns:auto 1fr;
+    gap:12px clamp(14px,3vw,24px);
+  }
+  .upcoming__cta{grid-column:1 / -1;justify-self:start;margin-top:4px}
+}
+@media (max-width:480px){
+  .upcoming__card{grid-template-columns:1fr}
+  .upcoming__when{
+    display:flex;align-items:baseline;gap:.4em;text-align:start;
+    padding-inline-end:0;border-inline-end:0;
+  }
+  .upcoming__day{font-size:30px}
+  .upcoming__cta{grid-column:auto}
+}
 .event-grid{
   margin-top:clamp(20px,2.778vw,71.11px);
   display:grid;grid-template-columns:repeat(3,1fr);

@@ -120,6 +120,40 @@
     </section>
 
     <!-- ===================== האירועים ===================== -->
+    <!-- אירועים קרובים. מוסתר (hidden) עד שיוזן אירוע אמיתי. -->
+    <section class="sec container" id="upcomingSection" hidden>
+      <div class="sec__head" data-reveal="up">
+        <p class="sec__kicker">מה קורה בקרוב</p>
+        <h2>אירועים קרובים</h2>
+        <div class="rule"></div>
+      </div>
+
+      <div class="upcoming" data-stagger="90">
+
+        <article class="upcoming__card" data-reveal="up">
+          <div class="upcoming__when" aria-hidden="true">
+            <span class="upcoming__day">12</span>
+            <span class="upcoming__month">בספטמבר</span>
+          </div>
+          <div class="upcoming__body">
+            <p class="upcoming__badge">אירוע קרוב</p>
+            <h3 class="upcoming__title">שם האירוע</h3>
+            <ul class="upcoming__meta">
+              <li>יום שישי, 12.9.26</li>
+              <li>18:00</li>
+              <li>בית שי, יצחק שדה 18, נהריה</li>
+            </ul>
+            <p class="upcoming__text">תיאור קצר של האירוע - מה קורה בו ולמי הוא מיועד.</p>
+          </div>
+          <a href="./contact.html" class="btn btn--rect upcoming__cta">
+            <span>לפרטים והרשמה</span>
+            <span class="ico ico--sm" aria-hidden="true"><svg viewBox="0 0 19.3848 14.7279" preserveAspectRatio="none"><use href="#arrow"/></svg></span>
+          </a>
+        </article>
+
+      </div>
+    </section>
+
     <section class="sec container">
       <div class="sec__head" data-reveal="up">
         <p class="sec__kicker">אחת-עשרה פעילויות</p>

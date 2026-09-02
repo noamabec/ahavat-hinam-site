@@ -775,7 +775,7 @@ R['/events'] = function(){
           '<button class="btn btn--g btn--sm" data-ev="'+e.id+'">'+ico('edit')+'עריכה</button>'+
           '<button class="btn btn--d btn--sm" data-evx="'+e.id+'">'+ico('trash')+'</button>'+
           '<span class="sp" style="margin-inline-start:auto"></span>'+
-          '<span class="pill pill--'+(e.on?'ok':'wait')+'"><i></i>'+(e.on?'מוצג':'מוסתר')+'</span>'+
+          (e.up?'<span class="pill pill--ok" style="margin-inline-end:6px"><i></i>אירוע קרוב</span>':'')+'<span class="pill pill--'+(e.on?'ok':'wait')+'"><i></i>'+(e.on?'מוצג':'מוסתר')+'</span>'+
         '</div></div></article>';
   }).join('') + '</div>';
 
@@ -788,13 +788,50 @@ R['/events'] = function(){
   });
 };
 function evForm(e){
+  var isUp = !!(e && e.up);
   modal(e? 'עריכת אירוע':'אירוע חדש',
+    '<div class="field"><label>סוג האירוע</label>'+
+      '<select id="evKind">'+
+        '<option value="past"'+(isUp?'':' selected')+'>אירוע שהיה - מוצג ברשת האירועים</option>'+
+        '<option value="up"'+(isUp?' selected':'')+'>אירוע קרוב - מוצג למעלה עם כפתור הרשמה</option>'+
+      '</select></div>'+
+
     '<div class="field"><label>כותרת</label><input value="'+(e?esc(e.t):'')+'" /></div>'+
-    '<div class="field"><label>תאריך / תווית</label><input value="'+(e?esc(e.d):'')+'" placeholder="למשל: חנוכה" /></div>'+
     '<div class="field"><label>תיאור</label><textarea>'+(e?esc(e.x):'')+'</textarea></div>'+
+
+    /* --- שדות של אירוע שהיה --- */
+    '<div data-kind="past">'+
+      '<div class="field"><label>תאריך / תווית</label>'+
+        '<input value="'+(e&&!e.up?esc(e.d):'')+'" placeholder="למשל: חנוכה" /></div>'+
+    '</div>'+
+
+    /* --- שדות של אירוע קרוב --- */
+    '<div data-kind="up">'+
+      '<div class="field"><label>תאריך מלא</label>'+
+        '<input value="'+(e&&e.up?esc(e.d||''):'')+'" placeholder="למשל: יום שישי, 12.9.26" /></div>'+
+      '<div class="field"><label>שעה</label>'+
+        '<input value="'+(e&&e.up?esc(e.time||''):'')+'" placeholder="למשל: 18:00" /></div>'+
+      '<div class="field"><label>מקום</label>'+
+        '<input value="'+(e&&e.up?esc(e.where||''):'')+'" placeholder="למשל: בית שי, יצחק שדה 18, נהריה" /></div>'+
+      '<div class="field"><label>קישור להרשמה / יצירת קשר</label>'+
+        '<input value="'+(e&&e.up?esc(e.cta||'./contact.html'):'./contact.html')+'" placeholder="./contact.html" /></div>'+
+    '</div>'+
+
     '<div class="field"><label>תמונה</label><div class="drop">גרירת תמונה לכאן או לחיצה לבחירה</div></div>'+
     '<div class="field"><label>מצב</label><select><option>מוצג באתר</option><option>מוסתר</option></select></div>',
     function(){ toast(e? 'האירוע עודכן (הדגמה)':'האירוע נוסף (הדגמה)'); });
+
+  /* החלפת קבוצת השדות לפי סוג האירוע - אירוע קרוב צריך שעה ומקום,
+     אירוע שהיה לא, ולהפך. modal() מזריק את ה-HTML באופן סינכרוני. */
+  var kind = $('#evKind');
+  function syncKind(){
+    var v = kind.value;
+    var groups = $('#mBd').querySelectorAll('[data-kind]');
+    for(var i=0;i<groups.length;i++)
+      groups[i].hidden = (groups[i].getAttribute('data-kind') !== v);
+  }
+  kind.onchange = syncKind;
+  syncKind();
 }
 
 /* ---------- גלריה ---------- */
@@ -928,6 +965,8 @@ function wireVisual(vf){
     /* תאריכי האירועים: .event-card__date בעמוד האירועים,
        .event__date בכרטיסים שבעמוד הבית */
     '.event-card__date','.event__date',
+    /* אירועים קרובים */
+    '.upcoming__day','.upcoming__month','.upcoming__badge','.upcoming__title','.upcoming__text','.upcoming__meta li',
     '.btn > span:first-child',
     '.nav__link','.nav__links a','.nav__trigger span','.nav__menu a','.is-group-title',
     '.crumbs a','.crumbs [aria-current]',
