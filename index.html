@@ -465,14 +465,18 @@ h1,h2,h3{margin:0;font-weight:500;line-height:var(--lh)}
   margin-top:0;
   background:var(--surface);color:var(--brand-blue);flex:none;
 }
-/* אותו עיצוב "תגית" כמו התאריכים בעמוד האירועים, לשמירת אחידות */
+/* אותו עיצוב "תגית" כמו התאריכים בעמוד האירועים, לשמירת אחידות.
+   min-width:0 + ellipsis במקום flex:none - הכרטיס צר (כ-289px),
+   ותאריך ארוך שנכתב מפאנל הניהול היה גולש מחוץ לגבול הכרטיס
+   במקום להצטמצם. עכשיו הוא מתקצר בעדינות ולא שובר את הפריסה. */
 .event__date{
-  flex:none;
+  min-width:0;
   padding:.35em .9em;border-radius:var(--r-pill);
   background:rgba(255,255,255,.16);
   border:1px solid rgba(255,255,255,.28);
   font-size:clamp(12px,1.042vw,26.67px);font-weight:300;
   line-height:1.4;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;
 }
 .event:hover .event__img{transform:scale(1.06)}
 .event:hover .event__scrim{background:rgba(0,0,0,.55)}
@@ -1438,7 +1442,7 @@ html:not(.js) .progress{display:none}
                 <svg viewBox="0 0 19.3848 14.7279" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M19.0919 8.07107C19.4824 7.68054 19.4824 7.04738 19.0919 6.65685L12.7279 0.292893C12.3374 -0.097631 11.7042 -0.097631 11.3137 0.292893C10.9232 0.683418 10.9232 1.31658 11.3137 1.70711L16.9706 7.36396L11.3137 13.0208C10.9232 13.4113 10.9232 14.0445 11.3137 14.435C11.7042 14.8256 12.3374 14.8256 12.7279 14.435L19.0919 8.07107ZM0 7.36396V8.36396H18.3848V7.36396V6.36396H0V7.36396Z" fill="currentColor"/></svg>
               </span>
             </a>
-            <span class="event__date">17.10.19 · חוה”מ סוכות</span>
+            <span class="event__date">17.10.19</span>
           </div>
           </div>
         </article>
