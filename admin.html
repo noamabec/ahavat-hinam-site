@@ -924,7 +924,10 @@ function wireVisual(vf){
      שהיו קודם חורים אמיתיים בעריכה (אפשר היה ללחוץ על "תרמו לנו"
      אבל לא על "בית שי" בתפריט הנפתח, למשל). */
   var TEXT_SEL = [
-    'h1','h2','h3','h4','h5','p','.eyebrow','.event-card__date','.video-reveal__hint',
+    'h1','h2','h3','h4','h5','p','.eyebrow','.video-reveal__hint',
+    /* תאריכי האירועים: .event-card__date בעמוד האירועים,
+       .event__date בכרטיסים שבעמוד הבית */
+    '.event-card__date','.event__date',
     '.btn > span:first-child',
     '.nav__link','.nav__links a','.nav__trigger span','.nav__menu a','.is-group-title',
     '.crumbs a','.crumbs [aria-current]',
