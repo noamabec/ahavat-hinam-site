@@ -638,45 +638,45 @@
   height:100%;width:100%;transform:scaleX(0);transform-origin:right center;
   background:linear-gradient(90deg,var(--brand-coral),var(--brand-yellow),var(--brand-green),var(--brand-blue));
   will-change:transform;
-}.page-home .js [data-parallax]{will-change:transform}
+}.js .page-home [data-parallax]{will-change:transform}
 
 /* ---------- מנוע החשיפה בגלילה ---------- */
-.page-home .js [data-reveal]{
+.js .page-home [data-reveal]{
   will-change:opacity,transform;
   transition:
     opacity var(--dur-reveal) var(--ease-expo) var(--d,0ms),
     transform var(--dur-reveal) var(--ease-expo) var(--d,0ms),
     clip-path 1.25s var(--ease-expo) var(--d,0ms);
-}.page-home .js [data-reveal="up"]{opacity:0;transform:translate3d(0,34px,0)}.page-home .js [data-reveal="fade"]{opacity:0}.page-home .js [data-reveal="scale"]{opacity:0;transform:scale(.94)}
+}.js .page-home [data-reveal="up"]{opacity:0;transform:translate3d(0,34px,0)}.js .page-home [data-reveal="fade"]{opacity:0}.js .page-home [data-reveal="scale"]{opacity:0;transform:scale(.94)}
 /* mask - לתמונות שגם מקבלות פרלקסה: בלי transform, רק חשיפת clip */
-.page-home .js [data-reveal="mask"]{clip-path:inset(0 0 100% 0)}.page-home .js [data-reveal].is-in{opacity:1;transform:none}.page-home .js [data-reveal].is-in{will-change:auto}
+.js .page-home [data-reveal="mask"]{clip-path:inset(0 0 100% 0)}.js .page-home [data-reveal].is-in{opacity:1;transform:none}.js .page-home [data-reveal].is-in{will-change:auto}
 /* ה-clip-path שייך אך ורק לסוג mask (שלא בשימוש כרגע בעמוד) - כשהוא הוחל
    על *כל* סוגי ה-reveal, הוא חתך כל box-shadow על אלמנטים חשופים (כרטיסים,
    כפתורים) כי clip-path, בניגוד ל-overflow, גם חותך את הצל של האלמנט עצמו. */
-.page-home .js [data-reveal="mask"].is-in{clip-path:inset(0 0 0 0)}
+.js .page-home [data-reveal="mask"].is-in{clip-path:inset(0 0 0 0)}
 
 /* ---------- כותרת ההירו - חשיפת שורות מאחורי מסכה ---------- */
-.page-home .js [data-reveal="lines"] .ln{
+.js .page-home [data-reveal="lines"] .ln{
   display:block;overflow:hidden;
   padding-bottom:.08em;margin-bottom:-.08em;  /* מקום לזנבות אותיות, בלי חיתוך */
-}.page-home .js [data-reveal="lines"] .ln>i{
+}.js .page-home [data-reveal="lines"] .ln>i{
   display:block;font-style:normal;
   transform:translate3d(0,115%,0);
   transition:transform 1.05s var(--ease-expo);
-}.page-home .js [data-reveal="lines"] .ln:nth-child(2)>i{transition-delay:.10s}.page-home .js [data-reveal="lines"] .ln:nth-child(3)>i{transition-delay:.20s}.page-home .js [data-reveal="lines"].is-in .ln>i{transform:none}
+}.js .page-home [data-reveal="lines"] .ln:nth-child(2)>i{transition-delay:.10s}.js .page-home [data-reveal="lines"] .ln:nth-child(3)>i{transition-delay:.20s}.js .page-home [data-reveal="lines"].is-in .ln>i{transform:none}
 
 /* ---------- הירו: תמונה + נקודה ---------- */
-.page-home .js .hero__media img{clip-path:inset(0 0 100% 0);transition:clip-path 1.3s var(--ease-expo) .15s}.page-home .js .hero__media.is-in img{clip-path:inset(0 0 0 0)}
+.js .page-home .hero__media img{clip-path:inset(0 0 100% 0);transition:clip-path 1.3s var(--ease-expo) .15s}.js .page-home .hero__media.is-in img{clip-path:inset(0 0 0 0)}
 /* מנוע החשיפה הכללי (data-reveal) מפעיל clip-path:inset(0) על hero__media עצמו
    כשהוא נהיה .is-in - זה חותך את נקודות הצבע שיוצאות מעבר לגבולות התמונה.
    מבטלים את זה כאן בלבד, כי רק ל-hero__media יש אלמנטים שיוצאים מהקופסה. */
-.page-home .js .hero__media.is-in{clip-path:none}
+.js .page-home .hero__media.is-in{clip-path:none}
 @keyframes dotIn-home{0%{opacity:0;transform:scale(0)}70%{opacity:1;transform:scale(1.18)}100%{opacity:1;transform:scale(1)}}
 /* לכל נקודה מסלול ריחוף משלה - כדי שהן לא יזוזו מסונכרן אחת עם השנייה */
 @keyframes dotFloat--blue-home{0%,100%{transform:translate(0,0)}50%{transform:translate(-4px,-11px)}}
 @keyframes dotFloat--green-home{0%,100%{transform:translate(0,0)}50%{transform:translate(7px,-9px)}}
 @keyframes dotFloat--yellow-home{0%,100%{transform:translate(0,0)}33%{transform:translate(-6px,-13px)}66%{transform:translate(4px,-4px)}}
-@keyframes dotFloat--coral-home{0%,100%{transform:translate(0,0)}50%{transform:translate(-9px,6px)}}.page-home .js .hero__dot{opacity:0}.page-home .js .hero__media.is-in .hero__dot{animation:dotIn-home .75s var(--ease-back) .75s both}.page-home .js .hero__media.is-in .hero__dot--blue{animation:dotIn-home .75s var(--ease-back) .75s both,dotFloat--blue-home 4.4s ease-in-out 1.5s infinite}.page-home .js .hero__media.is-in .hero__dot--green{animation:dotIn-home .75s var(--ease-back) .85s both,dotFloat--green-home 5.6s ease-in-out 1.9s infinite}.page-home .js .hero__media.is-in .hero__dot--yellow{animation:dotIn-home .75s var(--ease-back) .65s both,dotFloat--yellow-home 3.9s ease-in-out 1.3s infinite}.page-home .js .hero__media.is-in .hero__dot--coral{animation:dotIn-home .75s var(--ease-back) 1.05s both,dotFloat--coral-home 5s ease-in-out 2.2s infinite}
+@keyframes dotFloat--coral-home{0%,100%{transform:translate(0,0)}50%{transform:translate(-9px,6px)}}.js .page-home .hero__dot{opacity:0}.js .page-home .hero__media.is-in .hero__dot{animation:dotIn-home .75s var(--ease-back) .75s both}.js .page-home .hero__media.is-in .hero__dot--blue{animation:dotIn-home .75s var(--ease-back) .75s both,dotFloat--blue-home 4.4s ease-in-out 1.5s infinite}.js .page-home .hero__media.is-in .hero__dot--green{animation:dotIn-home .75s var(--ease-back) .85s both,dotFloat--green-home 5.6s ease-in-out 1.9s infinite}.js .page-home .hero__media.is-in .hero__dot--yellow{animation:dotIn-home .75s var(--ease-back) .65s both,dotFloat--yellow-home 3.9s ease-in-out 1.3s infinite}.js .page-home .hero__media.is-in .hero__dot--coral{animation:dotIn-home .75s var(--ease-back) 1.05s both,dotFloat--coral-home 5s ease-in-out 2.2s infinite}
 
 /* ---------- כפתורים ---------- */
 .page-home .btn{
@@ -706,7 +706,7 @@
 .page-home .press__nav button,.page-home .events__nav button{transition:transform .45s var(--ease-expo)}.page-home .press__nav button:hover,.page-home .events__nav button:hover{transform:translateX(-7px)}.page-home .press__nav button:last-child:hover,.page-home .events__nav button:last-child:hover{transform:translateX(7px)}
 
 /* ---------- כיבוד העדפת תנועה מופחתת ---------- */
-@media (prefers-reduced-motion:reduce){.page-home .js [data-reveal],.page-home .js [data-reveal="lines"] .ln>i,.page-home .js .hero__media img,.page-home .js .hero__dot{
+@media (prefers-reduced-motion:reduce){.js .page-home [data-reveal],.js .page-home [data-reveal="lines"] .ln>i,.js .page-home .hero__media img,.js .page-home .hero__dot{
     opacity:1!important;transform:none!important;
     clip-path:none!important;animation:none!important;transition:none!important;
   }.page-home .progress{display:none}.page-home .btn:hover,.page-home .card:hover,.page-home .tier:hover,.page-home .press__nav button:hover,.page-home .events__nav button:hover,.page-home .nav__logo:hover img{transform:none!important}}
@@ -716,7 +716,7 @@
    ============================================================ */
 @media (max-width:1023px){
   /* במובייל הכותרת נשברת טבעית - השורות חוזרות ל-inline והחשיפה הופכת לפייד */
-  .page-home .js [data-reveal="lines"]{opacity:0;transform:translate3d(0,26px,0)}.page-home .js [data-reveal="lines"].is-in{opacity:1;transform:none}.page-home .js [data-reveal="lines"] .ln{display:block;overflow:visible;padding-bottom:0;margin-bottom:0}.page-home .js [data-reveal="lines"] .ln>i{display:block;transform:none}.page-home .hero__inner{flex-direction:column-reverse;align-items:stretch}.page-home .hero__media{width:min(100%,330px);margin-inline:auto;margin-inline-end:auto}.page-home .hero__dot--green{top:1.5%}.page-home .hero__copy{text-align:right}.page-home .hero__lead{max-width:none}.page-home .js .hero__actions[data-reveal="up"]{opacity:1;transform:none;transition:none}.page-home .hero br{display:none}.page-home .cards{flex-wrap:wrap}.page-home .card{flex:1 1 calc(50% - 10px)}.page-home .press .card{flex:0 0 calc((100% - clamp(12px,1.389vw,35.56px)) / 2)}
+  .js .page-home [data-reveal="lines"]{opacity:0;transform:translate3d(0,26px,0)}.js .page-home [data-reveal="lines"].is-in{opacity:1;transform:none}.js .page-home [data-reveal="lines"] .ln{display:block;overflow:visible;padding-bottom:0;margin-bottom:0}.js .page-home [data-reveal="lines"] .ln>i{display:block;transform:none}.page-home .hero__inner{flex-direction:column-reverse;align-items:stretch}.page-home .hero__media{width:min(100%,330px);margin-inline:auto;margin-inline-end:auto}.page-home .hero__dot--green{top:1.5%}.page-home .hero__copy{text-align:right}.page-home .hero__lead{max-width:none}.js .page-home .hero__actions[data-reveal="up"]{opacity:1;transform:none;transition:none}.page-home .hero br{display:none}.page-home .cards{flex-wrap:wrap}.page-home .card{flex:1 1 calc(50% - 10px)}.page-home .press .card{flex:0 0 calc((100% - clamp(12px,1.389vw,35.56px)) / 2)}
 
   /* בטאבלט הבנטו נפרש לשתי עמודות אחידות - שלוש עמודות מוחצות את הטקסט */
   .page-home .events__grid{

@@ -244,7 +244,7 @@
 @keyframes dotIn-inner{0%{opacity:0;transform:scale(0)}70%{opacity:1;transform:scale(1.18)}100%{opacity:1;transform:scale(1)}}
 @keyframes dotFloatA-inner{0%,100%{transform:translate(0,0)}50%{transform:translate(-5px,-11px)}}
 @keyframes dotFloatB-inner{0%,100%{transform:translate(0,0)}50%{transform:translate(7px,-8px)}}
-@keyframes dotFloatC-inner{0%,100%{transform:translate(0,0)}33%{transform:translate(-6px,-12px)}66%{transform:translate(4px,-4px)}}.page-inner .js .hero-cluster .dot{opacity:0}.page-inner .js .hero-cluster.is-in .dot--coral{animation:dotIn-inner .7s var(--ease-back) .55s both,dotFloatA-inner 4.6s ease-in-out 1.4s infinite}.page-inner .js .hero-cluster.is-in .dot--green{animation:dotIn-inner .7s var(--ease-back) .70s both,dotFloatB-inner 5.4s ease-in-out 1.8s infinite}.page-inner .js .hero-cluster.is-in .dot--yellow{animation:dotIn-inner .7s var(--ease-back) .85s both,dotFloatC-inner 4.1s ease-in-out 1.2s infinite}.page-inner .js .hero-cluster.is-in .dot--blue{animation:dotIn-inner .7s var(--ease-back) 1.00s both,dotFloatA-inner 5.9s ease-in-out 2.1s infinite}
+@keyframes dotFloatC-inner{0%,100%{transform:translate(0,0)}33%{transform:translate(-6px,-12px)}66%{transform:translate(4px,-4px)}}.js .page-inner .hero-cluster .dot{opacity:0}.js .page-inner .hero-cluster.is-in .dot--coral{animation:dotIn-inner .7s var(--ease-back) .55s both,dotFloatA-inner 4.6s ease-in-out 1.4s infinite}.js .page-inner .hero-cluster.is-in .dot--green{animation:dotIn-inner .7s var(--ease-back) .70s both,dotFloatB-inner 5.4s ease-in-out 1.8s infinite}.js .page-inner .hero-cluster.is-in .dot--yellow{animation:dotIn-inner .7s var(--ease-back) .85s both,dotFloatC-inner 4.1s ease-in-out 1.2s infinite}.js .page-inner .hero-cluster.is-in .dot--blue{animation:dotIn-inner .7s var(--ease-back) 1.00s both,dotFloatA-inner 5.9s ease-in-out 2.1s infinite}
 
 /* ============================================================
    SECTION + TYPO
@@ -819,14 +819,14 @@
 /* ============================================================
    MOTION - מנוע החשיפה בגלילה (זהה ל-index.html)
    ============================================================ */
-.page-inner .js [data-parallax]{will-change:transform}.page-inner .js [data-reveal]{
+.js .page-inner [data-parallax]{will-change:transform}.js .page-inner [data-reveal]{
   will-change:opacity,transform;
   transition:
     opacity var(--dur-reveal) var(--ease-expo) var(--d,0ms),
     transform var(--dur-reveal) var(--ease-expo) var(--d,0ms);
-}.page-inner .js [data-reveal="up"]{opacity:0;transform:translate3d(0,34px,0)}.page-inner .js [data-reveal="fade"]{opacity:0}.page-inner .js [data-reveal="scale"]{opacity:0;transform:scale(.94)}.page-inner .js [data-reveal].is-in{opacity:1;transform:none;will-change:auto}.page-inner .js [data-reveal="lines"] .ln{display:block;overflow:hidden;padding-bottom:.08em;margin-bottom:-.08em}.page-inner .js [data-reveal="lines"] .ln>i{display:block;font-style:normal;transform:translate3d(0,115%,0);transition:transform 1.05s var(--ease-expo)}.page-inner .js [data-reveal="lines"] .ln:nth-child(2)>i{transition-delay:.10s}.page-inner .js [data-reveal="lines"] .ln:nth-child(3)>i{transition-delay:.20s}.page-inner .js [data-reveal="lines"].is-in .ln>i{transform:none}
+}.js .page-inner [data-reveal="up"]{opacity:0;transform:translate3d(0,34px,0)}.js .page-inner [data-reveal="fade"]{opacity:0}.js .page-inner [data-reveal="scale"]{opacity:0;transform:scale(.94)}.js .page-inner [data-reveal].is-in{opacity:1;transform:none;will-change:auto}.js .page-inner [data-reveal="lines"] .ln{display:block;overflow:hidden;padding-bottom:.08em;margin-bottom:-.08em}.js .page-inner [data-reveal="lines"] .ln>i{display:block;font-style:normal;transform:translate3d(0,115%,0);transition:transform 1.05s var(--ease-expo)}.js .page-inner [data-reveal="lines"] .ln:nth-child(2)>i{transition-delay:.10s}.js .page-inner [data-reveal="lines"] .ln:nth-child(3)>i{transition-delay:.20s}.js .page-inner [data-reveal="lines"].is-in .ln>i{transform:none}
 
-@media (prefers-reduced-motion:reduce){.page-inner .js [data-reveal],.page-inner .js [data-reveal="lines"] .ln>i,.page-inner .js .hero-cluster .dot{
+@media (prefers-reduced-motion:reduce){.js .page-inner [data-reveal],.js .page-inner [data-reveal="lines"] .ln>i,.js .page-inner .hero-cluster .dot{
     opacity:1!important;transform:none!important;
     animation:none!important;transition:none!important;
   }.page-inner .progress{display:none}.page-inner .btn:hover,.page-inner .pillar:hover,.page-inner .tier-card:hover,.page-inner .mosaic a:hover img{transform:none!important}.page-inner .gallery-lightbox,.page-inner .gallery-lightbox img{transition:none}
