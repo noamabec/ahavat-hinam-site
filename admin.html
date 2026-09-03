@@ -631,7 +631,7 @@ function fetchGalleryImages(){
   }).then(function(r){ if(!r.ok) throw new Error('שגיאת רשת ('+r.status+')'); return r.json(); });
 }
 function galleryAdminCall(payload){
-  return fetch(SB_URL+'/functions/v1/gallery-admin', {
+  return fetch(SB_URL+'/functions/v1/gallery-admin?t='+Date.now(), {
     method:'POST',
     headers: { apikey: SB_ANON, Authorization: 'Bearer '+SB_ANON, 'Content-Type':'application/json' },
     body: JSON.stringify(payload)
