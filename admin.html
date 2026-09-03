@@ -810,7 +810,7 @@ R['/donations'] = function(){
     $('#dBody').innerHTML = list.map(function(d,i){
       var t = totals[d.email];
       var totalCell = t.count>1
-        ? '<span class="money">'+ils(t.total)+'</span><span class="hint" style="margin:0">'+t.count+' תרומות</span>'
+        ? '<div style="display:flex;flex-direction:column;gap:2px"><span class="money">'+ils(t.total)+'</span><span class="hint" style="margin:0">'+t.count+' תרומות</span></div>'
         : '<span class="hint" style="margin:0">תרומה ראשונה</span>';
       return '<tr>'+
         '<td data-l="תורם"><div class="who2"><span class="av" style="background:'+avColor(i)+'">'+esc(initial(d.name))+'</span>'+
