@@ -4,32 +4,19 @@
 'use strict';
 
 /* ============================================================
-   נתוני דוגמה
+   נתונים אמיתיים מ-Supabase
+   ------------------------------------------------------------
+   התרומות והוראות הקבע נטענות מהטבלאות donation_certificates
+   ו-standing_orders אחרי התחברות (RLS מתירה קריאה למשתמש מחובר
+   בלבד - אלה פרטי תורמים). המערכים מתמלאים ב-loadRealData().
    ============================================================ */
-var DONORS = [
-  {id:1, name:'מיכל אברהמי',  email:'michal@example.com',  amount:360, type:'חד-פעמי',  date:'24.08.2026',  gender:'f'},
-  {id:2, name:'יוסי בן-דוד',   email:'yossi@example.com',   amount:1000,type:'הוראת קבע',date:'24.08.2026',  gender:'m'},
-  {id:3, name:'שרה כהן',       email:'sarah@example.com',   amount:180, type:'חד-פעמי',  date:'23.08.2026',  gender:'f'},
-  {id:4, name:'אבי מזרחי',     email:'avi@example.com',     amount:500, type:'חד-פעמי',  date:'23.08.2026',  gender:'m'},
-  {id:5, name:'נועה פרידמן',   email:'noa@example.com',     amount:250, type:'הוראת קבע',date:'22.08.2026',  gender:'f'},
-  {id:6, name:'דוד לוי',       email:'david@example.com',   amount:120, type:'חד-פעמי',  date:'22.08.2026',  gender:'m'},
-  {id:7, name:'תמר שגיא',      email:'tamar@example.com',   amount:750, type:'חד-פעמי',  date:'21.08.2026',  gender:'f'},
-  {id:8, name:'רון אלמוג',     email:'ron@example.com',     amount:200, type:'הוראת קבע',date:'21.08.2026',  gender:'m'},
-  /* תרומות חוזרות של אותו תורם - כדי שעמודת "סה״כ תרומות" תשקף היסטוריה אמיתית ולא רק שורה בודדת */
-  {id:9, name:'מיכל אברהמי',  email:'michal@example.com',  amount:180, type:'חד-פעמי',  date:'02.06.2026',  gender:'f'},
-  {id:10,name:'תמר שגיא',      email:'tamar@example.com',   amount:300, type:'חד-פעמי',  date:'11.03.2026',  gender:'f'}
-];
+var DONORS = [];
 
 /* הוראות קבע - מסך נפרד ממעקב התרומות: כאן עוקבים אחרי מצב ההרשאה החוזרת
    עצמה (האם היא פעילה, מתי החיוב הבא, האם חיוב אחרון נכשל) ולא אחרי תרומה
    בודדת. תורם יכול להופיע גם ב-DONORS (התרומה הראשונה שפתחה את ההרשאה) וגם
    כאן (מעקב החיוב החוזר עצמו). */
-var STANDING_ORDERS = [
-  {id:1, name:'יוסי בן-דוד', email:'yossi@example.com', amount:1000, start:'24.08.2025', next:'24.09.2026', charges:12, status:'active'},
-  {id:2, name:'נועה פרידמן', email:'noa@example.com',   amount:250,  start:'22.02.2026', next:'22.09.2026', charges:6,  status:'active'},
-  {id:3, name:'רון אלמוג',   email:'ron@example.com',   amount:200,  start:'21.05.2025', next:'21.09.2026', charges:16, status:'failed'},
-  {id:4, name:'איריס נחום',  email:'iris@example.com',  amount:100,  start:'10.01.2026', next:'—',          charges:5,  status:'cancelled'}
-];
+var STANDING_ORDERS = [];
 
 var EVENTS = [
   {id:1, t:'אירוע פתיחת בית שי',            d:'ראש השנה',            img:'d26.jpg', on:true,  x:'אירוע השקת בית שי והרמת כוסית לרגל פתיחת הבית ולכבוד השנה החדשה.'},
@@ -47,10 +34,10 @@ var AV  = ['#18B1F0','#FDC122','#FC543E','#4DA831'];
 
 /* חיבור אמיתי לגלריית התמונות (Supabase). קריאה היא select פומבי -
    מותר לפי RLS, לא צריך את ה-Edge Function בשביל זה. כתיבה (העלאה/הסרה)
-   עוברת תמיד דרך gallery-admin עם סיסמת הכניסה לפאנל, כי היא הפעולה
-   האמיתית היחידה כרגע בפאנל שכותבת לאתר החי. */
-var SB_URL  = 'https://zaphyupuufzpfnbgftes.supabase.co';
-var SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InphcGh5dXB1dWZ6cGZuYmdmdGVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc1NzU4NTIsImV4cCI6MjEwMzE1MTg1Mn0.2GZHAH_ZwMppKc-tWbfsHgCHKs9u3zdLKqjC0stHx54';
+   עוברת דרך נקודת קצה מאובטחת של האתר, שמאמתת את ה-JWT של המשתמש
+   המחובר - זו הפעולה האמיתית היחידה בפאנל שכותבת לאתר החי. */
+var SB_URL  = 'https://jrpdvfmmzxzcepnrafqr.supabase.co';
+var SB_ANON = 'sb_publishable_bhE-VCoiE_AILRw2FDb4vA_bMawyxaR';
 var SB_GALLERY_BUCKET = SB_URL + '/storage/v1/object/public/gallery-images/';
 
 function fetchGalleryImages(){
@@ -58,13 +45,28 @@ function fetchGalleryImages(){
     headers: { apikey: SB_ANON, Authorization: 'Bearer '+SB_ANON }
   }).then(function(r){ if(!r.ok) throw new Error('שגיאת רשת ('+r.status+')'); return r.json(); });
 }
+/* כתיבה לגלריה: Edge Function gallery-admin, שמאמתת בשרת את ה-JWT של
+   המשתמש המחובר (Supabase Auth) במקום סיסמה קבועה. */
 function galleryAdminCall(payload){
-  return fetch(SB_URL+'/functions/v1/gallery-admin?t='+Date.now(), {
+  var s = loadSession();
+  if(!s || !s.access_token){
+    SESSION = null;
+    return Promise.reject(new Error('אין סשן פעיל או שההתחברות פגה - התחברו מחדש'));
+  }
+  SESSION = s;
+  return fetch('/api/public/gallery-admin?t='+Date.now(), {
     method:'POST',
-    headers: { apikey: SB_ANON, Authorization: 'Bearer '+SB_ANON, 'Content-Type':'application/json' },
+    headers: { apikey: SB_ANON, Authorization: 'Bearer '+s.access_token, 'Content-Type':'application/json' },
     body: JSON.stringify(payload)
-  }).then(function(r){ return r.json().then(function(j){ if(!r.ok || !j.ok) throw new Error(j.error||'שגיאה'); return j; }); });
+  }).then(function(r){
+    return r.json().catch(function(){ return {}; }).then(function(j){
+      if(r.status === 401 || r.status === 403) throw new Error(j.error || 'אין הרשאה - התחברו מחדש');
+      if(!r.ok || j.ok === false) throw new Error(j.error||'שגיאה');
+      return j;
+    });
+  });
 }
+
 function fileToBase64(file){
   return new Promise(function(resolve,reject){
     var fr = new FileReader();
@@ -73,6 +75,131 @@ function fileToBase64(file){
     fr.readAsDataURL(file);
   });
 }
+
+/* ============================================================
+   התחברות אמיתית - Supabase Auth (email + password)
+   ------------------------------------------------------------
+   האימות מתבצע בשרת של Supabase; מה שנשמר בדפדפן הוא רק ה-JWT
+   שהוא החזיר. כל קריאה לנתוני תורמים נשלחת עם ה-JWT הזה, ולכן
+   RLS (קריאה למשתמש מחובר בלבד) הוא זה שמגן על הנתונים - לא
+   הדפדפן. הסיסמה עצמה לא נשמרת בשום מקום מלבד קריאת ההתחברות.
+   ============================================================ */
+var SESSION_KEY = 'ah.admin.session';
+var SESSION = null;
+
+function loadSession(){
+  try {
+    var raw = localStorage.getItem(SESSION_KEY);
+    if(!raw) return null;
+    var s = JSON.parse(raw);
+    if(!s || !s.access_token || !s.expires_at || s.expires_at*1000 < Date.now()+30000) return null;
+    return s;
+  } catch(e){ return null; }
+}
+function saveSession(s){
+  SESSION = s;
+  try {
+    if(s) localStorage.setItem(SESSION_KEY, JSON.stringify(s));
+    else localStorage.removeItem(SESSION_KEY);
+  } catch(e){}
+}
+function authHeaders(){
+  return { apikey: SB_ANON, Authorization: 'Bearer '+(SESSION ? SESSION.access_token : SB_ANON) };
+}
+function signIn(email, password){
+  return fetch(SB_URL+'/auth/v1/token?grant_type=password', {
+    method:'POST',
+    headers:{ apikey: SB_ANON, 'Content-Type':'application/json' },
+    body: JSON.stringify({ email:email, password:password })
+  }).then(function(r){
+    return r.json().then(function(j){
+      if(!r.ok || !j.access_token) throw new Error(j.error_description || j.msg || 'ההתחברות נכשלה');
+      saveSession(j);
+      return j;
+    });
+  });
+}
+function signOut(){
+  var s = SESSION;
+  saveSession(null);
+  if(s) fetch(SB_URL+'/auth/v1/logout', { method:'POST', headers:{ apikey:SB_ANON, Authorization:'Bearer '+s.access_token } }).catch(function(){});
+}
+function resetPassword(email){
+  /* בלי redirect_to, גוטרו שולח את הקישור לכתובת ה-Site URL הכללית של
+     הפרויקט (דף הבית) - שם אין שום דבר שקורא את ה-access_token מה-hash,
+     כך שהמייל "עובד" אבל לא מוביל לשום מקום שאפשר לקבוע בו סיסמה חדשה.
+     /reset-password היא הדף הייעודי לכך - חייבת להיות רשומה גם ב-Redirect
+     URLs של הפרויקט ב-Supabase Auth, אחרת גוטרו יתעלם ממנה ויפול בחזרה
+     ל-Site URL בכל זאת. */
+  var redirectTo = location.origin + '/reset-password';
+  return fetch(SB_URL+'/auth/v1/recover?redirect_to='+encodeURIComponent(redirectTo), {
+    method:'POST',
+    headers:{ apikey: SB_ANON, 'Content-Type':'application/json' },
+    body: JSON.stringify({ email:email })
+  });
+}
+
+/* ---------- קריאת הנתונים האמיתיים ---------- */
+function sbSelect(path){
+  return fetch(SB_URL+'/rest/v1/'+path, { headers: authHeaders() })
+    .then(function(r){
+      if(r.status===401 || r.status===403) throw new Error('אין הרשאה - יש להתחבר מחדש');
+      if(!r.ok) throw new Error('שגיאת רשת ('+r.status+')');
+      return r.json();
+    });
+}
+function ilDate(iso){
+  if(!iso) return '—';
+  var d = new Date(iso);
+  if(isNaN(d)) return '—';
+  function p(n){ return (n<10?'0':'')+n; }
+  return p(d.getDate())+'.'+p(d.getMonth()+1)+'.'+d.getFullYear();
+}
+function nextChargeDate(dom){
+  var d = new Date(), day = Number(dom)||1;
+  if(d.getDate() >= day) d.setMonth(d.getMonth()+1);
+  var last = new Date(d.getFullYear(), d.getMonth()+1, 0).getDate();
+  d.setDate(Math.min(day, last));
+  return ilDate(d.toISOString());
+}
+function loadRealData(){
+  return Promise.all([
+    sbSelect('donation_certificates?select=id,contact,email,sum,status,created_at&order=created_at.desc&limit=1000'),
+    sbSelect('standing_orders?select=id,contact,email,sum,charge_dom,status,created_at&order=created_at.desc&limit=1000')
+  ]).then(function(res){
+    var soEmails = {};
+    res[1].forEach(function(s){ soEmails[String(s.email||'').toLowerCase()] = true; });
+
+    DONORS = res[0].map(function(d){
+      return {
+        id: d.id,
+        name: d.contact || d.email || '—',
+        email: d.email || '',
+        amount: Math.round(Number(d.sum)||0),
+        type: soEmails[String(d.email||'').toLowerCase()] ? 'הוראת קבע' : 'חד-פעמי',
+        date: ilDate(d.created_at),
+        status: d.status
+      };
+    });
+
+    STANDING_ORDERS = res[1].map(function(s){
+      var st = s.status==='failed' || s.status==='error' ? 'failed'
+             : s.status==='cancelled' ? 'cancelled'
+             : 'active';
+      return {
+        id: s.id,
+        name: s.contact || s.email || '—',
+        email: s.email || '',
+        amount: Math.round(Number(s.sum)||0),
+        start: ilDate(s.created_at),
+        next: st==='active' ? nextChargeDate(s.charge_dom) : '—',
+        charges: '—',
+        status: st
+      };
+    });
+  });
+}
+
 
 /* היסטוריית גרסאות. כל שמירה באתר יוצרת גרסה חדשה, ואפשר לחזור לכל
    אחת מהן. הרשימה ממוינת מהחדשה לישנה; הגרסה הראשונה ברשימה היא זו
@@ -153,7 +280,7 @@ R['/'] = function(){
   ttl.textContent='סקירה כללית';
   var total = DONORS.reduce(function(a,d){ return a+d.amount; },0);
   var donorCount = Object.keys(donorTotals()).length;
-  var avg = Math.round(total/DONORS.length);
+  var avg = DONORS.length ? Math.round(total/DONORS.length) : 0;
   var keva  = STANDING_ORDERS.filter(function(s){ return s.status==='active'; }).length;
 
   var rows = DONORS.slice(0,5).map(function(d,i){
@@ -516,7 +643,7 @@ R['/gallery'] = function(){
       chain = chain.then(function(){
         return fileToBase64(f).then(function(b64){
           return galleryAdminCall({
-            password: LOGIN_PASS, action:'upload',
+            action:'upload',
             filename: safeName(MIME_EXT[f.type]),
             contentType: f.type, contentBase64: b64, alt: ''
           });
@@ -547,7 +674,7 @@ R['/gallery'] = function(){
     var path=rm.dataset.path;
     modal('מחיקת תמונה','<p style="font-size:14.5px">התמונה תוסר מהגלריה באתר החי. אפשר לבטל?</p>',
       function(){
-        galleryAdminCall({password:LOGIN_PASS, action:'delete', path:path})
+        galleryAdminCall({action:'delete', path:path})
           .then(function(){ toast('התמונה הוסרה'); reload(); })
           .catch(function(err){ toast('מחיקה נכשלה: '+err.message); });
       },'מחיקה');
@@ -1201,15 +1328,23 @@ $('#scrim').onclick=function(){
 };
 
 /* ============================================================
-   התחברות (הדגמה בלבד)
+   התחברות (Supabase Auth)
    ------------------------------------------------------------
-   שים לב: הבדיקה כאן רצה בדפדפן של המשתמש, ולכן היא *אינה אבטחה* -
-   כל מי שיפתח את קוד המקור של העמוד יראה את הדוא"ל והסיסמה. זה מספיק
-   כדי שהפאנל לא ייפתח למי שסתם מגיע לכתובת, אבל לא יותר מזה. בבנייה
-   האמיתית האימות יעבור לשרת (Supabase Auth) ורק שם הוא יהיה אמיתי.
+   הבדיקה מתבצעת בשרת של Supabase. אין בקוד הזה דוא״ל או סיסמה,
+   ומי שיפתח את קוד המקור לא יקבל שום גישה. הנתונים הרגישים
+   (תרומות והוראות קבע) מוגנים ב-RLS שמתירה קריאה למשתמש מחובר
+   בלבד, ולכן גם קריאה ישירה ל-API בלי התחברות לא תחזיר כלום.
    ============================================================ */
-var LOGIN_EMAIL = 'ah580676369@gmail.com';
-var LOGIN_PASS  = '12345678';
+function showError(msg){
+  var errEl=document.getElementById('lgErr');
+  errEl.textContent=msg; errEl.classList.add('on');
+}
+function enterPanel(){
+  document.body.dataset.auth='in';
+  route();
+  loadRealData().then(function(){ updateBadges(); route(); })
+    .catch(function(err){ toast('שגיאה בטעינת הנתונים: '+err.message); });
+}
 
 document.getElementById('loginForm').onsubmit=function(e){
   e.preventDefault();
@@ -1218,26 +1353,39 @@ document.getElementById('loginForm').onsubmit=function(e){
   var errEl  =document.getElementById('lgErr');
   var email=(emailEl.value||'').trim().toLowerCase();
   var pass = passEl.value||'';
+  var btn  = e.target.querySelector('button[type=submit]');
 
-  if(email!==LOGIN_EMAIL || pass!==LOGIN_PASS){
-    /* הודעה אחת לשני המקרים - לא מסגירים איזה מהשדות היה שגוי */
-    errEl.textContent='הדוא״ל או הסיסמה שגויים. נסו שוב.';
-    errEl.classList.add('on');
-    passEl.value=''; passEl.focus();
+  if(!email || !pass){
+    showError('נא למלא דוא״ל וסיסמה.');
     return;
   }
 
   errEl.classList.remove('on'); errEl.textContent='';
-  passEl.value='';              /* לא מחזיקים סיסמה בזיכרון */
-  document.body.dataset.auth='in';
-  route();
-  toast('ברוכה הבאה, רונית');
+  if(btn){ btn.disabled=true; btn.textContent='מתחבר…'; }
+
+  signIn(email, pass).then(function(){
+    passEl.value='';
+    enterPanel();
+    toast('ברוכים הבאים');
+  }).catch(function(){
+    /* הודעה אחת לשני המקרים - לא מסגירים איזה מהשדות היה שגוי */
+    showError('הדוא״ל או הסיסמה שגויים. נסו שוב.');
+    passEl.value=''; passEl.focus();
+  }).then(function(){
+    if(btn){ btn.disabled=false; btn.textContent='כניסה לפאנל'; }
+  });
 };
 document.getElementById('lgForgot').onclick=function(e){
   e.preventDefault();
-  toast('בגרסה האמיתית יישלח מייל לאיפוס סיסמה');
+  var email=(document.getElementById('lgEmail').value||'').trim().toLowerCase();
+  if(!email){ showError('נא להקליד את הדוא״ל שלכם לפני איפוס סיסמה.'); return; }
+  resetPassword(email);
+  toast('אם הכתובת קיימת במערכת, נשלח אליה מייל לאיפוס סיסמה');
 };
 document.getElementById('logout').onclick=function(){
+  signOut();
+  DONORS=[]; STANDING_ORDERS=[];
+  updateBadges();
   document.body.removeAttribute('data-auth');
   document.getElementById('lgEmail').value='';
   document.getElementById('lgPass').value='';
@@ -1246,5 +1394,10 @@ document.getElementById('logout').onclick=function(){
   window.scrollTo(0,0);
 };
 
-route();
+/* שחזור התחברות קיימת: אם ה-JWT השמור עדיין בתוקף נכנסים ישר לפאנל
+   (כולל העלאת תמונות - הכתיבה מאומתת באותו JWT). */
+SESSION = loadSession();
+if(SESSION) enterPanel();
+else route();
 })();
+
