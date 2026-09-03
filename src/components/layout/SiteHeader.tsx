@@ -1,4 +1,5 @@
 import { Link, useLocation } from "@tanstack/react-router";
+import BrandMark from "./BrandMark";
 
 /* ============================================================
    ההאדר של האתר - שתי וריאציות, בכוונה.
@@ -93,7 +94,7 @@ export default function SiteHeader({ variant = "inner" }: SiteHeaderProps) {
             </button>
 
             <Link to="/" className="nav__logo" aria-label={'אהבת חינ"מ'} data-reveal="scale">
-              <img src="/images/logo.png" alt="" className="brand-mark__icon" />
+              <BrandMark variant={variant} />
             </Link>
 
             {HOME_LINKS.map((l) => (
@@ -131,7 +132,7 @@ export default function SiteHeader({ variant = "inner" }: SiteHeaderProps) {
             </button>
 
             <Link to="/" className="nav__logo" aria-label={'אהבת חינ"מ - לעמוד הבית'}>
-              <img src="/images/logo.png" alt="" className="brand-mark__icon" />
+              <BrandMark variant={variant} />
             </Link>
 
             <div className="nav__group">

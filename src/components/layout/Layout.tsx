@@ -29,10 +29,9 @@ export default function Layout({
 }: LayoutProps) {
   useSiteBehaviors();
   /* וידג'ט הנגישות ואנימציית הלוגו - נטענים בכל עמוד, כמו באתר
-     הסטטי שבו כל קובץ HTML קרא לשניהם. אנימציית הלוגו אמורה
-     להתנגן מחדש בכל מעבר עמוד, ולכן היא נטענת מחדש עם המסלול. */
+     הסטטי שבו כל קובץ HTML קרא לשניהם. אנימציית הלוגו עברה
+     לרכיב React (BrandMark) - ראו ההערה שם. */
   useLegacyScript("/js/accessibility.js");
-  useLegacyScript("/js/brand-mark.js");
 
   useEffect(() => {
     if (title) document.title = title;
