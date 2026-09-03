@@ -1,0 +1,978 @@
+/* ============================================================
+   אהבת חינ"מ - מערכת העיצוב של העמודים הפנימיים
+   ------------------------------------------------------------
+   קובץ אחד שמשרת את כל העמודים הפנימיים. הטוקנים, הכפתורים,
+   ההאדר, הפוטר ומנוע התנועה זהים ל-index.html - כדי שהקו העיצובי
+   יישאר אחד בכל האתר. מעליהם נבנו קומפוננטות תוכן ייעודיות
+   (hero פנימי, טקסט ארוך, מוזאיקה, ציטוט, רשימות, רצועות CTA).
+   ============================================================ */
+
+/* ============================================================
+   FONTS
+   ============================================================ */
+@font-face{font-family:'Fb Coherenti Sans';src:url('/fonts/fb-coherenti-sans-light.ttf') format('truetype');font-weight:300;font-style:normal;font-display:swap}
+@font-face{font-family:'Fb Coherenti Sans';src:url('/fonts/fb-coherenti-sans-regular.ttf') format('truetype');font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:'Fb Coherenti Sans';src:url('/fonts/fb-coherenti-sans-medium.ttf') format('truetype');font-weight:500;font-style:normal;font-display:swap}
+
+/* ============================================================
+   DESIGN TOKENS
+   ============================================================ */
+.page-inner{
+  --brand-blue:#18B1F0;
+  --brand-yellow:#FDC122;
+  --brand-coral:#FC543E;
+  --brand-green:#4DA831;
+  --ink:#000000;
+  --ink-soft:#4A4A4A;
+  --surface:#FFFFFF;
+  --line:#E9E9E9;
+
+  /* עד 1440 העמודה נשארת 1240px בדיוק כמו בפיגמה; מעל זה היא גדלה
+     פרופורציונלית (1240/1440 = 86.111vw) ונעצרת ב-2560. */
+  --container:max(1240px,min(86.111vw,2205px));
+  --gutter:clamp(16px,3vw,40px);
+
+  --fs-h1:clamp(30px,3.333vw,85.33px);
+  --fs-h2:clamp(22.4px,2.6664vw,68.27px);
+  --fs-h3:clamp(17.6px,2vw,51.2px);
+  --fs-band:clamp(18.4px,2.2224vw,56.89px);
+  --fs-body:clamp(12.8px,1.3336vw,34.13px);
+  --fs-nav:clamp(12px,1.3336vw,34.13px);
+  --fs-sm:clamp(12px,1.042vw,26.67px);
+  /* טקסט רץ בעמודים הפנימיים: כאן יש פסקאות ארוכות, ו-13px היו קטנים מדי
+     לקריאה נוחה. הכותרות נשארות בסקאלה של שאר האתר. */
+  --fs-prose:clamp(15px,1.389vw,35.56px);
+
+  --r-sm:clamp(6px,0.694vw,17.78px);
+  --r-pill:clamp(12px,1.389vw,35.56px);
+  --r-lg:clamp(14px,1.667vw,42.67px);
+
+  --shadow:4px 4px 4px 0px rgba(0,0,0,.25);
+  --shadow-soft:0 10px 30px rgba(0,0,0,.08);
+
+  /* כותרות נשארות בליד הצפוף של פיגמה; טקסט רץ מקבל ליד קריא */
+  --lh:1.0833;
+  --lh-prose:1.62;
+
+  --v-header:clamp(70.4px,10.111vw,258.84px);
+  --v-sec:clamp(56px,8.333vw,213.33px);      /* מרווח בין סקשנים ראשיים */
+  --v-sec-sm:clamp(32px,4.167vw,106.67px);    /* מרווח פנימי בתוך סקשן */
+  --v-page-end:clamp(40px,5.417vw,138.67px);
+
+  --ease-expo:cubic-bezier(.16,1,.3,1);
+  --ease-back:cubic-bezier(.34,1.56,.64,1);
+  --dur-reveal:.95s;
+
+  /* ברירת מחדל לגוון העמוד - כל עמוד דורס אותה עם .theme-* */
+  --accent:var(--brand-blue);
+  --accent-soft:#EAF7FE;
+  --accent-tint:rgba(24,177,240,.10);
+  /* גרסה כהה של גוון העמוד, לשימוש *בטקסט* בלבד: צבעי המותג בהירים מדי
+     על לבן (הצהוב ~1.9:1) ולא קריאים כטקסט. הרקעים ממשיכים להשתמש ב---accent. */
+  --accent-ink:#0E86BA;
+}
+
+/* ---------- גווני עמוד ---------- */
+.page-inner.theme-blue{--accent:var(--brand-blue);  --accent-soft:#EAF7FE;--accent-tint:rgba(24,177,240,.10);--accent-ink:#0E86BA}.page-inner.theme-yellow{--accent:var(--brand-yellow);--accent-soft:#FFF6E2;--accent-tint:rgba(253,193,34,.14);--accent-ink:#A87400}.page-inner.theme-coral{--accent:var(--brand-coral); --accent-soft:#FFEEEB;--accent-tint:rgba(252,84,62,.10);--accent-ink:#D63A24}.page-inner.theme-green{--accent:var(--brand-green); --accent-soft:#EFF7EB;--accent-tint:rgba(77,168,49,.10);--accent-ink:#3C8526}
+
+/* ============================================================
+   RESET / PAGE
+   ============================================================ */
+.page-inner *,.page-inner *::before,.page-inner *::after{box-sizing:border-box}
+@media (prefers-reduced-motion:reduce){}.page-inner img{display:block;max-width:100%}.page-inner a{color:inherit;text-decoration:none}.page-inner button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}.page-inner p{margin:0}.page-inner h1,.page-inner h2,.page-inner h3,.page-inner h4{margin:0;font-weight:500;line-height:var(--lh)}.page-inner ul,.page-inner ol{margin:0;padding:0}.page-inner :focus-visible{outline:3px solid var(--accent);outline-offset:3px;border-radius:4px}.page-inner .frame{max-width:2560px;margin-inline:auto;position:relative}.page-inner .container{width:min(var(--container),100% - 2 * var(--gutter));margin-inline:auto}.page-inner .container--narrow{width:min(880px,100% - 2 * var(--gutter));margin-inline:auto}.page-inner .sr-only{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;
+}.page-inner .sprite{position:absolute;width:0;height:0;overflow:hidden}
+
+/* ============================================================
+   ICONS + BUTTONS  (זהה ל-index.html)
+   ============================================================ */
+.page-inner .ico{display:grid;place-items:center;flex:none;overflow:visible}.page-inner .ico svg{overflow:visible;display:block}.page-inner .ico--sm{width:.5417em;height:.5417em}.page-inner .ico--sm svg{width:.8077em;height:.6137em;transform:rotate(-135deg)}.page-inner .ico--md{width:.4911em;height:.4911em}.page-inner .ico--md svg{width:.7222em;height:.4091em;transform:rotate(-135deg)}.page-inner .btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  gap:clamp(10px,1.319vw,33.78px);
+  font-size:var(--fs-body);font-weight:500;line-height:1;
+  white-space:nowrap;box-shadow:var(--shadow);
+  transition:transform .4s var(--ease-expo),box-shadow .4s var(--ease-expo),background .25s ease,color .25s ease,border-color .25s ease;
+}.page-inner .btn .ico{transition:transform .4s var(--ease-expo)}.page-inner .btn:hover{transform:translateY(-2px)}.page-inner .btn:hover .ico{transform:translate(-4px,-4px)}.page-inner .btn:active{transform:translateY(0);transition-duration:.08s}.page-inner .btn--pill{width:clamp(112px,11.667vw,298.67px);height:clamp(38px,3.194vw,81.78px);border-radius:var(--r-pill)}.page-inner .btn--rect{width:clamp(112px,11.667vw,298.67px);height:clamp(38px,3.194vw,81.78px);border-radius:var(--r-sm)}.page-inner .btn--wide{width:clamp(150px,15.764vw,403.56px);height:clamp(38px,3.194vw,81.78px);border-radius:var(--r-sm)}.page-inner .btn--auto{width:auto;padding-inline:clamp(20px,2.361vw,60.44px)}.page-inner .btn--blue{background:var(--brand-blue);color:#fff}.page-inner .btn--coral{background:var(--brand-coral);color:#fff}.page-inner .btn--green{background:var(--brand-green);color:#fff}.page-inner .btn--accent{background:var(--accent);color:#fff}.page-inner .btn--white{background:var(--surface);color:var(--accent-ink)}.page-inner .btn--ghost-yellow{background:var(--surface);color:var(--brand-yellow);border:1px solid var(--brand-yellow)}.page-inner .btn--ghost{background:var(--surface);color:var(--accent-ink);border:1px solid var(--accent-ink)}.page-inner .btn--blue:hover{box-shadow:0 12px 26px rgba(24,177,240,.34)}.page-inner .btn--coral:hover{box-shadow:0 12px 26px rgba(252,84,62,.34)}.page-inner .btn--green:hover{box-shadow:0 12px 26px rgba(77,168,49,.30)}.page-inner .btn--accent:hover,.page-inner .btn--white:hover,.page-inner .btn--ghost:hover{box-shadow:0 12px 24px rgba(0,0,0,.18)}.page-inner .btn--ghost-yellow:hover{background:#FFFBF0;box-shadow:0 12px 26px rgba(253,193,34,.28)}
+/* דף ואהב"ת (theme-yellow): צהוב של הלוגו במקום הגוון החום הכהה של accent-ink,
+   שנועד במקור לקריאוּת בטקסט רץ ולא מתאים כאן לכפתורים */
+.page-inner.theme-yellow .page-hero__actions .btn--ghost{color:var(--brand-yellow);border-color:var(--brand-yellow)}.page-inner.theme-yellow #join .btn--white{color:var(--brand-yellow)}
+
+/* ============================================================
+   HEADER  (זהה ל-index.html + תפריט נפתח)
+   ============================================================ */
+.page-inner .site-header{position:sticky;top:0;z-index:40;background:var(--surface)}.page-inner .site-header::after{
+  content:"";position:absolute;inset-inline:0;bottom:0;height:1px;
+  background:var(--line);opacity:0;transition:opacity .3s ease;
+}.page-inner .site-header.is-stuck::after{opacity:1}.page-inner .nav{
+  height:var(--v-header);
+  display:flex;align-items:center;justify-content:flex-start;
+  gap:clamp(14px,2.361vw,60.44px);
+}.page-inner .nav a{font-size:var(--fs-nav);font-weight:500;white-space:nowrap;transition:color .2s ease}
+/* ============================================================
+   BRAND MARK - הלוגו (בית הפאזל) + השם, כאייקון + טקסט נפרדים
+   ------------------------------------------------------------
+   הלוגו הישן היה תמונה שטוחה אחת עם הטקסט צרוב בתוכה. עכשיו
+   האייקון וה"אהבת חינ״מ" הם שני אלמנטים אמיתיים זה לצד זה, כדי
+   שאפשר יהיה להריץ עליו אנימציית כניסה (public/js/brand-mark.js
+   מפרק את האייקון לארבעת חלקי הפאזל בטעינה הראשונה בסשן ומרכיב
+   אותם בחזרה) בלי לגעת בטקסט.
+   ============================================================ */
+.page-inner .brand-mark__icon,.page-inner .brand-mark__stage{
+  display:block;flex:none;position:relative;
+  width:clamp(34px,4.6vw,64px);aspect-ratio:1493/1600;height:auto;
+}.page-inner .brand-mark__icon{object-fit:contain}.page-inner .brand-mark__piece{position:absolute;display:block;opacity:0;pointer-events:none;will-change:transform,opacity}
+@keyframes bmFly-inner{from{opacity:0;transform:var(--bm-from)}60%{opacity:1}to{opacity:1;transform:none}}
+@keyframes bmSettle-inner{0%{transform:scale(1)}30%{transform:scale(1.08)}65%{transform:scale(.97)}100%{transform:scale(1)}}.page-inner .nav__logo{flex:none;display:block}.page-inner .nav__link{position:relative;color:inherit}.page-inner .nav__link:hover{color:var(--brand-blue)}.page-inner .nav__link::after{
+  content:"";position:absolute;inset-inline:0;bottom:-.3em;height:2px;
+  background:var(--brand-blue);border-radius:2px;
+  transform:scaleX(0);transform-origin:right center;
+  transition:transform .5s var(--ease-expo);
+}.page-inner .nav__link:hover::after{transform:scaleX(1)}.page-inner .nav__link[aria-current="page"]{color:var(--brand-blue)}.page-inner .nav__link[aria-current="page"]::after{transform:scaleX(1)}
+
+/* ---------- תפריט משנה ---------- */
+.page-inner .nav__group{position:relative}.page-inner .nav__trigger{
+  display:inline-flex;align-items:center;gap:.4em;
+  font-size:var(--fs-nav);font-weight:500;white-space:nowrap;
+  padding:0;transition:color .2s ease;
+}.page-inner .nav__trigger svg{width:.6em;height:.6em;transition:transform .35s var(--ease-expo)}.page-inner .nav__group:hover .nav__trigger,.page-inner .nav__group.is-open .nav__trigger,.page-inner .nav__trigger[aria-expanded="true"]{color:var(--brand-blue)}.page-inner .nav__group.is-open .nav__trigger svg,.page-inner .nav__group:hover .nav__trigger svg{transform:rotate(180deg)}.page-inner .nav__menu{
+  position:absolute;top:100%;inset-inline-end:0;z-index:50;
+  min-width:clamp(200px,17vw,244px);
+  background:var(--surface);border-radius:var(--r-sm);
+  box-shadow:0 14px 38px rgba(0,0,0,.14);
+  padding:clamp(8px,.7vw,10px);
+  display:flex;flex-direction:column;
+  opacity:0;visibility:hidden;transform:translateY(8px);
+  transition:opacity .25s ease,transform .35s var(--ease-expo),visibility .25s;
+}.page-inner .nav__group:hover .nav__menu,.page-inner .nav__group.is-open .nav__menu,.page-inner .nav__group:focus-within .nav__menu{
+  opacity:1;visibility:visible;transform:translateY(0);
+}.page-inner .nav__menu a{
+  display:block;padding:.62em .8em;border-radius:6px;
+  font-size:var(--fs-sm);line-height:1.3;text-align:right;
+  transition:background .2s ease,color .2s ease;
+}.page-inner .nav__menu a:hover,.page-inner .nav__menu a[aria-current="page"]{background:var(--accent-soft);color:var(--brand-blue)}
+/* גשר בלתי נראה בין הטריגר לתפריט - כדי שהעכבר לא "יפול" בדרך */
+.page-inner .nav__group::after{content:"";position:absolute;top:100%;inset-inline:0;height:14px}.page-inner .nav__cta{margin-inline-start:auto}.page-inner .nav__cta:hover{
+  background:var(--surface);color:var(--brand-blue);
+  border:1px solid var(--brand-blue);
+}.page-inner .nav__toggle{display:none}.page-inner .nav__links{display:none}
+
+/* ============================================================
+   פס התקדמות גלילה
+   ============================================================ */
+.page-inner .progress{position:fixed;top:0;inset-inline:0;height:3px;z-index:100;pointer-events:none}.page-inner .progress__bar{
+  height:100%;width:100%;transform:scaleX(0);transform-origin:right center;
+  background:linear-gradient(90deg,var(--brand-coral),var(--brand-yellow),var(--brand-green),var(--brand-blue));
+  will-change:transform;
+}
+
+/* ============================================================
+   PAGE HERO - פתיח העמוד הפנימי
+   ============================================================ */
+.page-inner .page-hero{
+  position:relative;isolation:isolate;
+  padding-block:clamp(28px,3.472vw,88.89px) clamp(40px,5.556vw,142.22px);
+  background:
+    radial-gradient(120% 130% at 88% 0%,var(--accent-tint) 0%,rgba(255,255,255,0) 62%),
+    linear-gradient(180deg,var(--accent-soft) 0%,rgba(255,255,255,0) 100%);
+}
+/* וריאנט ללא אשכול תמונות (עמוד הגלריה): הכותרת ממורכזת והרצועה נמוכה יותר,
+   כדי שקשת התמונות תתחיל גבוה ותקבל את מרב הגובה במסך. */
+.page-inner .page-hero--slim{
+  padding-block:clamp(24px,2.778vw,71.11px) clamp(28px,3.472vw,88.89px);
+  text-align:center;
+}.page-inner .page-hero--slim .crumbs{justify-content:center}.page-inner .page-hero--slim h1{max-width:20ch;margin-inline:auto}.page-inner .page-hero--slim .page-hero__lead{max-width:52ch;margin-inline:auto}
+
+/* עמודי הסיום של התרומה (תודה / כשלון). התוכן ממורכז כמו ההירו שמעליו. */
+.page-inner .ty-amount{
+  font-size:var(--fs-h3);font-weight:500;color:var(--accent-ink);
+  text-align:center;margin-bottom:.6em;
+}.page-inner .ty-acts{
+  display:flex;flex-wrap:wrap;justify-content:center;
+  gap:clamp(10px,1.111vw,28.44px);
+  margin-top:clamp(20px,2.5vw,64px);
+}.page-inner .ty-acts .btn{width:auto;padding-inline:clamp(22px,2.639vw,67.56px)}.page-inner .page-hero__inner{display:flex;align-items:center;gap:clamp(24px,4.167vw,106.67px)}.page-inner .page-hero__copy{flex:1 1 0;min-width:0;text-align:right}.page-inner .crumbs{
+  display:flex;align-items:center;gap:.5em;flex-wrap:wrap;
+  font-size:var(--fs-sm);font-weight:300;color:var(--ink-soft);
+  margin-bottom:clamp(12px,1.389vw,35.56px);
+}.page-inner .crumbs a{transition:color .2s ease}.page-inner .crumbs a:hover{color:var(--accent-ink)}.page-inner .crumbs span[aria-hidden]{opacity:.45}.page-inner .crumbs [aria-current]{color:var(--accent-ink)}
+
+/* תווית-העל מעל הכותרת: קו מבטא קצר וטקסט נקי, באותה שפה עיצובית של
+   ה-.rule שמתחת לכותרות - במקום "צ'יפ" עם רקע, צל ונקודה, שהוא הקלישאה
+   הגנרית של עמודי נחיתה ומושך תשומת לב על חשבון הכותרת עצמה. */
+.page-inner .eyebrow{
+  display:inline-flex;align-items:center;gap:.7em;
+  font-size:var(--fs-sm);font-weight:500;color:var(--accent-ink);
+  letter-spacing:.03em;
+  margin-bottom:clamp(12px,1.389vw,35.56px);
+}.page-inner .eyebrow::before{
+  content:"";width:1.9em;height:.14em;border-radius:999px;
+  background:var(--accent);flex:none;
+}
+/* שבירת השורות בכותרת נכתבת ידנית ב-.ln, ולכן ה-max-width נועד רק
+   למנוע שורת-מידה ארוכה מדי - לא לשבור את השורות שנכתבו. ב-14ch הוא
+   היה צר מכדי להכיל את השורות הארוכות שכן נכתבו (בית ש"י, מי אנחנו,
+   תרומות, אירועים), ושבר אותן לשתיים בדסקטופ. min() מבטיח שגם כשהוא
+   רחב יותר הוא לעולם לא יגלוש מעמודת הטקסט. */
+.page-inner .page-hero h1{font-size:var(--fs-h1);max-width:min(22ch,100%)}.page-inner .page-hero__lead{
+  margin-top:clamp(12px,1.528vw,39.11px);
+  font-size:var(--fs-prose);font-weight:300;line-height:var(--lh-prose);
+  max-width:44ch;color:var(--ink-soft);
+}.page-inner .page-hero__actions{
+  margin-top:clamp(18px,2.222vw,56.89px);
+  display:flex;align-items:center;gap:clamp(12px,1.389vw,35.56px);flex-wrap:wrap;
+}
+
+/* ---------- אשכול התמונות של ההירו ---------- */
+/* אשכול של שלוש תמונות בגריד נקי - תמונה מובילה גבוהה ושתי משניות,
+   ועיגול אחד שיושב על התפר ביניהן וקושר את הקומפוזיציה. */
+.page-inner .hero-cluster{
+  position:relative;flex:0 0 auto;
+  width:clamp(240px,34.722vw,888.89px);aspect-ratio:500/430;
+  display:grid;grid-template-columns:1.22fr 1fr;grid-template-rows:1fr 1fr;
+  gap:clamp(8px,1.111vw,28.44px);
+}.page-inner .hero-cluster__shot{
+  position:relative;overflow:hidden;border-radius:var(--r-lg);
+  box-shadow:var(--shadow);background:var(--surface);
+}.page-inner .hero-cluster__shot img{width:100%;height:100%;object-fit:cover}.page-inner .hero-cluster__shot--a{grid-column:1;grid-row:1 / span 2}.page-inner .hero-cluster__shot--b{grid-column:2;grid-row:1}.page-inner .hero-cluster__shot--c{grid-column:2;grid-row:2}.page-inner .hero-cluster__shot--d{
+  position:absolute;z-index:3;
+  width:29%;aspect-ratio:1;border-radius:50%;
+  inset-inline-start:40.5%;top:50%;transform:translateY(-50%);
+  border:5px solid var(--surface);
+}.page-inner .dot{position:absolute;border-radius:50%;aspect-ratio:1;pointer-events:none;z-index:2}.page-inner .dot--blue{background:var(--brand-blue)}.page-inner .dot--green{background:var(--brand-green)}.page-inner .dot--yellow{background:var(--brand-yellow)}.page-inner .dot--coral{background:var(--brand-coral)}.page-inner .dot--ring{border:3px solid #3E9C93;background:none}.page-inner .hero-cluster .dot--coral{width:4.6%;inset-inline-start:-2.2%;top:-3%}.page-inner .hero-cluster .dot--green{width:5.8%;inset-inline-end:-2.8%;top:36%}.page-inner .hero-cluster .dot--yellow{width:3.8%;inset-inline-end:9%;bottom:-3.5%}.page-inner .hero-cluster .dot--blue{width:3%;inset-inline-start:16%;top:-2.6%}
+
+@keyframes dotIn-inner{0%{opacity:0;transform:scale(0)}70%{opacity:1;transform:scale(1.18)}100%{opacity:1;transform:scale(1)}}
+@keyframes dotFloatA-inner{0%,100%{transform:translate(0,0)}50%{transform:translate(-5px,-11px)}}
+@keyframes dotFloatB-inner{0%,100%{transform:translate(0,0)}50%{transform:translate(7px,-8px)}}
+@keyframes dotFloatC-inner{0%,100%{transform:translate(0,0)}33%{transform:translate(-6px,-12px)}66%{transform:translate(4px,-4px)}}.page-inner .js .hero-cluster .dot{opacity:0}.page-inner .js .hero-cluster.is-in .dot--coral{animation:dotIn-inner .7s var(--ease-back) .55s both,dotFloatA-inner 4.6s ease-in-out 1.4s infinite}.page-inner .js .hero-cluster.is-in .dot--green{animation:dotIn-inner .7s var(--ease-back) .70s both,dotFloatB-inner 5.4s ease-in-out 1.8s infinite}.page-inner .js .hero-cluster.is-in .dot--yellow{animation:dotIn-inner .7s var(--ease-back) .85s both,dotFloatC-inner 4.1s ease-in-out 1.2s infinite}.page-inner .js .hero-cluster.is-in .dot--blue{animation:dotIn-inner .7s var(--ease-back) 1.00s both,dotFloatA-inner 5.9s ease-in-out 2.1s infinite}
+
+/* ============================================================
+   SECTION + TYPO
+   ============================================================ */
+.page-inner .sec{margin-top:var(--v-sec)}.page-inner .sec--tight{margin-top:var(--v-sec-sm)}.page-inner .sec__head{max-width:56ch}.page-inner .sec__head--center{margin-inline:auto;text-align:center}.page-inner .sec h2,.page-inner .sec__title{font-size:var(--fs-h2);text-align:right}.page-inner .sec__head--center h2{text-align:center}.page-inner .sec__kicker{
+  font-size:var(--fs-sm);font-weight:300;color:var(--accent-ink);
+  letter-spacing:.02em;margin-bottom:.7em;
+}.page-inner .sec__sub{
+  margin-top:clamp(10px,1.111vw,28.44px);
+  font-size:var(--fs-prose);font-weight:300;line-height:var(--lh-prose);color:var(--ink-soft);
+}
+
+/* קו מבטא קצר מתחת לכותרת. המידות ב-em ביחס ל-font-size של הקו עצמו,
+   שמקבל את גודל הכותרת - כך הקו גדל ומתכווץ יחד עם ה-h2 שמעליו בכל
+   רוחב מסך, במקום להימדד בנפרד מול ה-viewport ולצאת לא פרופורציונלי. */
+.page-inner .rule{
+  font-size:var(--fs-h2);
+  width:1.5625em;height:.175em;border-radius:999px;
+  background:var(--accent);margin-top:.42em;
+}.page-inner .sec__head--center .rule{margin-inline:auto}.page-inner .prose{margin-top:clamp(16px,2.083vw,53.33px)}.page-inner .prose p{font-size:var(--fs-prose);font-weight:300;line-height:var(--lh-prose);text-align:right}.page-inner .prose p+p{margin-top:.95em}.page-inner .prose strong{font-weight:500;color:var(--ink)}.page-inner .prose h3{font-size:var(--fs-h3);margin-top:1.4em;margin-bottom:.5em;text-align:right}.page-inner .prose ul{margin-top:.7em;padding-inline-end:1.4em;list-style:disc}.page-inner .prose ul+h3{margin-top:1.4em}.page-inner .prose li{font-size:var(--fs-prose);font-weight:300;line-height:var(--lh-prose);text-align:right}.page-inner .prose li+li{margin-top:.5em}.page-inner .prose--2col{columns:2;column-gap:clamp(28px,3.472vw,88.89px)}.page-inner .prose--2col p{break-inside:avoid}.page-inner .lead{
+  font-size:var(--fs-h3);font-weight:300;line-height:1.45;text-align:right;
+}
+
+/* ============================================================
+   SPLIT - טקסט לצד תמונה, מתחלף לסירוגין
+   ============================================================ */
+.page-inner .split{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:clamp(24px,4.167vw,106.67px);align-items:center;
+}.page-inner .split+.split{margin-top:var(--v-sec)}.page-inner .split__media{position:relative}.page-inner .split__media img{
+  width:100%;aspect-ratio:4/3;object-fit:cover;
+  border-radius:var(--r-lg);box-shadow:var(--shadow);
+}.page-inner .split__media--tall img{aspect-ratio:4/4.6}
+/* לתמונות עם רקע שקוף (PNG חתוך) - בלי מסגרת, בלי צל, בלי חיתוך לריבוע */
+.page-inner .split__media--frameless img{
+  aspect-ratio:auto;object-fit:contain;
+  border-radius:0;box-shadow:none;
+}.page-inner .split--flip .split__media{order:-1}.page-inner .split__badge{
+  position:absolute;inset-inline-start:clamp(-10px,-1vw,-14px);bottom:clamp(-12px,-1.2vw,-18px);
+  background:var(--accent);color:#fff;border-radius:var(--r-sm);
+  padding:.75em 1.1em;box-shadow:var(--shadow);
+  font-size:var(--fs-sm);line-height:1.3;max-width:16em;text-align:right;
+}
+
+/* ============================================================
+   PILLARS - קוביות ערך עם אייקון
+   ============================================================ */
+/* מספר עמודות מפורש, לא auto-fit - auto-fit השאיר כרטיס יתום בשורה שנייה */
+.page-inner .pillars{
+  margin-top:clamp(20px,2.778vw,71.11px);
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:clamp(14px,1.667vw,42.67px);
+}.page-inner .pillars--4{grid-template-columns:repeat(4,1fr)}.page-inner .pillar{
+  background:var(--surface);border-radius:var(--r-sm);
+  padding:clamp(18px,1.944vw,49.78px) clamp(16px,1.667vw,42.67px) clamp(20px,2.083vw,53.33px);
+  box-shadow:var(--shadow);text-align:right;
+  border-top:4px solid var(--pill-c,var(--accent));
+  transition:transform .55s var(--ease-expo),box-shadow .55s var(--ease-expo);
+}.page-inner .pillar:hover{transform:translateY(-8px);box-shadow:0 18px 34px rgba(0,0,0,.14)}.page-inner .pillar__ico{
+  width:clamp(40px,3.472vw,88.89px);height:clamp(40px,3.472vw,88.89px);
+  border-radius:14px;display:grid;place-items:center;
+  background:color-mix(in srgb,var(--pill-c,var(--accent)) 14%,#fff);
+  color:var(--pill-ink,var(--pill-c,var(--accent)));margin-bottom:clamp(12px,1.111vw,28.44px);
+}.page-inner .pillar__ico svg{width:56%;height:56%}.page-inner .pillar h3{font-size:var(--fs-h3);margin-bottom:.45em}.page-inner .pillar p{font-size:var(--fs-prose);font-weight:300;line-height:var(--lh-prose);color:var(--ink-soft)}.page-inner .pillar--blue{--pill-c:var(--brand-blue);--pill-ink:#0E86BA}.page-inner .pillar--yellow{--pill-c:var(--brand-yellow);--pill-ink:#A87400}.page-inner .pillar--coral{--pill-c:var(--brand-coral);--pill-ink:#D63A24}.page-inner .pillar--green{--pill-c:var(--brand-green);--pill-ink:#3C8526}
+
+/* ============================================================
+   CHECKLIST - רשימת "מה אנחנו מעניקים"
+   ============================================================ */
+.page-inner .checklist{
+  margin-top:clamp(18px,2.083vw,53.33px);list-style:none;
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:clamp(12px,1.389vw,35.56px);
+}.page-inner .checklist li{
+  display:flex;align-items:flex-start;gap:.75em;
+  font-size:var(--fs-prose);font-weight:300;line-height:var(--lh-prose);
+  background:var(--accent-soft);border-radius:var(--r-sm);
+  padding:clamp(12px,1.181vw,30.22px) clamp(14px,1.319vw,33.78px);
+  box-shadow:0 2px 6px rgba(0,0,0,.05),0 6px 16px rgba(0,0,0,.05);
+}.page-inner .checklist li::before{
+  content:"";flex:none;margin-top:.28em;
+  width:1.05em;height:1.05em;border-radius:50%;
+  background:var(--accent);
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 6 9 17l-5-5' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/68% no-repeat,
+          linear-gradient(#000,#000);
+  -webkit-mask-composite:xor;
+          mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 6 9 17l-5-5' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/68% no-repeat,
+          linear-gradient(#000,#000);
+          mask-composite:exclude;
+}
+
+/* ============================================================
+   QUOTE - משפט מרגש ברוחב מלא
+   ============================================================ */
+.page-inner .quote{
+  margin-top:var(--v-sec);
+  background:var(--accent);color:#fff;border-radius:var(--r-lg);
+  padding:clamp(30px,4.167vw,106.67px) clamp(22px,3.472vw,88.89px);
+  text-align:center;position:relative;overflow:hidden;
+  box-shadow:var(--shadow);
+}.page-inner .quote::before,.page-inner .quote::after{
+  content:"";position:absolute;border-radius:50%;
+  background:rgba(255,255,255,.10);pointer-events:none;
+}.page-inner .quote::before{width:clamp(140px,20vw,280px);aspect-ratio:1;inset-inline-end:-6%;top:-40%}.page-inner .quote::after{width:clamp(90px,13vw,180px);aspect-ratio:1;inset-inline-start:-4%;bottom:-50%}.page-inner .quote p{
+  position:relative;font-size:var(--fs-band);line-height:1.32;
+  max-width:24ch;margin-inline:auto;
+}.page-inner .quote cite{
+  position:relative;display:block;margin-top:clamp(12px,1.389vw,35.56px);
+  font-size:var(--fs-sm);font-weight:300;font-style:normal;opacity:.9;
+}.page-inner .quote--soft{background:var(--accent-soft);color:var(--ink);box-shadow:none}.page-inner .quote--soft::before,.page-inner .quote--soft::after{background:var(--accent-tint)}
+
+/* ============================================================
+   MOSAIC - רצועת תמונות
+   ============================================================ */
+.page-inner .mosaic{
+  margin-top:clamp(20px,2.778vw,71.11px);
+  display:grid;grid-template-columns:repeat(4,1fr);
+  grid-auto-rows:clamp(90px,10.417vw,266.67px);
+  gap:clamp(10px,1.111vw,28.44px);
+}.page-inner .mosaic img{
+  width:100%;height:100%;object-fit:cover;
+  border-radius:var(--r-sm);box-shadow:0 6px 18px rgba(0,0,0,.10);
+  transition:transform .6s var(--ease-expo);
+}.page-inner .mosaic a{display:block;overflow:hidden;border-radius:var(--r-sm);cursor:zoom-in}.page-inner .mosaic a:hover img{transform:scale(1.05)}.page-inner .mosaic__wide{grid-column:span 2}.page-inner .mosaic__tall{grid-row:span 2}
+
+/* ============================================================
+   DOME GALLERY WRAPPER - המעטפת של קשת התמונות בעמוד הגלריה
+   (המנוע עצמו חי ב-dome-gallery.css / dome-gallery.js)
+   ============================================================ */
+.page-inner .dome-wrap{
+  height:min(74vh,820px);min-height:420px;
+  border-radius:var(--r-lg);overflow:hidden;
+  background:var(--accent-soft);
+}.page-inner .dome-hint{
+  margin-top:clamp(10px,1.111vw,28.44px);
+  display:flex;align-items:center;justify-content:center;gap:.5em;
+  font-size:var(--fs-sm);font-weight:300;color:var(--ink-soft);
+}.page-inner .dome-hint__ico{display:grid;place-items:center;width:1.15em;height:1.15em;color:var(--accent-ink)}.page-inner .dome-hint__ico svg{width:100%;height:100%;display:block}
+
+/* ============================================================
+   PERSON - כרטיס דמות (חנן חן)
+   ============================================================ */
+.page-inner .person{
+  display:grid;grid-template-columns:clamp(180px,22vw,300px) 1fr;
+  gap:clamp(20px,3.472vw,88.89px);align-items:center;
+  background:var(--accent-soft);border-radius:var(--r-lg);
+  padding:clamp(20px,2.778vw,71.11px);
+  box-shadow:0 2px 6px rgba(0,0,0,.05),0 6px 16px rgba(0,0,0,.05);
+}.page-inner .person__photo{position:relative}.page-inner .person__photo img{
+  width:100%;aspect-ratio:1;object-fit:cover;border-radius:50%;
+  border:6px solid var(--surface);box-shadow:var(--shadow-soft);
+}
+/* אם עדיין לא הועלתה תמונת דיוקן - נופלים למונוגרמה במקום תמונה שבורה */
+.page-inner .person__mono{
+  display:none;width:100%;aspect-ratio:1;border-radius:50%;
+  place-items:center;font-size:clamp(46px,5vw,128px);color:#fff;
+  background:var(--accent);border:6px solid var(--surface);box-shadow:var(--shadow-soft);
+}.page-inner .person__photo.is-empty .person__mono{display:grid}.page-inner .person__quote{position:relative;font-size:var(--fs-h3);line-height:1.4;text-align:right;padding-top:clamp(22px,2.5vw,64px)}
+/* הגרשיים כתג דקורטיבי מנותק - לא חלק מזרימת הטקסט, כדי שכל שורות
+   הציטוט יתחילו מאותו קו יישור בדיוק (למשל "בבית ש"י" ו-"זריחות"
+   אחת מתחת לשנייה), במקום שהאייקון יזיז את השורה הראשונה פנימה. */
+.page-inner .person__quote-icon{
+  position:absolute;top:0;inset-inline-end:-.2em;
+  display:block;width:1.7em;height:1.2em;
+  color:var(--accent);opacity:.85;pointer-events:none;
+}
+/* וריאנט "דיוקן שיוצא מהמסגרת": הגרשיים יושבים בפינה השמאלית-עליונה
+   של המסגרת עצמה (לא של פסקת הציטוט) וחוצים את קו השפה שלה - חצי
+   מהאייקון בולט מעל הכרטיס, בדיוק כמו בפיגמה (node 109:2). */
+.page-inner .person--portrait{position:relative}.page-inner .person--portrait .person__quote-icon{
+  position:absolute;top:0;inset-inline-end:0;
+  transform:translateY(-50%) scaleX(-1);
+  /* גודל יחסי לרוחב המסך (לא לגודל הטקסט) - כך שהאייקון יישאר בולט
+     גם בדסקטופ רחב, לפי היחס בפיגמה (94.66/64 ≈ 9.5% מגובה הכרטיס) */
+  width:clamp(44px,6.5vw,170.67px);aspect-ratio:94.66/64;height:auto;
+  color:var(--accent);opacity:1;z-index:3;
+}.page-inner .person--portrait .person__quote{padding-top:0}.page-inner .person__name{margin-top:clamp(12px,1.389vw,35.56px);font-size:var(--fs-body);color:var(--accent-ink)}.page-inner .person__role{margin-top:.3em;font-size:var(--fs-sm);font-weight:300;color:var(--ink-soft)}
+
+/* ------------------------------------------------------------
+   PERSON - וריאנט "דיוקן שיוצא מהמסגרת" (לפי העיצוב בפיגמה)
+   ------------------------------------------------------------
+   היחס בעיצוב המקורי בפיגמה: כרטיס 1584x472, דמות 468x703 צמודה
+   לתחתית הכרטיס - כלומר גבוהה ממנו ב-231px (49% מגובה הכרטיס) ובולטת
+   מעליו. --portrait-h חייב לשקף את יחס הרוחב-גובה האמיתי של קובץ
+   התמונה הנוכחי (public/images/hanan-cutout.png, כרגע 620x736) -
+   אחרת הגובה המחושב לא יתאם לגובה שה-img מקבל בפועל מ-height:auto.
+   --card-h שומר על יחס 472/703 הקבוע מהעיצוב (לא תלוי בתמונה) כדי
+   שהיחס "כמה הדמות בולטת מעל הכרטיס" (0.489) יישאר זהה בכל תמונה.
+   ------------------------------------------------------------ */
+.page-inner .person--portrait{
+  --portrait-w:clamp(190px,25vw,352px);
+  --portrait-h:calc(var(--portrait-w) * 736 / 620);   /* יחס האמיתי של hanan-cutout.png */
+  --card-h:calc(var(--portrait-h) * 472 / 703);       /* יחס עיצוב קבוע - לא תלוי בתמונה */
+  --portrait-rise:calc(var(--portrait-h) - var(--card-h));
+  --portrait-gap:clamp(20px,3vw,78.22px);
+
+  position:relative;
+  display:flex;align-items:center;
+  min-height:var(--card-h);
+  /* דוחפים את הכרטיס למטה כדי לפנות מקום לראש שבולט מעליו */
+  margin-top:var(--portrait-rise);
+  padding:clamp(24px,3.056vw,78.22px);
+  /* ב-RTL זה הצד הימני - שם יושבת הדמות */
+  padding-inline-start:calc(var(--portrait-w) + var(--portrait-gap));
+  grid-template-columns:none;gap:0;
+}.page-inner .person--portrait .person__portrait{
+  position:absolute;z-index:2;bottom:0;
+  inset-inline-start:clamp(-18px,-1.4vw,-24px);       /* חורגת מעט מדופן הכרטיס */
+  width:var(--portrait-w);
+  pointer-events:none;
+}.page-inner .person--portrait .person__portrait img{
+  width:100%;height:auto;display:block;
+  /* drop-shadow עוקב אחרי הקונטור השקוף של ה-PNG (לא אחרי הריבוע) -
+     זה מה שנותן את תחושת התלת-ממד של דמות שיוצאת מהכרטיס */
+  filter:drop-shadow(0 22px 30px rgba(0,0,0,.30));
+}.page-inner .person--portrait .person__quote{
+  font-size:clamp(18px,2.153vw,55.11px);line-height:1.42;
+}.page-inner .person--portrait .person__copy{position:relative;z-index:1;width:100%}
+
+/* ============================================================
+   TIERS - קוביות תרומה
+   ============================================================ */
+.page-inner .tiers-grid{
+  margin-top:clamp(20px,2.778vw,71.11px);
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:clamp(14px,1.944vw,49.78px);
+}.page-inner .tier-card{
+  background:var(--tier-c,var(--brand-blue));color:#fff;
+  border-radius:var(--r-sm);box-shadow:var(--shadow);
+  padding:clamp(20px,2.431vw,62.22px) clamp(16px,1.736vw,44.44px) clamp(18px,2.083vw,53.33px);
+  display:flex;flex-direction:column;align-items:center;text-align:center;
+  transition:transform .55s var(--ease-expo),box-shadow .55s var(--ease-expo);
+}.page-inner .tier-card:hover{transform:translateY(-8px);box-shadow:0 22px 42px rgba(0,0,0,.22)}.page-inner .tier-card__emoji{font-size:clamp(26px,2.5vw,64px);line-height:1;margin-bottom:.4em}.page-inner .tier-card__amount{font-size:var(--fs-h2);line-height:1}.page-inner .tier-card__text{
+  margin-top:clamp(8px,.833vw,21.33px);margin-bottom:clamp(16px,1.667vw,42.67px);
+  font-size:var(--fs-prose);font-weight:300;line-height:var(--lh-prose);
+}.page-inner .tier-card .btn{margin-top:auto;width:100%;background:var(--surface);color:var(--tier-ink,#0E86BA)}.page-inner .tier-card--coral{--tier-c:var(--brand-coral);--tier-ink:#D63A24}.page-inner .tier-card--yellow{--tier-c:var(--brand-yellow);--tier-ink:#A87400}.page-inner .tier-card--green{--tier-c:var(--brand-green);--tier-ink:#3C8526}.page-inner .tier-card--blue{--tier-c:var(--brand-blue);--tier-ink:#0E86BA}
+
+/* ---------- קופסת התרומה: טקסט + בחירת סכום ---------- */
+.page-inner .donate-box{
+  display:grid;grid-template-columns:1fr .85fr;
+  gap:clamp(24px,3.472vw,88.89px);align-items:start;
+  background:var(--accent-soft);border-radius:var(--r-lg);
+  padding:clamp(22px,3.056vw,78.22px);
+  box-shadow:0 2px 6px rgba(0,0,0,.05),0 6px 16px rgba(0,0,0,.05);
+}.page-inner .donate-box h2{font-size:var(--fs-h2);text-align:right}.page-inner .donate-box__copy p{
+  margin-top:clamp(10px,1.111vw,28.44px);
+  font-size:var(--fs-prose);font-weight:300;line-height:var(--lh-prose);text-align:right;
+}.page-inner .donate-box__form{
+  background:var(--surface);border-radius:var(--r-sm);
+  padding:clamp(18px,2.083vw,53.33px);box-shadow:var(--shadow);
+}.page-inner .checklist--plain{grid-template-columns:1fr;gap:clamp(8px,.833vw,21.33px)}.page-inner .checklist--plain li{background:transparent;padding:0}
+
+/* ---------- מקטע בחירה (תדירות / סכום) ---------- */
+.page-inner .seg{
+  border:0;padding:0;margin:0 0 clamp(14px,1.389vw,35.56px);
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;
+}.page-inner .seg--amounts{grid-template-columns:repeat(2,1fr)}.page-inner .seg label{position:relative;display:block}.page-inner .seg input{position:absolute;opacity:0;width:0;height:0}.page-inner .seg span{
+  display:grid;place-items:center;
+  padding:.72em .5em;border-radius:var(--r-sm);
+  border:1px solid var(--line);font-size:var(--fs-body);line-height:1;
+  cursor:pointer;transition:border-color .2s ease,background .2s ease,color .2s ease;
+}.page-inner .seg span:hover{border-color:var(--accent)}.page-inner .seg input:checked+span{background:var(--accent);border-color:var(--accent);color:#fff}.page-inner .seg input:focus-visible+span{outline:3px solid var(--accent);outline-offset:2px}.page-inner .donate-box__submit{width:100%;margin-top:clamp(6px,.694vw,17.78px)}
+
+/* ============================================================
+   PRESS CARDS - כרטיסי כתבות (עמוד התקשורת)
+   ============================================================ */
+/* חמש כתבות ב-3 עמודות: הראשונה רחבה (2 עמודות) - כך הגריד מתמלא בדיוק
+   ואין כרטיס יתום בשורה האחרונה. */
+.page-inner .press-grid{
+  margin-top:clamp(20px,2.778vw,71.11px);
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:clamp(14px,1.667vw,42.67px);
+}.page-inner .press-card__body{display:flex;flex-direction:column;flex:1 1 auto}.page-inner .press-card{
+  display:flex;flex-direction:column;
+  background:var(--brand-green);color:#fff;
+  border-radius:var(--r-sm);box-shadow:var(--shadow);
+  padding:clamp(9.6px,1.2224vw,31.29px) clamp(11.2px,1.3888vw,35.56px) clamp(12.8px,1.5vw,38.4px);
+}.page-inner .press-card__thumb{
+  width:100%;aspect-ratio:350/190;background:var(--surface);
+  border-radius:var(--r-sm);overflow:hidden;flex:none;
+}.page-inner .press-card__thumb img{width:100%;height:100%;object-fit:cover}.page-inner .press-card h3{margin-top:clamp(10px,1.222vw,32px);font-size:var(--fs-h3);text-align:right}.page-inner .press-card p{
+  margin-top:.5em;margin-bottom:clamp(14px,1.667vw,42.67px);
+  font-size:var(--fs-prose);font-weight:300;line-height:var(--lh-prose);text-align:right;
+}.page-inner .press-card .btn{margin-top:auto;margin-inline-start:auto;background:var(--surface);color:#3C8526}.page-inner .press-card__src{
+  margin-top:.4em;font-size:var(--fs-sm);font-weight:300;opacity:.85;text-align:right;
+}
+/* הכתבה הראשית - רחבה, תמונה לצד הטקסט. חייבת לבוא *אחרי* ‎.press-card‎,
+   אחרת ה-display:flex שלו דורס כאן את ה-display:grid (אותה ספציפיות). */
+.page-inner .press-card--featured{
+  grid-column:span 2;
+  display:grid;grid-template-columns:1fr 1.1fr;
+  gap:clamp(14px,1.667vw,42.67px);align-items:stretch;
+}.page-inner .press-card--featured .press-card__thumb{aspect-ratio:16/11}.page-inner .press-card--featured h3{margin-top:0;font-size:var(--fs-h2)}
+
+/* ============================================================
+   EVENT CARDS - כרטיסי אירוע (עמוד האירועים)
+   ------------------------------------------------------------
+   אותה שפה ויזואלית של סקשן "האירועים שהיו" בדף הבית: תמונה
+   במילוי הכרטיס, סקרים שחור מעליה וטקסט לבן שנצמד לתחתית.
+   ============================================================ */
+/* ===== אירועים קרובים =====
+   כרטיס "הודעה" בהיר - מובחן בכוונה מכרטיסי האירועים שהיו (תמונה + שכבה כהה),
+   כי הוא משרת מטרה אחרת: לא זיכרון להתרשם ממנו אלא הזמנה לפעולה. */
+.page-inner .upcoming{
+  display:grid;
+  gap:clamp(12px,1.25vw,32px);
+  margin-bottom:clamp(30px,3.75vw,96px);
+}.page-inner .upcoming__card{
+  position:relative;
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;
+  gap:clamp(14px,1.667vw,42.67px);
+  padding:clamp(16px,1.736vw,44.44px);
+  padding-inline-start:clamp(24px,2.5vw,64px);
+  background:var(--surface);
+  border-radius:var(--r-pill);
+  border:1px solid rgba(0,0,0,.08);
+  box-shadow:0 2px 20px rgba(0,0,0,.06);
+}.page-inner .upcoming__card::before{
+  content:"";position:absolute;inset-block:0;inset-inline-start:0;
+  width:clamp(6px,.486vw,12.44px);
+  background:var(--brand-yellow);
+  border-start-start-radius:var(--r-pill);
+  border-end-start-radius:var(--r-pill);
+}.page-inner .upcoming__when{
+  text-align:center;line-height:1;min-width:0;
+  padding-inline-end:clamp(12px,1.25vw,32px);
+  border-inline-end:1px solid rgba(0,0,0,.1);
+}.page-inner .upcoming__day{
+  display:block;
+  font-size:clamp(30px,3.056vw,78.22px);
+  font-weight:300;color:var(--brand-blue);
+}.page-inner .upcoming__month{
+  display:block;margin-top:.3em;
+  font-size:clamp(12px,1.042vw,26.67px);font-weight:300;white-space:nowrap;
+}.page-inner .upcoming__badge{
+  display:inline-block;margin:0;
+  padding:.3em .95em;border-radius:var(--r-pill);
+  background:var(--brand-yellow);color:var(--ink);
+  font-size:clamp(11px,.903vw,23.11px);font-weight:400;line-height:1.4;
+}.page-inner .upcoming__title{
+  margin:.45em 0 0;
+  font-size:clamp(17.6px,1.667vw,42.67px);font-weight:300;line-height:1.2;
+}.page-inner .upcoming__meta{
+  list-style:none;margin:.55em 0 0;padding:0;
+  display:flex;flex-wrap:wrap;align-items:center;
+  gap:.35em clamp(8px,.833vw,21.33px);
+  font-size:clamp(12px,1.042vw,26.67px);font-weight:300;opacity:.72;
+}.page-inner .upcoming__meta li{display:flex;align-items:center;gap:.5em}.page-inner .upcoming__meta li+li::before{content:"·";opacity:.55}.page-inner .upcoming__text{
+  margin:.5em 0 0;
+  font-size:clamp(12.8px,1.181vw,30.22px);font-weight:300;line-height:1.45;opacity:.85;
+}.page-inner .upcoming__cta{
+  flex:none;white-space:nowrap;
+  background:var(--brand-blue);color:var(--surface);
+}
+@media (max-width:820px){.page-inner .upcoming__card{
+    grid-template-columns:auto 1fr;
+    gap:12px clamp(14px,3vw,24px);
+  }.page-inner .upcoming__cta{grid-column:1 / -1;justify-self:start;margin-top:4px}}
+@media (max-width:480px){.page-inner .upcoming__card{grid-template-columns:1fr}.page-inner .upcoming__when{
+    display:flex;align-items:baseline;gap:.4em;text-align:start;
+    padding-inline-end:0;border-inline-end:0;
+  }.page-inner .upcoming__day{font-size:30px}.page-inner .upcoming__cta{grid-column:auto}}.page-inner .event-grid{
+  margin-top:clamp(20px,2.778vw,71.11px);
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:clamp(14px,1.667vw,42.67px);
+}.page-inner .event-card{
+  position:relative;overflow:hidden;
+  aspect-ratio:390/430;
+  border-radius:var(--r-pill);
+  box-shadow:0 5px 10px rgba(0,0,0,.25);
+}.page-inner .event-card__img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  transition:transform .8s var(--ease-expo);
+}.page-inner .event-card__scrim{
+  position:absolute;inset:0;pointer-events:none;
+  background:rgba(0,0,0,.7);transition:background .4s ease;
+}.page-inner .event-card__body{
+  position:relative;height:100%;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:clamp(14px,1.736vw,44.44px) clamp(16px,1.944vw,49.78px) clamp(14px,1.597vw,40.89px);
+  color:#fff;text-align:right;
+}.page-inner .event-card__date{
+  align-self:flex-start;   /* RTL: נצמד לימין */
+  margin-bottom:clamp(8px,0.833vw,21.33px);
+  padding:.35em .9em;border-radius:var(--r-pill);
+  background:rgba(255,255,255,.16);
+  border:1px solid rgba(255,255,255,.28);
+  font-size:var(--fs-sm);font-weight:300;white-space:nowrap;
+}.page-inner .event-card h3{font-size:var(--fs-h3);text-align:right}.page-inner .event-card p{
+  margin-top:clamp(6px,0.833vw,21.33px);
+  font-size:var(--fs-prose);font-weight:300;line-height:var(--lh-prose);text-align:right;
+}.page-inner .event-card .btn{
+  margin-top:clamp(12px,1.389vw,35.56px);
+  margin-inline-end:auto;   /* RTL: נצמד לימין */
+  background:var(--surface);color:var(--accent-ink);flex:none;
+}.page-inner .event-card:hover .event-card__img{transform:scale(1.06)}.page-inner .event-card:hover .event-card__scrim{background:rgba(0,0,0,.55)}
+
+/* ---------- עמוד אירוע בודד ---------- */
+.page-inner .event-figure{margin-top:clamp(20px,2.778vw,71.11px)}.page-inner .event-figure img{
+  width:100%;aspect-ratio:16/9;object-fit:cover;
+  border-radius:var(--r-lg);box-shadow:var(--shadow);
+}.page-inner .event-figure figcaption{
+  margin-top:clamp(8px,0.833vw,21.33px);
+  font-size:var(--fs-sm);font-weight:300;color:var(--ink-soft);text-align:right;
+}
+/* ניווט לאירוע הקודם/הבא */
+.page-inner .event-nav{
+  margin-top:var(--v-sec);
+  display:flex;gap:clamp(12px,1.667vw,42.67px);flex-wrap:wrap;
+}.page-inner .event-nav__item{
+  flex:1 1 240px;min-width:0;
+  display:flex;flex-direction:column;gap:.4em;
+  padding:clamp(14px,1.667vw,42.67px) clamp(16px,1.944vw,49.78px);
+  border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface);
+  transition:border-color .2s ease,transform .3s var(--ease-expo),box-shadow .3s var(--ease-expo);
+}.page-inner .event-nav__item:hover{border-color:var(--accent);transform:translateY(-3px);box-shadow:var(--shadow-soft)}.page-inner .event-nav__label{font-size:var(--fs-sm);font-weight:300;color:var(--ink-soft)}.page-inner .event-nav__title{font-size:var(--fs-h3);text-align:right}
+
+/* ============================================================
+   CTA BAND - רצועת סיום לכל עמוד
+   ============================================================ */
+.page-inner .cta-band{
+  margin-top:var(--v-sec);
+  background:var(--accent);color:#fff;border-radius:var(--r-sm);
+  box-shadow:var(--shadow);
+  padding:clamp(24px,3.472vw,88.89px) clamp(18px,2.778vw,71.11px);
+  display:flex;align-items:center;justify-content:space-between;
+  gap:clamp(16px,2.222vw,56.89px);flex-wrap:wrap;
+}.page-inner .cta-band__copy{flex:1 1 320px;min-width:0}.page-inner .cta-band h2{font-size:var(--fs-band);text-align:right}.page-inner .cta-band p{
+  margin-top:clamp(6px,.833vw,21.33px);
+  font-size:var(--fs-prose);font-weight:300;line-height:var(--lh-prose);text-align:right;
+}.page-inner .cta-band .btn{flex:none}
+
+/* ============================================================
+   CONTACT
+   ============================================================ */
+.page-inner .contact-grid{
+  display:grid;grid-template-columns:1.15fr .85fr;
+  gap:clamp(24px,3.472vw,88.89px);align-items:start;
+}.page-inner .field{display:block;margin-bottom:clamp(14px,1.389vw,35.56px)}.page-inner .field span{
+  display:block;font-size:var(--fs-sm);margin-bottom:.5em;text-align:right;
+}.page-inner .field input,.page-inner .field textarea,.page-inner .field select{
+  width:100%;font:inherit;font-weight:300;font-size:var(--fs-body);
+  padding:.7em .9em;border:1px solid #D6D6D6;border-radius:var(--r-sm);
+  background:#FCFCFC;color:var(--ink);
+  transition:border-color .2s ease,box-shadow .2s ease;
+}.page-inner .field textarea{min-height:8em;resize:vertical;line-height:1.5}.page-inner .field input:focus,.page-inner .field textarea:focus,.page-inner .field select:focus{
+  outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-tint);
+}.page-inner .contact-cards{display:flex;flex-direction:column;gap:clamp(12px,1.389vw,35.56px)}.page-inner .contact-card{
+  display:flex;align-items:flex-start;gap:clamp(12px,1.111vw,28.44px);
+  background:var(--accent-soft);border-radius:var(--r-sm);
+  padding:clamp(14px,1.528vw,39.11px);
+  box-shadow:0 2px 6px rgba(0,0,0,.05),0 6px 16px rgba(0,0,0,.05);
+}.page-inner .contact-card__ico{
+  flex:none;width:clamp(34px,2.778vw,71.11px);height:clamp(34px,2.778vw,71.11px);
+  border-radius:12px;display:grid;place-items:center;
+  background:var(--surface);color:var(--accent-ink);box-shadow:0 3px 10px rgba(0,0,0,.07);
+}.page-inner .contact-card__ico svg{width:55%;height:55%}.page-inner .contact-card h3{font-size:var(--fs-body);margin-bottom:.3em}.page-inner .contact-card p,.page-inner .contact-card a{
+  font-size:var(--fs-sm);font-weight:300;line-height:1.55;color:var(--ink-soft);
+}.page-inner .contact-card a:hover{color:var(--accent-ink)}.page-inner .map-embed{
+  margin-top:clamp(16px,1.667vw,42.67px);border-radius:var(--r-sm);overflow:hidden;
+  box-shadow:var(--shadow);aspect-ratio:16/9;background:var(--accent-soft);
+}.page-inner .map-embed iframe{width:100%;height:100%;border:0;display:block}.page-inner .form-note{
+  margin-top:clamp(10px,1.111vw,28.44px);
+  font-size:var(--fs-sm);font-weight:300;color:var(--ink-soft);text-align:right;
+}
+
+/* ============================================================
+   FAQ
+   ============================================================ */
+.page-inner .faq{margin-top:clamp(20px,2.778vw,71.11px);display:flex;flex-direction:column;gap:clamp(8px,.833vw,21.33px)}.page-inner .faq details{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r-sm);
+  padding:clamp(14px,1.389vw,35.56px) clamp(16px,1.528vw,39.11px);
+  transition:border-color .25s ease,box-shadow .25s ease;
+}.page-inner .faq details[open]{border-color:var(--accent);box-shadow:var(--shadow-soft)}.page-inner .faq summary{
+  list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;
+  gap:1em;font-size:var(--fs-body);text-align:right;
+}.page-inner .faq summary::-webkit-details-marker{display:none}.page-inner .faq summary::after{
+  content:"";flex:none;width:.7em;height:.7em;
+  border-inline-end:2px solid var(--accent);border-block-end:2px solid var(--accent);
+  transform:rotate(45deg);transition:transform .3s var(--ease-expo);
+}.page-inner .faq details[open] summary::after{transform:rotate(-135deg)}.page-inner .faq p{
+  margin-top:.8em;font-size:var(--fs-prose);font-weight:300;
+  line-height:var(--lh-prose);color:var(--ink-soft);text-align:right;
+}
+
+/* ============================================================
+   STATS
+   ============================================================ */
+.page-inner .stats{
+  margin-top:clamp(20px,2.778vw,71.11px);
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:clamp(14px,1.667vw,42.67px);
+}.page-inner .stat{
+  background:var(--surface);border-radius:var(--r-sm);box-shadow:var(--shadow);
+  padding:clamp(16px,1.944vw,49.78px);text-align:center;
+  border-bottom:4px solid var(--stat-c,var(--accent));
+}.page-inner .stat__num{font-size:var(--fs-h2);color:var(--stat-c,var(--accent));line-height:1}
+/* כשה"מספר" הוא בעצם מילה - בגודל h2 היא נשברת ונראית דחוסה */
+.page-inner .stat__num--word{font-size:var(--fs-h3);line-height:1.15}.page-inner .stat__label{margin-top:.5em;font-size:var(--fs-sm);font-weight:300;color:var(--ink-soft);line-height:1.4}.page-inner .stat--blue{--stat-c:var(--brand-blue)}.page-inner .stat--yellow{--stat-c:var(--brand-yellow)}.page-inner .stat--coral{--stat-c:var(--brand-coral)}.page-inner .stat--green{--stat-c:var(--brand-green)}
+
+/* ============================================================
+   LIGHTBOX (משותף עם עמוד הבית)
+   ============================================================ */
+.page-inner .gallery-lightbox{
+  position:fixed;inset:0;z-index:1000;
+  display:flex;align-items:center;justify-content:center;
+  padding:clamp(16px,4vw,48px);
+  background:rgba(0,0,0,0);opacity:0;pointer-events:none;
+  transition:opacity .25s ease,background .25s ease;
+}.page-inner .gallery-lightbox.is-open{opacity:1;pointer-events:auto;background:rgba(0,0,0,.82)}.page-inner .gallery-lightbox img{
+  max-width:min(92vw,1100px);max-height:88vh;width:auto;height:auto;
+  border-radius:var(--r-sm);box-shadow:0 20px 60px rgba(0,0,0,.5);
+  transform:scale(.96);transition:transform .25s ease;
+}.page-inner .gallery-lightbox.is-open img{transform:scale(1)}.page-inner .gallery-lightbox__close{
+  position:absolute;top:clamp(12px,2.5vw,24px);right:clamp(12px,2.5vw,24px);
+  width:44px;height:44px;border-radius:50%;
+  background:rgba(255,255,255,.15);color:#fff;
+  font-size:28px;line-height:1;display:grid;place-items:center;
+  transition:background .2s ease;
+}.page-inner .gallery-lightbox__close:hover{background:rgba(255,255,255,.3)}
+
+/* ============================================================
+   FOOTER - פוטר ניטרלי ברוחב מלא, בלי מסגרת  (זהה ל-index.html)
+   ============================================================ */
+/* ה-<footer> יושב מחוץ ל-.frame (ראו ההערה ב-HTML), ולכן הוא כבר ברוחב
+   מלא ואפשר לצבוע אותו ישירות - בלי טריקים של 100vw, שלא מדויקים כי vw
+   כולל את רוחב פס הגלילה ויוצר סטייה של כמה פיקסלים בצד. */
+.page-inner .footer{
+  margin-top:var(--v-sec);padding-bottom:var(--v-page-end);
+  color:var(--ink);
+  background:var(--footer-bg);
+  border-top:1px solid var(--footer-line);
+  --fs-band:clamp(23px,2.778vw,71.11px);
+  --fs-body:clamp(16px,1.667vw,42.67px);
+  --footer-bg:#F4F5F6;
+  --footer-line:#E3E6E8;
+  --footer-link:#0E86BA;   /* כחול כהה יותר - צבע המותג לא קריא על אפור בהיר */
+}.page-inner .footer__band{
+  background:none;border-radius:0;box-shadow:none;color:inherit;
+  padding:clamp(28px,3.472vw,88.89px) 0 0;
+}.page-inner .footer__cta{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:clamp(16px,2.222vw,56.89px);flex-wrap:wrap;
+  padding-bottom:clamp(20px,2.778vw,71.11px);
+  border-bottom:1px solid var(--footer-line);
+}.page-inner .footer__cta-copy{flex:1 1 320px;min-width:0;--fs-band:clamp(18.4px,2.2224vw,56.89px);--fs-body:clamp(12.8px,1.3336vw,34.13px)}.page-inner .footer__cta h2{font-size:var(--fs-band);text-align:right;color:var(--ink)}.page-inner .footer__cta p{margin-top:clamp(6px,.833vw,21.33px);font-size:var(--fs-body);font-weight:300;line-height:var(--lh);text-align:right;color:var(--ink-soft)}.page-inner .footer__cta .btn--coral{flex:none;width:auto;padding-inline:clamp(22px,2.639vw,67.56px)}.page-inner .footer__grid{
+  display:grid;grid-template-columns:1.6fr 1fr 1fr 1.3fr;
+  gap:clamp(20px,2.778vw,71.11px);padding-block:clamp(24px,3.056vw,78.22px);
+}.page-inner .footer__logo{
+  display:flex;align-items:center;gap:.55em;
+  background:none;border-radius:0;padding:0;width:fit-content;
+}.page-inner .footer__logo .brand-mark__icon,.page-inner .footer__logo .brand-mark__stage{width:clamp(40px,5.4vw,76px)}.page-inner .footer__logo img{transition:transform .55s var(--ease-expo)}.page-inner .footer__logo:hover img{transform:scale(1.04)}.page-inner .footer__tagline{margin-top:clamp(10px,1.111vw,28.44px);font-size:clamp(14px,1.111vw,28.44px);font-weight:300;line-height:1.5;text-align:right;max-width:38ch;color:var(--ink-soft)}.page-inner .footer__amuta{margin-top:clamp(8px,.833vw,21.33px);font-size:clamp(12px,.903vw,23.11px);font-weight:300;line-height:1.5;text-align:right;color:var(--ink-soft);opacity:.85}.page-inner .footer__title{font-size:clamp(16px,1.319vw,33.78px);font-weight:500;text-align:right;margin:0 0 clamp(10px,1.111vw,28.44px);color:var(--ink)}.page-inner .footer__links,.page-inner .footer__contact,.page-inner .footer__legal{list-style:none;margin:0;padding:0}.page-inner .footer__links li+li,.page-inner .footer__contact li+li{margin-top:clamp(7px,.694vw,17.78px)}.page-inner .footer__links a,.page-inner .footer__contact a,.page-inner .footer__legal a{
+  font-size:clamp(14px,1.111vw,28.44px);font-weight:300;line-height:1.4;
+  position:relative;color:var(--ink-soft);transition:color .2s ease;
+}.page-inner .footer__links a:hover,.page-inner .footer__contact a:hover,.page-inner .footer__legal a:hover{color:var(--footer-link);text-decoration:underline}.page-inner .footer__contact li{display:flex;align-items:center;gap:clamp(7px,.694vw,17.78px);font-size:clamp(14px,1.111vw,28.44px);font-weight:300;line-height:1.4;color:var(--ink-soft)}.page-inner .footer__ico{flex:none;display:grid;place-items:center;width:1.15em;height:1.15em;color:var(--footer-link)}.page-inner .footer__ico svg{width:100%;height:100%;display:block}.page-inner .footer__social{display:flex;gap:clamp(8px,.833vw,21.33px);margin-top:clamp(14px,1.528vw,39.11px)}.page-inner .footer__social a{
+  display:grid;place-items:center;
+  width:clamp(34px,2.639vw,67.56px);height:clamp(34px,2.639vw,67.56px);
+  border-radius:50%;background:var(--surface);color:var(--ink-soft);
+  border:1px solid var(--footer-line);
+  transition:background .25s ease,color .25s ease,border-color .25s ease,transform .35s var(--ease-expo);
+}.page-inner .footer__social a:hover{background:var(--brand-blue);color:#fff;border-color:var(--brand-blue);transform:translateY(-3px)}.page-inner .footer__social svg{width:55%;height:55%;display:block}.page-inner .footer__bottom{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:clamp(10px,1.389vw,35.56px);flex-wrap:wrap;
+  padding-top:clamp(16px,1.667vw,42.67px);border-top:1px solid var(--footer-line);
+}.page-inner .footer__copy{font-size:clamp(12px,.972vw,24.89px);font-weight:300;color:var(--ink-soft)}.page-inner .footer__copy-group{display:flex;align-items:center;flex-wrap:wrap;gap:clamp(8px,1vw,25.6px)}.page-inner .footer__credit{
+  font-size:clamp(12px,.972vw,24.89px);font-weight:300;color:var(--ink-soft);
+  text-decoration:none;border-inline-start:1px solid var(--footer-line);padding-inline-start:clamp(8px,1vw,25.6px);
+  transition:color .2s ease;
+}.page-inner .footer__credit:hover{color:var(--footer-link);text-decoration:underline}.page-inner .footer__legal{display:flex;gap:clamp(12px,1.389vw,35.56px);flex-wrap:wrap}
+
+/* ============================================================
+   MOTION - מנוע החשיפה בגלילה (זהה ל-index.html)
+   ============================================================ */
+.page-inner .js [data-parallax]{will-change:transform}.page-inner .js [data-reveal]{
+  will-change:opacity,transform;
+  transition:
+    opacity var(--dur-reveal) var(--ease-expo) var(--d,0ms),
+    transform var(--dur-reveal) var(--ease-expo) var(--d,0ms);
+}.page-inner .js [data-reveal="up"]{opacity:0;transform:translate3d(0,34px,0)}.page-inner .js [data-reveal="fade"]{opacity:0}.page-inner .js [data-reveal="scale"]{opacity:0;transform:scale(.94)}.page-inner .js [data-reveal].is-in{opacity:1;transform:none;will-change:auto}.page-inner .js [data-reveal="lines"] .ln{display:block;overflow:hidden;padding-bottom:.08em;margin-bottom:-.08em}.page-inner .js [data-reveal="lines"] .ln>i{display:block;font-style:normal;transform:translate3d(0,115%,0);transition:transform 1.05s var(--ease-expo)}.page-inner .js [data-reveal="lines"] .ln:nth-child(2)>i{transition-delay:.10s}.page-inner .js [data-reveal="lines"] .ln:nth-child(3)>i{transition-delay:.20s}.page-inner .js [data-reveal="lines"].is-in .ln>i{transform:none}
+
+@media (prefers-reduced-motion:reduce){.page-inner .js [data-reveal],.page-inner .js [data-reveal="lines"] .ln>i,.page-inner .js .hero-cluster .dot{
+    opacity:1!important;transform:none!important;
+    animation:none!important;transition:none!important;
+  }.page-inner .progress{display:none}.page-inner .btn:hover,.page-inner .pillar:hover,.page-inner .tier-card:hover,.page-inner .mosaic a:hover img{transform:none!important}.page-inner .gallery-lightbox,.page-inner .gallery-lightbox img{transition:none}
+  /* התפריט המדורג נפתח מיידית, בלי החלקה ובלי השהיות מדורגות */
+  .page-inner .nav::before,.page-inner .nav::after,.page-inner .nav__links,.page-inner .nav__links>*{
+    transition-duration:.01ms!important;transition-delay:0s!important;
+  }}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width:1099px){.page-inner .page-hero__inner{gap:clamp(20px,3vw,36px)}.page-inner .hero-cluster{width:clamp(220px,32vw,380px)}.page-inner .prose--2col{columns:1}.page-inner .pillars,.page-inner .pillars--4{grid-template-columns:repeat(2,1fr)}.page-inner .tiers-grid,.page-inner .press-grid,.page-inner .event-grid{grid-template-columns:repeat(2,1fr)}.page-inner .press-card--featured{grid-column:span 2;grid-template-columns:1fr 1.1fr}}
+
+@media (max-width:899px){.page-inner .nav{
+    gap:0;justify-content:space-between;height:auto;
+    padding-block:clamp(10px,2vw,18px);position:relative;
+    --nav-sheet-w:min(86vw,400px);
+  }.page-inner .nav>.nav__link,.page-inner .nav>.nav__group,.page-inner .nav>.nav__cta{display:none}
+
+  /* ===== תפריט מדורג - מובייל וטאבלט בלבד =====
+     שתי שכבות צבע מותגיות נכנסות מימין בזו אחר זו, אחריהן הפאנל הלבן,
+     ואז פריטי התפריט עולים בהדרגה עם מספור. הכל ב-CSS על מערכת התנועה
+     הקיימת של האתר (--ease-expo) - בלי ספריית אנימציה. */
+  .page-inner .nav::before,.page-inner .nav::after{
+    content:"";position:fixed;top:0;right:0;bottom:0;
+    width:var(--nav-sheet-w);z-index:28;pointer-events:none;
+    transform:translateX(100%);
+    transition:transform .5s var(--ease-expo);
+  }.page-inner .nav::before{background:var(--brand-yellow);transition-delay:.14s}.page-inner .nav::after{background:var(--brand-blue);transition-delay:.07s}.page-inner .nav[data-open="true"]::before{transform:none;transition-delay:0s}.page-inner .nav[data-open="true"]::after{transform:none;transition-delay:.07s}
+
+  /* הלוגו והכפתור נשארים מעל הפאנל כדי שאפשר יהיה לסגור */
+  .page-inner .nav__logo{position:relative;z-index:30}.page-inner .nav__toggle{position:relative;z-index:31}.page-inner .nav__links{
+    display:flex;
+    position:fixed;top:0;right:0;bottom:0;left:auto;
+    width:var(--nav-sheet-w);z-index:29;
+    background:var(--surface);border-radius:0;
+    box-shadow:-14px 0 40px rgba(0,0,0,.16);
+    padding:calc(var(--v-header) + clamp(10px,3vw,18px)) clamp(20px,6vw,34px) clamp(24px,6vw,40px);
+    flex-direction:column;gap:clamp(4px,1.4vw,10px);text-align:right;
+    overflow-y:auto;overscroll-behavior:contain;
+    transform:translateX(100%);visibility:hidden;
+    transition:transform .5s var(--ease-expo) .12s,visibility 0s linear .62s;
+  }.page-inner .nav[data-open="true"] .nav__links{
+    transform:none;visibility:visible;
+    transition:transform .62s var(--ease-expo) .14s,visibility 0s linear 0s;
+  }
+  /* כל פריט עולה מלמטה עם סיבוב קל; --i נקבע ב-JS לפי סדר הפריטים */
+  .page-inner .nav__links>*{
+    opacity:0;transform:translateY(120%) rotate(6deg);transform-origin:100% 100%;
+    transition:opacity .45s ease,transform .8s var(--ease-expo);
+  }.page-inner .nav[data-open="true"] .nav__links>*{
+    opacity:1;transform:none;
+    transition-delay:calc(.24s + var(--i,0) * .045s);
+  }.page-inner .nav__links a{
+    position:relative;display:block;
+    font-size:clamp(17px,4.6vw,24px);font-weight:500;
+    padding-block:clamp(3px,.9vw,7px);
+    transition:color .2s ease;
+  }.page-inner .nav__links a:hover,.page-inner .nav__links a:focus-visible{color:var(--brand-blue)}
+  /* "לתרומות" מודגש ככפתור מלא - אותו כחול של ה-CTA בהאדר בדסקטופ.
+     נבחר לפי ה-href ולא לפי מחלקה, כדי לא לגעת ב-markup של 25 עמודים. */
+  .page-inner .nav__links a[href*="donate.html"]{
+    margin-top:clamp(16px,4.5vw,26px);
+    background:var(--brand-blue);color:#fff;
+    border-radius:var(--r-pill);
+    padding:clamp(11px,3vw,15px) clamp(18px,5vw,26px);
+    text-align:center;font-size:clamp(17px,4.4vw,22px);
+    box-shadow:4px 4px 4px rgba(0,0,0,.25);
+    transition:background .25s ease,transform .25s var(--ease-expo),box-shadow .25s ease;
+  }.page-inner .nav__links a[href*="donate.html"]:hover,.page-inner .nav__links a[href*="donate.html"]:focus-visible{
+    background:var(--brand-coral);color:#fff;
+    transform:translateY(-2px);box-shadow:0 10px 22px rgba(252,84,62,.34);
+  }.page-inner .nav__links .is-group-title{
+    font-size:clamp(12px,3.2vw,14px);font-weight:500;color:var(--ink-soft);
+    margin-top:clamp(8px,2.4vw,14px);opacity:.65;letter-spacing:.04em;
+  }.page-inner .nav__links .is-sub{padding-inline-start:14px}
+  /* align-content:center חיוני - בלעדיו שורות ה-grid נמתחות לגובה הכפתור (44px),
+     המרווח בין הפסים נעשה ~16.7px במקום 7px, והם לא נפגשים ל-X בפתיחה. */
+  /* order תואם ל-.nav במסך הבית (index.html): ההמבורגר ראשון (order:1)
+     כדי שיישאר צמוד לימין ב-RTL בכל עמודי האתר, לא רק בדף הבית. */
+  .page-inner .nav__toggle{display:grid;place-items:center;align-content:center;gap:5px;width:44px;height:44px;flex:none;order:1}.page-inner .nav__toggle span{display:block;width:24px;height:2px;background:var(--ink);border-radius:2px;transition:transform .3s var(--ease-expo),opacity .2s ease}.page-inner .nav[data-open="true"] .nav__toggle span:nth-child(1){transform:translateY(7px) rotate(45deg)}.page-inner .nav[data-open="true"] .nav__toggle span:nth-child(2){opacity:0}.page-inner .nav[data-open="true"] .nav__toggle span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}.page-inner .nav__logo{order:2}.page-inner .nav__logo .brand-mark__icon,.page-inner .nav__logo .brand-mark__stage{width:clamp(38px,10vw,54px)}.page-inner .page-hero__inner{flex-direction:column;align-items:stretch}.page-inner .page-hero h1{max-width:none}.page-inner .page-hero__lead{max-width:none}
+  /* בלי order:-1 - פירורי הלחם והכותרת צריכים להישאר בראש העמוד גם במובייל */
+  .page-inner .hero-cluster{width:min(100%,460px);margin-inline:auto;margin-top:clamp(20px,5vw,32px)}.page-inner .split{grid-template-columns:1fr}.page-inner .split--flip .split__media{order:0}.page-inner .split__media img,.page-inner .split__media--tall img{aspect-ratio:16/10}.page-inner .split__badge{position:static;margin-top:12px;max-width:none;inset:auto}.page-inner .person{grid-template-columns:1fr;text-align:center}.page-inner .person__photo{width:min(58%,240px);margin-inline:auto}.page-inner .person__quote,.page-inner .person__name,.page-inner .person__role{text-align:center}
+
+  /* במובייל אין מקום לדמות לצד הטקסט - היא עולה למעלה, ממורכזת,
+     ועדיין בולטת מעל הכרטיס כמו בעיצוב. --m-pop הוא כמה היא בולטת;
+     ה-margin-top מפנה בדיוק את המקום הזה + רווח, אחרת היא מכסה את
+     כותרת הסקשן שמעליה. */
+  .page-inner .person--portrait{
+    --portrait-w:min(62%,260px);
+    --m-pop:calc(var(--portrait-rise) * 0.5);
+    display:block;
+    padding-inline-start:clamp(24px,3.056vw,78.22px);
+    padding-top:calc(var(--portrait-h) - var(--m-pop) + clamp(14px,3.5vw,22px));
+    margin-top:calc(var(--m-pop) + clamp(18px,5vw,32px));
+    min-height:0;text-align:center;
+  }.page-inner .person--portrait .person__portrait{
+    inset-inline-start:50%;bottom:auto;top:calc(-1 * var(--m-pop));
+    transform:translateX(50%);            /* RTL: מרכוז מול inset-inline-start */
+  }.page-inner .person--portrait .person__quote{text-align:center}
+  /* במובייל בלבד: הגרשיים עוברים לקצה הימני (בדסקטופ הם בקצה השמאלי) */
+  .page-inner .person--portrait .person__quote-icon{inset-inline-end:auto;inset-inline-start:0;transform:translateY(-50%)}.page-inner .contact-grid{grid-template-columns:1fr}.page-inner .donate-box{grid-template-columns:1fr}.page-inner .footer__grid{grid-template-columns:1fr 1fr}.page-inner .footer__brand{grid-column:1 / -1}.page-inner .mosaic{grid-template-columns:repeat(2,1fr)}.page-inner .mosaic__wide{grid-column:span 2}
+
+  /* הגדלת כל הטקסטים ב-10% במובייל, מלבד ההירו הפנימי (page-hero) - שם
+     הכותרת/פסקה/כפתורים משחזרים את הגדלים המקוריים (לפני ההגדלה). */
+  .page-inner{
+    --fs-h2:clamp(24.64px,2.93304vw,75.09px);
+    --fs-h3:clamp(19.36px,2.2vw,56.32px);
+    --fs-band:clamp(20.24px,2.44464vw,62.58px);
+    --fs-body:clamp(14.08px,1.46696vw,37.55px);
+    --fs-sm:clamp(13.2px,1.1462vw,29.33px);
+    --fs-prose:clamp(16.5px,1.5279vw,39.11px);
+  }.page-inner .page-hero{
+    --fs-sm:clamp(12px,1.042vw,26.67px);
+    --fs-prose:clamp(15px,1.389vw,35.56px);
+    --fs-body:clamp(12.8px,1.3336vw,34.13px);
+  }}
+
+@media (max-width:639px){.page-inner .btn--pill,.page-inner .btn--rect{width:auto;min-width:140px;padding-inline:16px}.page-inner .btn--wide{width:100%}.page-inner .cta-band .btn{width:100%}
+  /* הפוטר במובייל: שתי עמודות במקום ערימה אחת ארוכה.
+     שורה 1: "מפת האתר" (ימין) ו"תמכו בנו" (שמאל).
+     שורה 2: "צרו קשר" (ימין) והלוגו/תקציר העמותה (שמאל). */
+  .page-inner .footer__grid{
+    grid-template-columns:1fr 1fr;
+    grid-template-areas:
+      "site support"
+      "contact brand";
+    /* רווח-שורות מוגדל בכוונה: עמודת הלוגו נמשכת כלפי מעלה ב-54px
+       (ראו .footer__brand למטה), וצריך מקום פנוי מעל כדי שלא תתנגש
+       ב"תמכו בנו" שמעליה */
+    gap:clamp(30px,9vw,40px) clamp(12px,4vw,20px);
+    padding-block:clamp(20px,5vw,30px);
+  }.page-inner .footer__grid>:nth-child(1){grid-area:brand}.page-inner .footer__grid>:nth-child(2){grid-area:site}.page-inner .footer__grid>:nth-child(3){grid-area:support}.page-inner .footer__grid>:nth-child(4){grid-area:contact}
+  /* בחצי עמודה המייל הארוך היה גולש החוצה - מאפשרים לו להישבר */
+  .page-inner .footer__contact li{align-items:flex-start}.page-inner .footer__contact li>a,.page-inner .footer__contact li>span:not(.footer__ico){
+    min-width:0;overflow-wrap:anywhere;
+  }.page-inner .footer__ico{margin-top:.15em}
+  /* הלוגו נשאר בגודלו הרגיל. במקום להקטין אותו, כל עמודת הלוגו נמשכת
+     כלפי מעלה כך שהתקציר ("עמותה לילדים על הרצף...") יתיישר בדיוק על
+     הקו של "יצחק שדה". 54px = גובה הלוגו (77) + המרווח מתחתיו (5)
+     פחות גובה הכותרת "צרו קשר" והמרווח שלה (28). כל הרכיבים האלה
+     קבועים במובייל, ולכן הערך יציב לכל רוחב מסך בטווח. */
+  .page-inner .footer__brand{margin-top:-54px}.page-inner .footer__tagline{margin-top:clamp(4px,1.4vw,8px)}.page-inner .footer__amuta{margin-top:clamp(5px,1.6vw,9px)}.page-inner .footer__cta .btn--wide{width:100%}
+  /* בשורה התחתונה: קודם קישורי התקנון/פרטיות/נגישות, ורק מתחתיהם
+     זכויות היוצרים והקרדיט */
+  .page-inner .footer__bottom{
+    flex-direction:column;align-items:flex-start;
+    justify-content:flex-start;gap:clamp(10px,3vw,16px);
+  }.page-inner .footer__legal{order:-1}.page-inner .quote p{max-width:none}.page-inner .mosaic{grid-auto-rows:clamp(100px,30vw,140px)}.page-inner .pillars,.page-inner .pillars--4,.page-inner .tiers-grid,.page-inner .press-grid,.page-inner .event-grid,.page-inner .checklist{grid-template-columns:1fr}.page-inner .event-card{aspect-ratio:16/12}.page-inner .press-card--featured{grid-column:span 1;grid-template-columns:1fr}.page-inner .press-card--featured .press-card__thumb{aspect-ratio:350/190}.page-inner .press-card--featured h3{margin-top:clamp(10px,1.222vw,32px);font-size:var(--fs-h3)}.page-inner .seg--amounts{grid-template-columns:repeat(2,1fr)}}

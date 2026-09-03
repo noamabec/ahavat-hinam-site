@@ -1,0 +1,36 @@
+/* ============================================================
+   כללים גלובליים ברמת המסמך.
+   ------------------------------------------------------------
+   אלה הכללים שהופיעו זהים בשני גיליונות המקור (עמוד הבית
+   והעמודים הפנימיים) וחלים על html/body, ולכן הם לא עברו בידוד
+   תחת מחלקת עטיפה אלא רוכזו כאן פעם אחת.
+   ============================================================ */
+
+html, body { margin: 0; padding: 0; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+body {
+  min-height: 100dvh;
+  width: 100%;
+  overflow-x: hidden;
+  background: #FFFFFF;
+  color: #000000;
+  font-family: 'Fb Coherenti Sans', 'Heebo', 'Assistant', 'Segoe UI', system-ui, sans-serif;
+  font-weight: 500;
+  line-height: 1.0833;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* נעילת גלילה בזמן לייטבוקס/גלריה - חייבת לחול על body עצמו */
+body.gallery-lightbox-lock { overflow: hidden; }
+body.dg-scroll-lock { overflow: hidden; }
+
+/* פס ההתקדמות העליון מוסתר עד שה-JS עולה, כדי שלא יהבהב */
+html:not(.js) .progress { display: none; }
