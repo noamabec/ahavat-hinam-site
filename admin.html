@@ -281,6 +281,11 @@ tbody tr:hover{background:#FCFDFF}
 .tchips button{height:32px;padding:0 13px;border-radius:99px;border:1px solid var(--line);background:#fff;font-size:13px;color:var(--ink-2);white-space:nowrap}
 .tchips button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
 .tcount{margin-inline-start:auto;font-size:12.5px;color:var(--ink-3);white-space:nowrap}
+.tdate{display:flex;align-items:center;gap:6px}
+.tdate input[type=date]{height:36px;border-radius:9px;border:1px solid var(--line);background:var(--bg);padding:0 10px;font-size:13px;color:var(--ink);outline:0}
+.tdate input[type=date]:focus{border-color:var(--blue);background:#fff}
+.tdate span{color:var(--ink-3);font-size:12px}
+@media (max-width:560px){ .tdate{flex-wrap:wrap} }
 th[data-sort]{cursor:pointer;user-select:none;white-space:nowrap}
 th[data-sort] .sarr{display:inline-block;opacity:.35;font-size:11px;margin-inline-start:3px}
 th[data-sort].on .sarr{opacity:1}
@@ -518,7 +523,7 @@ th[data-sort].on .sarr{opacity:1}
     <nav class="navlist" id="nav">
       <div class="grp">ראשי</div>
       <a href="#/" data-r="/"><span class="ic"><svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></span>סקירה כללית</a>
-      <a href="#/donations" data-r="/donations"><span class="ic"><svg viewBox="0 0 24 24"><path d="M20.8 5.6a5 5 0 0 0-7.1 0L12 7.3l-1.7-1.7a5 5 0 0 0-7.1 7.1L12 21l8.8-8.3a5 5 0 0 0 0-7.1z"/></svg></span>תרומות ותעודות<span class="badge" id="pendBadge">3</span></a>
+      <a href="#/donations" data-r="/donations"><span class="ic"><svg viewBox="0 0 24 24"><path d="M20.8 5.6a5 5 0 0 0-7.1 0L12 7.3l-1.7-1.7a5 5 0 0 0-7.1 7.1L12 21l8.8-8.3a5 5 0 0 0 0-7.1z"/></svg></span>תרומות</a>
       <a href="#/standing-orders" data-r="/standing-orders"><span class="ic"><svg viewBox="0 0 24 24"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></span>הוראות קבע<span class="badge" id="soBadge" style="display:none">0</span></a>
 
       <div class="grp">תוכן האתר</div>
@@ -573,17 +578,17 @@ th[data-sort].on .sarr{opacity:1}
    נתוני דוגמה
    ============================================================ */
 var DONORS = [
-  {id:1, name:'מיכל אברהמי',  email:'michal@example.com',  amount:360, type:'חד-פעמי',  date:'24.08.2026', cert:'sent',  gender:'f'},
-  {id:2, name:'יוסי בן-דוד',   email:'yossi@example.com',   amount:1000,type:'הוראת קבע',date:'24.08.2026', cert:'sent',  gender:'m'},
-  {id:3, name:'שרה כהן',       email:'sarah@example.com',   amount:180, type:'חד-פעמי',  date:'23.08.2026', cert:'pend',  gender:'f'},
-  {id:4, name:'אבי מזרחי',     email:'avi@example.com',     amount:500, type:'חד-פעמי',  date:'23.08.2026', cert:'pend',  gender:'m'},
-  {id:5, name:'נועה פרידמן',   email:'noa@example.com',     amount:250, type:'הוראת קבע',date:'22.08.2026', cert:'sent',  gender:'f'},
-  {id:6, name:'דוד לוי',       email:'david@example.com',   amount:120, type:'חד-פעמי',  date:'22.08.2026', cert:'fail',  gender:'m'},
-  {id:7, name:'תמר שגיא',      email:'tamar@example.com',   amount:750, type:'חד-פעמי',  date:'21.08.2026', cert:'sent',  gender:'f'},
-  {id:8, name:'רון אלמוג',     email:'ron@example.com',     amount:200, type:'הוראת קבע',date:'21.08.2026', cert:'sent',  gender:'m'},
+  {id:1, name:'מיכל אברהמי',  email:'michal@example.com',  amount:360, type:'חד-פעמי',  date:'24.08.2026',  gender:'f'},
+  {id:2, name:'יוסי בן-דוד',   email:'yossi@example.com',   amount:1000,type:'הוראת קבע',date:'24.08.2026',  gender:'m'},
+  {id:3, name:'שרה כהן',       email:'sarah@example.com',   amount:180, type:'חד-פעמי',  date:'23.08.2026',  gender:'f'},
+  {id:4, name:'אבי מזרחי',     email:'avi@example.com',     amount:500, type:'חד-פעמי',  date:'23.08.2026',  gender:'m'},
+  {id:5, name:'נועה פרידמן',   email:'noa@example.com',     amount:250, type:'הוראת קבע',date:'22.08.2026',  gender:'f'},
+  {id:6, name:'דוד לוי',       email:'david@example.com',   amount:120, type:'חד-פעמי',  date:'22.08.2026',  gender:'m'},
+  {id:7, name:'תמר שגיא',      email:'tamar@example.com',   amount:750, type:'חד-פעמי',  date:'21.08.2026',  gender:'f'},
+  {id:8, name:'רון אלמוג',     email:'ron@example.com',     amount:200, type:'הוראת קבע',date:'21.08.2026',  gender:'m'},
   /* תרומות חוזרות של אותו תורם - כדי שעמודת "סה״כ תרומות" תשקף היסטוריה אמיתית ולא רק שורה בודדת */
-  {id:9, name:'מיכל אברהמי',  email:'michal@example.com',  amount:180, type:'חד-פעמי',  date:'02.06.2026', cert:'sent',  gender:'f'},
-  {id:10,name:'תמר שגיא',      email:'tamar@example.com',   amount:300, type:'חד-פעמי',  date:'11.03.2026', cert:'sent',  gender:'f'}
+  {id:9, name:'מיכל אברהמי',  email:'michal@example.com',  amount:180, type:'חד-פעמי',  date:'02.06.2026',  gender:'f'},
+  {id:10,name:'תמר שגיא',      email:'tamar@example.com',   amount:300, type:'חד-פעמי',  date:'11.03.2026',  gender:'f'}
 ];
 
 /* הוראות קבע - מסך נפרד ממעקב התרומות: כאן עוקבים אחרי מצב ההרשאה החוזרת
@@ -640,16 +645,6 @@ function toast(msg){
   clearTimeout(t._h); t._h=setTimeout(function(){ t.classList.remove('on'); },2300);
 }
 
-var CERT = {
-  sent:{c:'ok',   t:'נשלחה'},
-  pend:{c:'wait', t:'ממתינה'},
-  fail:{c:'err',  t:'נכשלה'}
-};
-function certPill(s){
-  var m=CERT[s]||CERT.pend;
-  return '<span class="pill pill--'+m.c+'"><i></i>'+m.t+'</span>';
-}
-
 var SOSTATUS = {
   active:{c:'ok',   t:'פעילה'},
   failed:{c:'err',  t:'נכשל חיוב'},
@@ -673,9 +668,7 @@ function donorTotals(){
   return map;
 }
 function updateBadges(){
-  var pend = DONORS.filter(function(d){ return d.cert!=='sent'; }).length;
   var failedSO = STANDING_ORDERS.filter(function(s){ return s.status==='failed'; }).length;
-  var b1=$('#pendBadge'); if(b1) b1.textContent = pend;
   var b2=$('#soBadge');
   if(b2){ b2.textContent = failedSO; b2.style.display = failedSO ? '' : 'none'; }
 }
@@ -701,8 +694,8 @@ var R = {};
 R['/'] = function(){
   ttl.textContent='סקירה כללית';
   var total = DONORS.reduce(function(a,d){ return a+d.amount; },0);
-  var pend  = DONORS.filter(function(d){ return d.cert!=='sent'; }).length;
   var donorCount = Object.keys(donorTotals()).length;
+  var avg = Math.round(total/DONORS.length);
   var keva  = STANDING_ORDERS.filter(function(s){ return s.status==='active'; }).length;
 
   var rows = DONORS.slice(0,5).map(function(d,i){
@@ -711,7 +704,6 @@ R['/'] = function(){
         '<span><b>'+esc(d.name)+'</b><span>'+esc(d.email)+'</span></span></div></td>'+
       '<td data-l="סכום"><span class="money">'+ils(d.amount)+'</span></td>'+
       '<td data-l="סוג">'+esc(d.type)+'</td>'+
-      '<td data-l="תעודה">'+certPill(d.cert)+'</td>'+
       '<td data-l="תאריך">'+esc(d.date)+'</td></tr>';
   }).join('');
 
@@ -719,15 +711,14 @@ R['/'] = function(){
   '<div class="cards">'+
     kpi('סה״כ החודש', ils(total), '+12% מהחודש שעבר', 'var(--blue)', true)+
     kpi('תורמים החודש', donorCount, keva+' הוראות קבע פעילות', 'var(--green)')+
-    kpi('תעודות שנשלחו', DONORS.filter(function(d){return d.cert==='sent';}).length, 'אוטומטית לאחר תרומה', 'var(--yellow)')+
-    kpi('ממתינות לטיפול', pend, pend? 'דורש בדיקה' : 'הכל תקין', 'var(--coral)')+
+    kpi('תרומה ממוצעת', ils(avg), 'על פני '+DONORS.length+' תרומות', 'var(--yellow)')+
   '</div>'+
 
   '<div class="two" style="margin-top:16px">'+
     '<div class="panel">'+
       '<div class="panel__head"><h3>תרומות אחרונות</h3>'+
         '<a class="btn btn--g btn--sm sp" href="#/donations">לכל התרומות</a></div>'+
-      '<table><thead><tr><th>תורם</th><th>סכום</th><th>סוג</th><th>תעודה</th><th>תאריך</th></tr></thead>'+
+      '<table><thead><tr><th>תורם</th><th>סכום</th><th>סוג</th><th>תאריך</th></tr></thead>'+
       '<tbody>'+rows+'</tbody></table>'+
     '</div>'+
     '<div class="stack">'+
@@ -735,7 +726,7 @@ R['/'] = function(){
         '<div style="padding:16px;display:grid;gap:9px">'+
           '<a class="btn btn--p" href="#/events">'+ico('plus')+'הוספת אירוע חדש</a>'+
           '<a class="btn btn--g" href="#/gallery">'+ico('img')+'העלאת תמונות לגלריה</a>'+
-          '<a class="btn btn--g" href="#/donations">'+ico('mail')+'שליחת תעודה ידנית</a>'+
+          '<a class="btn btn--g" href="#/donations">'+ico('eye')+'לכל התרומות</a>'+
         '</div>'+
       '</div>'+
       '<div class="panel"><div class="panel__head"><h3>מצב האתר</h3></div>'+
@@ -774,17 +765,23 @@ function ico(k){
 }
 
 /* ---------- תרומות ותעודות ---------- */
-var DSTATE = { q:'', type:'all', cert:'all', sort:'date', dir:'desc' };
+var DSTATE = { q:'', type:'all', from:'', to:'', sort:'date', dir:'desc' };
 
-function dateVal(s){ /* dd.mm.yyyy -> ממויין */
+function dateVal(s){ /* dd.mm.yyyy -> מספר בר-השוואה, yyyymmdd */
   var p=s.split('.'); return +(p[2]+p[1]+p[0]);
+}
+function isoToVal(iso){ /* yyyy-mm-dd (מ-input[type=date]) -> yyyymmdd */
+  return iso ? +iso.replace(/-/g,'') : null;
 }
 function filteredDonors(){
   var q = DSTATE.q.trim();
+  var fromV = isoToVal(DSTATE.from), toV = isoToVal(DSTATE.to);
   var list = DONORS.filter(function(d){
     if(DSTATE.type!=='all' && d.type!==DSTATE.type) return false;
-    if(DSTATE.cert!=='all' && d.cert!==DSTATE.cert) return false;
     if(q && d.name.indexOf(q)===-1 && d.email.toLowerCase().indexOf(q.toLowerCase())===-1) return false;
+    var dv = dateVal(d.date);
+    if(fromV!==null && dv<fromV) return false;
+    if(toV!==null && dv>toV) return false;
     return true;
   });
   list.sort(function(a,b){
@@ -796,15 +793,16 @@ function filteredDonors(){
   return list;
 }
 R['/donations'] = function(){
-  ttl.textContent='תרומות ותעודות';
+  ttl.textContent='תרומות';
 
   var totals = donorTotals();
 
   function renderRows(){
     var list = filteredDonors();
-    $('#dCount').textContent = list.length+' מתוך '+DONORS.length+' רשומות';
+    var sum = list.reduce(function(a,d){ return a+d.amount; },0);
+    $('#dCount').textContent = list.length+' מתוך '+DONORS.length+' רשומות · '+ils(sum);
     if(!list.length){
-      $('#dBody').innerHTML = '<tr><td colspan="6"><p class="empty">אין תרומות התואמות את הסינון.</p></td></tr>';
+      $('#dBody').innerHTML = '<tr><td colspan="5"><p class="empty">אין תרומות התואמות את הסינון.</p></td></tr>';
       return;
     }
     $('#dBody').innerHTML = list.map(function(d,i){
@@ -818,12 +816,7 @@ R['/donations'] = function(){
         '<td data-l="סכום"><span class="money">'+ils(d.amount)+'</span></td>'+
         '<td data-l="סוג">'+esc(d.type)+'</td>'+
         '<td data-l="תאריך">'+esc(d.date)+'</td>'+
-        '<td data-l="תעודה">'+certPill(d.cert)+'</td>'+
-        '<td data-l="סה״כ תורם">'+totalCell+'</td>'+
-        '<td data-l="פעולות"><div class="rowacts">'+
-          '<button class="btn btn--g btn--sm" data-prev="'+d.id+'">'+ico('eye')+'תצוגה</button>'+
-          '<button class="btn btn--g btn--sm" data-send="'+d.id+'">'+ico('send')+'שליחה מחדש</button>'+
-        '</div></td></tr>';
+        '<td data-l="סה״כ תורם">'+totalCell+'</td></tr>';
     }).join('');
   }
 
@@ -833,7 +826,6 @@ R['/donations'] = function(){
   }
 
   view.innerHTML =
-  '<div class="certWrap">'+
     '<div class="panel">'+
       '<div class="panel__head"><h3>כל התרומות</h3></div>'+
       '<div class="tbar">'+
@@ -844,11 +836,11 @@ R['/donations'] = function(){
           '<button data-v="חד-פעמי">חד-פעמי</button>'+
           '<button data-v="הוראת קבע">הוראת קבע</button>'+
         '</div>'+
-        '<div class="tchips" id="dCertChips">'+
-          '<button data-v="all" class="on">כל התעודות</button>'+
-          '<button data-v="sent">נשלחה</button>'+
-          '<button data-v="pend">ממתינה</button>'+
-          '<button data-v="fail">נכשלה</button>'+
+        '<div class="tdate">'+
+          '<input type="date" id="dFrom" aria-label="מתאריך" />'+
+          '<span>—</span>'+
+          '<input type="date" id="dTo" aria-label="עד תאריך" />'+
+          '<button id="dDateClear" class="btn btn--g btn--sm" hidden>נקה תאריכים</button>'+
         '</div>'+
         '<span class="tcount" id="dCount"></span>'+
       '</div>'+
@@ -857,26 +849,16 @@ R['/donations'] = function(){
         '<th data-sort="amount">סכום'+sortArrow('amount')+'</th>'+
         '<th>סוג</th>'+
         '<th data-sort="date">תאריך'+sortArrow('date')+'</th>'+
-        '<th>תעודה</th>'+
         '<th>סה״כ תורם</th>'+
-        '<th></th></tr></thead>'+
+        '</tr></thead>'+
       '<tbody id="dBody"></tbody></table>'+
-    '</div>'+
+    '</div>';
 
-    '<div class="certStage">'+
-      '<h3 style="font-size:16px;margin-bottom:4px">תצוגת התעודה</h3>'+
-      '<p class="hint" style="margin-bottom:14px">השם נכתב על התבנית אוטומטית. הקלד כדי לראות.</p>'+
-      '<div class="field"><label>שם התורם</label><input id="cName" value="מיכל אברהמי" /></div>'+
-      '<div class="cert"><img src="./public/images/certificate-template.jpg" alt="תבנית התעודה" />'+
-        '<div class="certName"><span id="cOut">מיכל אברהמי</span></div></div>'+
-      '<p class="certHint">כך תיראה התעודה שתישלח למייל</p>'+
-    '</div>'+
-  '</div>';
-
+  $('#dFrom').value = DSTATE.from; $('#dTo').value = DSTATE.to;
   renderRows();
 
-  var nameEl=$('#cName'), outEl=$('#cOut');
-  nameEl.oninput=function(){ outEl.textContent = nameEl.value || 'שם התורם'; };
+  function syncClearBtn(){ $('#dDateClear').hidden = !(DSTATE.from || DSTATE.to); }
+  syncClearBtn();
 
   $('#dSearch').oninput=function(e){ DSTATE.q=e.target.value; renderRows(); };
   $('#dTypeChips').addEventListener('click',function(e){
@@ -885,12 +867,12 @@ R['/donations'] = function(){
     Array.prototype.forEach.call(this.querySelectorAll('button'),function(x){ x.classList.toggle('on', x===b); });
     renderRows();
   });
-  $('#dCertChips').addEventListener('click',function(e){
-    var b=e.target.closest('button'); if(!b) return;
-    DSTATE.cert=b.dataset.v;
-    Array.prototype.forEach.call(this.querySelectorAll('button'),function(x){ x.classList.toggle('on', x===b); });
-    renderRows();
-  });
+  $('#dFrom').onchange=function(e){ DSTATE.from=e.target.value; syncClearBtn(); renderRows(); };
+  $('#dTo').onchange=function(e){ DSTATE.to=e.target.value; syncClearBtn(); renderRows(); };
+  $('#dDateClear').onclick=function(){
+    DSTATE.from=''; DSTATE.to=''; $('#dFrom').value=''; $('#dTo').value='';
+    syncClearBtn(); renderRows();
+  };
   view.addEventListener('click', function(e){
     var th=e.target.closest('th[data-sort]');
     if(th){
@@ -898,15 +880,9 @@ R['/donations'] = function(){
       if(DSTATE.sort===key) DSTATE.dir = DSTATE.dir==='asc' ? 'desc' : 'asc';
       else { DSTATE.sort=key; DSTATE.dir='desc'; }
       route(); // מרנדר מחדש את כל המסך כדי לעדכן גם את חצי המיון בכותרות
-      return;
     }
-    var p=e.target.closest('[data-prev]'), s=e.target.closest('[data-send]');
-    if(p){ var d=byId(+p.dataset.prev); nameEl.value=d.name; outEl.textContent=d.name;
-      nameEl.scrollIntoView({behavior:'smooth',block:'center'}); }
-    if(s){ var d2=byId(+s.dataset.send); toast('התעודה נשלחה שוב אל '+d2.email); }
   });
 };
-function byId(id){ for(var i=0;i<DONORS.length;i++) if(DONORS[i].id===id) return DONORS[i]; }
 
 /* ---------- הוראות קבע ---------- */
 R['/standing-orders'] = function(){
