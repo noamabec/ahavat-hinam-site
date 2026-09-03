@@ -1,9 +1,337 @@
 /* ============================================================
    הלוגיקה הייחודית לעמוד הבית - חולצה מ-<script> פנימי ב-index.html.
-   נשמרה כ-JS ואנילה במכוון: כאן יושבים ה-WebGL של רצועת הגלריה
-   ואפקט חשיפת הווידאו בגלילה, שנבנו ואומתו מול האתר החי. שכתוב
-   שלהם ל-React היה מסכן את הנאמנות בלי להוסיף ערך.
+   נשמרה כ-JS ואנילה במכוון: כאן יושבים הקרוסלה של האירועים/עיתונות,
+   אפקט חשיפת הווידאו בגלילה, רצועת לוגואי השותפים, וה-WebGL של
+   רצועת הגלריה - כולם נבנו ואומתו מול האתר החי. שכתוב שלהם ל-React
+   היה מסכן את הנאמנות בלי להוסיף ערך.
+
+   הערה על 2026-09-03: בהמרה המקורית חולץ רק הבלוק האחרון (הגלריה
+   התלת-ממדית) - שלושת הבלוקים למעלה (קרוסלה, וידאו, שותפים) נשמטו
+   בטעות ולא רצו כלל. הם שוחזרו כאן מ-build/index.html המקורי.
    ============================================================ */
+
+/* ---------- קרוסלת "אנחנו בתקשורת" ו"האירועים שהיו" (במובייל) ---------- */
+function initCarousel(trackId, prevSel, nextSel, mobileOnly){
+(function(){
+  var track = document.getElementById(trackId);
+  if(!track) return;
+  /* events__grid הוא רשת בנטו רגילה בדסקטופ/טאבלט (מיפוי grid-area לפי
+     nth-child) והופך לקרוסלה רק במובייל - שכפול הכרטיסים כאן היה שובר
+     את המיפוי הזה, לכן מריצים את לוגיקת הקרוסלה רק אם ההרחבה מובייל. */
+  if (mobileOnly && !matchMedia('(max-width:639px)').matches) return;
+  var prevBtn = document.querySelector(prevSel);
+  var nextBtn = document.querySelector(nextSel);
+
+  var originalCards = Array.prototype.slice.call(track.children);
+  var n = originalCards.length;
+  if (n === 0) return;
+
+  /* משכפלים את הכתבות פי 3 (עותק אמיתי באמצע + עותק "רפאים" בכל צד) -
+     כי כרגע יש מעט מדי כתבות בשביל לופ אינסופי אמיתי בלי שכפול.
+     רק העותק האמצעי נגיש (ARIA/טאב), כדי שקורא מסך לא יקרא כל כתבה 3 פעמים. */
+  var REPEATS = 3;
+  var frag = document.createDocumentFragment();
+  for (var copy = 0; copy < REPEATS; copy++){
+    originalCards.forEach(function(card){
+      var clone = card.cloneNode(true);
+      if (copy !== 1){
+        clone.setAttribute('aria-hidden', 'true');
+        Array.prototype.forEach.call(clone.querySelectorAll('a'), function(a){ a.setAttribute('tabindex','-1'); });
+      }
+      frag.appendChild(clone);
+    });
+  }
+  track.textContent = '';
+  track.appendChild(frag);
+
+  var cards = Array.prototype.slice.call(track.children);
+  var mid = n; /* תחילת העותק האמצעי (האמיתי) */
+
+  /* האינדקס הנוכחי נקבע תמיד לפי המיקום האמיתי בגלילה (לא ממשתנה שמור בצד) -
+     כך לחיצה תמיד זזה מהמקום שבו הקרוסלה באמת נמצאת, גם אם המשתמש גלל ידנית
+     בין הלחיצות, וזו הסיבה שהניווט הרגיש לפעמים "שבור" או חוזר אחורה. */
+  function currentIndex(){
+    var trackRect = track.getBoundingClientRect();
+    var best = mid, bestDist = Infinity;
+    cards.forEach(function(card, i){
+      var dist = Math.abs(card.getBoundingClientRect().right - trackRect.right);
+      if (dist < bestDist){ bestDist = dist; best = i; }
+    });
+    return best;
+  }
+
+  /* אם התדרדרנו לעותק ה"רפאים" - קופצים בשקט (בלי אנימציה) לאינדקס המקביל
+     בעותק האמצעי, *לפני* התזוזה הבאה. כך אין תלות בניחוש מתי אנימציית
+     ה-smooth-scroll נגמרת (זה מה שגרם לניווט להרגיש לא אמין / הפוך). */
+  /* scrollIntoView עם block:'nearest' עדיין מסוגל לגלול את *העמוד* אנכית
+     כשהאלמנט לא גלוי במלואו (למשל בטעינה ראשונית, לפני שהמשתמש הגיע
+     לסקשן) - וזו הייתה הסיבה שדף הבית "קפץ" ישר לסקשן "בתקשורת" בטעינה.
+     שומרים את מיקום הגלילה האנכי ומשחזרים אותו מיד אחרי הקריאה, כדי
+     שרק הגלילה האופקית של הקרוסלה תתבצע בפועל. */
+  function scrollCardIntoView(el, opts){
+    var y = window.scrollY;
+    el.scrollIntoView(opts);
+    if (window.scrollY !== y) window.scrollTo(window.scrollX, y);
+  }
+
+  function recenterIfNeeded(){
+    var ci = currentIndex();
+    var copy = Math.floor(ci / n);
+    if (copy !== 1){
+      var rel = ((ci % n) + n) % n;
+      scrollCardIntoView(cards[mid + rel], { behavior:'auto', inline:'start', block:'nearest' });
+    }
+  }
+
+  function go(step){
+    recenterIfNeeded();
+    var i = currentIndex() + step;
+    i = Math.max(0, Math.min(cards.length - 1, i));
+    scrollCardIntoView(cards[i], { behavior:'smooth', inline:'start', block:'nearest' });
+  }
+
+  scrollCardIntoView(cards[mid], { behavior:'auto', inline:'start', block:'nearest' });
+
+  /* מסמנים את החץ שנלחץ אחרון כ"פעיל" (ירוק) ומנקים את השני (חוזר ללבן) */
+  function setActive(btn){
+    [prevBtn, nextBtn].forEach(function(b){
+      if(b) b.classList.toggle('is-active', b === btn);
+    });
+  }
+  prevBtn && prevBtn.addEventListener('click', function(){ setActive(prevBtn); go(-1); });
+  nextBtn && nextBtn.addEventListener('click', function(){ setActive(nextBtn); go(1); });
+
+  /* אין כאן מטפל wheel בכוונה: מרגע ש-overflow-y הוא hidden, גלגלת אנכית
+     מעל הכרטיסים כבר לא נלכדת בקרוסלה ועוברת לעמוד מעצמה. המטפל הקודם
+     עשה preventDefault + window.scrollBy ידני, וזה החליף את הגלילה החלקה
+     של הדפדפן בקפיצות. */
+})();
+}
+initCarousel('pressCards', '[data-press-prev]', '[data-press-next]', false);
+initCarousel('eventsGrid', '[data-events-prev]', '[data-events-next]', true);
+
+/* ---------- אפקט חשיפת הווידאו בגלילה ---------- */
+(function(){
+  var root = document.getElementById('videoReveal');
+  var track = document.getElementById('videoRevealTrack');
+  var stage = document.getElementById('videoRevealStage');
+  var frameEl = document.getElementById('videoRevealFrame');
+  var media = document.getElementById('videoRevealMedia');
+  var scrim = document.getElementById('videoRevealScrim');
+  var hint = document.getElementById('videoRevealHint');
+  if(!root || !track || !stage || !frameEl || !media) return;
+
+  /* פייסבוק לא חושפת API לשנות את תמונת הפוסטר הפנימית שלה (תוכן חוצה-מקור
+     בתוך ה-iframe) - לכן ה-iframe האמיתי לא נטען כלל עד קליק, והתמונה שלנו
+     מכסה אותו.
+     בעבר נעשה כאן ניסיון להשתמש ב-SDK הרשמי של פייסבוק (fb-video XFBML)
+     כדי לקבל autoplay אמין. בפועל זה נשבר בפריסה האמיתית: ה-SDK תלוי
+     ב-handshake דרך postMessage כדי למדוד את הגובה של עצמו, וכשההנדשייק
+     נכשל/מתעכב, ה-wrapper הפנימי שהוא יוצר נשאר בגובה 0 - וה-!important
+     שלנו על width/height:100% לא עוזר כי ה-0 מגיע מ-div ביניים שה-SDK
+     יוצר ולא ניתן לעקוף בעזרת סלקטור. בנוסף, הקריאה ל-startVideo כבר
+     בתחילת הגלילה (target>0.01) הרסה את כפתור הפוסטר לפני שהמשתמש הספיק
+     ללחוץ עליו בעצמו - כך שגם הלחיצה הידנית לא עבדה יותר.
+     הפתרון: iframe גולמי ופשוט (בלי SDK, בלי wrapper ביניים) שמתחיל אך ורק
+     בלחיצה אמיתית של המשתמש - גם אמין יותר וגם לא הורס את הפוסטר מוקדם מדי. */
+  var poster = document.getElementById('videoRevealPoster');
+  var videoStarted = false;
+  function startVideo(){
+    if (videoStarted) return;
+    videoStarted = true;
+
+    var iframe = document.createElement('iframe');
+    iframe.className = 'video-reveal__iframe';
+    var src = 'https://www.facebook.com/plugins/video.php?height=314&href=https%3A%2F%2Fwww.facebook.com%2Fhnn.hn.7%2Fvideos%2F222530866458185%2F&show_text=false&width=560&t=0';
+    iframe.src = src + (src.indexOf('?') > -1 ? '&' : '?') + 'autoplay=true&mute=1';
+    iframe.title = 'סרטון מפייסבוק - אהבת חינ"מ';
+    iframe.setAttribute('scrolling', 'no');
+    iframe.setAttribute('frameborder', '0');
+    iframe.setAttribute('allowfullscreen', 'true');
+    iframe.setAttribute('allow', 'autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share');
+    media.replaceChildren(iframe);
+  }
+  if (poster){
+    poster.addEventListener('click', startVideo, { once: true });
+  }
+
+  var opts = {
+    startWidth: 50, startHeight: 52, startRadius: 24, endRadius: 0,
+    mediaZoom: 1.15, scrollDistance: 1, holdDistance: 0.25, smoothing: 0.1, overlayScrim: 0.45
+  };
+
+  /* במובייל הבמה מקבלת את יחס הגובה-רוחב של הסרטון עצמו (16:9) במקום
+     גובה מסך מלא. אחרת הסרטון, שנפתח לרוחב, משאיר פס ריק ענק מתחתיו.
+     מכיוון שהבמה נמוכה בהרבה, מאריכים את מרחק הגלילה כדי שהפתיחה
+     לא תקרה בבת אחת. */
+  var VIDEO_RATIO = 9 / 16;
+  var mqMobile = matchMedia('(max-width:899px)');
+  function isMobileStage(){ return mqMobile.matches; }
+
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var clamp = function(v,a,b){ return v<a?a:(v>b?b:v); };
+  var smoothstep = function(e0,e1,x){ var t = clamp((x-e0)/((e1-e0)||1e-6),0,1); return t*t*(3-2*t); };
+
+  var raf = 0, current = 0, target = 0, stageH = 0, running = false, stickyOffset = 0;
+  var scrollDist = opts.scrollDistance;
+  var headerEl = document.querySelector('.site-header');
+
+  function applyProgress(p){
+    var e = smoothstep(0, 1, p);
+    var w = opts.startWidth + (100 - opts.startWidth) * e;
+    var h = opts.startHeight + (100 - opts.startHeight) * e;
+    var ix = Math.max(0, (100 - w) / 2);
+    var iy = Math.max(0, (100 - h) / 2);
+    var r = opts.startRadius + (opts.endRadius - opts.startRadius) * e;
+    frameEl.style.clipPath = 'inset(' + iy + '% ' + ix + '% ' + iy + '% ' + ix + '% round ' + r + 'px)';
+    media.style.transform = 'scale(' + (opts.mediaZoom + (1 - opts.mediaZoom) * e) + ')';
+    if(scrim) scrim.style.opacity = String(opts.overlayScrim * e);
+    if(hint){
+      var gone = smoothstep(0, 0.12, p);
+      hint.style.opacity = String(1 - gone);
+      hint.style.transform = 'translate3d(0,' + (8 * gone) + 'px,0)';
+    }
+  }
+
+  function measure(){
+    /* ה-stage נעול מתחת להדר הדביק (לא מ-top:0), אחרת ההדר חותך את
+       החלק העליון של הסרטון כשהם דביקים בו-זמנית. */
+    stickyOffset = headerEl ? headerEl.getBoundingClientRect().height : 0;
+    stage.style.top = stickyOffset + 'px';
+
+    var mob = isMobileStage();
+    stageH = mob ? Math.round(stage.getBoundingClientRect().width * VIDEO_RATIO)
+                 : innerHeight - stickyOffset;
+    if(stageH <= 0) return;
+    stage.style.height = stageH + 'px';
+    /* hold=0 במובייל - ברגע שהסרטון ברוחב מלא הוא משתחרר מיד,
+       בלי אזור מת של גלילה בלי שינוי לפני הסקשן הבא. */
+    scrollDist = mob ? 2 : Math.max(0, opts.scrollDistance);
+    var hold = mob ? 0 : Math.max(0, opts.holdDistance);
+    track.style.height = (stageH * (1 + scrollDist + hold)) + 'px';
+  }
+
+  function readProgress(){
+    /* ההתרחבות מתחילה ברגע שהקצה התחתון של הסרטון נכנס למסך (ולא רק
+       כשהוא כבר ננעל מתחת להאדר), וממשיכה עד סוף המסלול - כך שאין
+       קטע גלילה שבו שום דבר לא קורה.
+       בדסקטופ הבמה בגובה מסך מלא, ולכן start יוצא בדיוק stickyOffset
+       וההתנהגות זהה לקודם. */
+    var start = innerHeight - stageH;
+    if(start < stickyOffset) start = stickyOffset;
+    var span = (start - stickyOffset) + stageH * Math.max(0.01, scrollDist);
+    var top = track.getBoundingClientRect().top;
+    return clamp((start - top) / span, 0, 1);
+  }
+
+  function tick(){
+    var k = opts.smoothing <= 0 ? 1 : 1 - Math.exp(-1 / (60 * opts.smoothing));
+    current += (target - current) * k;
+    if(Math.abs(target - current) < 0.0004){ current = target; running = false; }
+    applyProgress(current);
+    raf = running ? requestAnimationFrame(tick) : 0;
+  }
+  function kick(){ if(running) return; running = true; if(!raf) raf = requestAnimationFrame(tick); }
+
+  function onScroll(){
+    target = readProgress();
+    if(opts.smoothing <= 0 || reduce){ current = target; applyProgress(current); return; }
+    kick();
+  }
+  function onResize(){ measure(); target = readProgress(); current = target; applyProgress(current); }
+
+  measure();
+  target = readProgress();
+  current = target;
+  applyProgress(current);
+
+  addEventListener('scroll', onScroll, {passive:true});
+  addEventListener('resize', onResize);
+})();
+
+/* ---------- רצועת לוגואי שותפים ---------- */
+(function(){
+  var host = document.getElementById('partnersLoop');
+  if(!host) return;
+
+  var LOGOS = [
+    { src:'/images/partners/partner-z.jpeg',              alt:'Z' },
+    { src:'/images/partners/partner-anak-habitoach.jpeg', alt:'ענק הביטוח - אריה רוזן' },
+    { src:'/images/partners/partner-galila.jpeg',         alt:'גלילה' }
+  ];
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var track, resizeTimer;
+
+  function makeList(hidden){
+    var ul = document.createElement('ul');
+    ul.className = 'logoloop__list';
+    ul.setAttribute('role', hidden ? 'presentation' : 'list');
+    if(hidden) ul.setAttribute('aria-hidden','true');
+    LOGOS.forEach(function(logo){
+      var li = document.createElement('li');
+      li.className = 'logoloop__item';
+      var img = new Image();
+      img.src = logo.src; img.alt = hidden ? '' : logo.alt;
+      img.loading = 'lazy'; img.decoding = 'async'; img.draggable = false;
+      li.appendChild(img);
+      ul.appendChild(li);
+    });
+    return ul;
+  }
+
+  function afterImagesReady(imgs, cb){
+    var left = imgs.filter(function(im){ return !im.complete; }).length;
+    if(!left) return cb();
+    imgs.forEach(function(im){
+      im.addEventListener('load', done); im.addEventListener('error', done);
+    });
+    function done(){ if(--left <= 0) cb(); }
+  }
+
+  function layout(){
+    host.classList.remove('logoloop--animate');
+    track.style.removeProperty('--logoloop-duration');
+    track.style.removeProperty('--logoloop-shift');
+    var clone = track.querySelector('.logoloop__list[aria-hidden]');
+    if(clone) clone.remove();
+
+    var overflow = track.scrollWidth > host.clientWidth + 1;
+    if(!overflow || reduce) return;
+
+    var gapPx = parseFloat(getComputedStyle(track).columnGap) || 0;
+    var oneSetWidth = track.scrollWidth;               /* לפני השכפול = רוחב סט אחד */
+    track.appendChild(makeList(true));
+    var shift = oneSetWidth + gapPx;                    /* בדיוק מקום התחלת הסט השני */
+    var pxPerSecond = 46;                               /* קצב הגלילה - נמוך = איטי יותר */
+    track.style.setProperty('--logoloop-shift', shift + 'px');
+    track.style.setProperty('--logoloop-duration', Math.max(14, shift / pxPerSecond) + 's');
+    host.classList.add('logoloop--animate');
+  }
+
+  function build(){
+    host.innerHTML = '';
+    track = document.createElement('div');
+    track.className = 'logoloop__track';
+    var ul = makeList(false);
+    track.appendChild(ul);
+    host.appendChild(track);
+    afterImagesReady(Array.prototype.slice.call(ul.querySelectorAll('img')), layout);
+  }
+
+  addEventListener('resize', function(){
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(layout, 200);
+  });
+
+  build();
+
+  /* API לפאנל הניהול: מחליף את רשימת השותפים ובונה מחדש */
+  window.__logoloopRebuild = function(newLogos){
+    if(newLogos) LOGOS = newLogos;
+    build();
+  };
+})();
+
 (function(){
   window.GALLERY_IMAGES = [
     '/images/gallery/g01.jpg','/images/gallery/g02.jpg',
