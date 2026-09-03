@@ -62,7 +62,10 @@ export default function Layout({
       </a>
 
       <div className="frame">
-        <SiteHeader />
+        {/* ההאדר נגזר מאותו variant של גיליון הסגנונות: לעמוד הבית
+            אין כללי CSS לתפריט הנפתח, ולכן הוא מקבל את הניווט השטוח
+            שלו. ראו ההערה ב-SiteHeader. */}
+        <SiteHeader variant={variant} />
         <main id="main">{children}</main>
         <SiteFooter />
       </div>
