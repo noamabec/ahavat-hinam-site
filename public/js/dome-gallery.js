@@ -8,15 +8,42 @@
   var host = document.getElementById('domeGallery');
   if(!host) return;
 
+  /* רשימת התמונות נטענת מ-Supabase (אותה טבלה שפאנל הניהול קורא/כותב
+     אליה - ראו gallery_images ב-admin.html) כדי שהוספה/הסרה מהפאנל
+     תשתקף כאן בלי לגעת בקוד. אם הטעינה נכשלת (רשת/שירות), נופלים
+     בחזרה לרשימה הקבועה של 69 התמונות המקוריות כדי שהגלריה תמיד תעבוד. */
+  var SB_URL = 'https://zaphyupuufzpfnbgftes.supabase.co';
+  var SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InphcGh5dXB1dWZ6cGZuYmdmdGVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc1NzU4NTIsImV4cCI6MjEwMzE1MTg1Mn0.2GZHAH_ZwMppKc-tWbfsHgCHKs9u3zdLKqjC0stHx54';
   var GALLERY_COUNT = 69;
-  var images = [];
-  for (var i = 1; i <= GALLERY_COUNT; i++){
-    images.push({
-      src: './public/images/gallery-full/d' + String(i).padStart(2, '0') + '.jpg',
-      alt: 'תמונה מהפעילות של אהבת חינ"מ'
-    });
+
+  function localFallbackImages(){
+    var arr = [];
+    for (var i = 1; i <= GALLERY_COUNT; i++){
+      arr.push({
+        src: './public/images/gallery-full/d' + String(i).padStart(2, '0') + '.jpg',
+        alt: 'תמונה מהפעילות של אהבת חינ"מ'
+      });
+    }
+    return arr;
   }
 
+  fetch(SB_URL + '/rest/v1/gallery_images?select=path,alt&order=sort_order.asc,created_at.asc', {
+    headers: { apikey: SB_ANON, Authorization: 'Bearer ' + SB_ANON }
+  })
+    .then(function(r){ if (!r.ok) throw new Error('bad status ' + r.status); return r.json(); })
+    .then(function(rows){
+      if (!rows || !rows.length) return localFallbackImages();
+      return rows.map(function(row){
+        return {
+          src: SB_URL + '/storage/v1/object/public/gallery-images/' + row.path,
+          alt: row.alt || 'תמונה מהפעילות של אהבת חינ"מ'
+        };
+      });
+    })
+    .catch(function(){ return localFallbackImages(); })
+    .then(function(images){ start(images); });
+
+  function start(images){
   var opts = {
     fit: 0.65, fitBasis: 'auto', minRadius: 600, maxRadius: Infinity, padFactor: 0.25,
     overlayBlurColor: '#EAF7FE', maxVerticalRotationDeg: 40, dragSensitivity: 20,
@@ -454,4 +481,5 @@
   });
 
   window.addEventListener('beforeunload', function(){ document.body.classList.remove('dg-scroll-lock'); });
+  } /* end start() */
 })();

@@ -315,6 +315,7 @@ th[data-sort].on .sarr{opacity:1}
 .gal .rm svg{width:15px;height:15px;stroke:#fff;fill:none;stroke-width:2}
 .drop{border:2px dashed #C9D6E3;border-radius:var(--r);padding:26px;text-align:center;
   color:var(--ink-3);font-size:14px;background:#FAFCFE}
+.drop--on{border-color:var(--blue);background:#EAF7FD;color:var(--blue)}
 
 /* ---------- עריכה חזותית ---------- */
 .vbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
@@ -615,6 +616,35 @@ var GALLERY = ['d26.jpg','d13.jpg','d22.jpg','d02.jpg','d49.jpg','d08.jpg','d38.
 
 var IMG = './public/images/gallery-full/';
 var AV  = ['#18B1F0','#FDC122','#FC543E','#4DA831'];
+
+/* חיבור אמיתי לגלריית התמונות (Supabase). קריאה היא select פומבי -
+   מותר לפי RLS, לא צריך את ה-Edge Function בשביל זה. כתיבה (העלאה/הסרה)
+   עוברת תמיד דרך gallery-admin עם סיסמת הכניסה לפאנל, כי היא הפעולה
+   האמיתית היחידה כרגע בפאנל שכותבת לאתר החי. */
+var SB_URL  = 'https://zaphyupuufzpfnbgftes.supabase.co';
+var SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InphcGh5dXB1dWZ6cGZuYmdmdGVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc1NzU4NTIsImV4cCI6MjEwMzE1MTg1Mn0.2GZHAH_ZwMppKc-tWbfsHgCHKs9u3zdLKqjC0stHx54';
+var SB_GALLERY_BUCKET = SB_URL + '/storage/v1/object/public/gallery-images/';
+
+function fetchGalleryImages(){
+  return fetch(SB_URL+'/rest/v1/gallery_images?select=path,alt,sort_order&order=sort_order.asc,created_at.asc', {
+    headers: { apikey: SB_ANON, Authorization: 'Bearer '+SB_ANON }
+  }).then(function(r){ if(!r.ok) throw new Error('שגיאת רשת ('+r.status+')'); return r.json(); });
+}
+function galleryAdminCall(payload){
+  return fetch(SB_URL+'/functions/v1/gallery-admin', {
+    method:'POST',
+    headers: { apikey: SB_ANON, Authorization: 'Bearer '+SB_ANON, 'Content-Type':'application/json' },
+    body: JSON.stringify(payload)
+  }).then(function(r){ return r.json().then(function(j){ if(!r.ok || !j.ok) throw new Error(j.error||'שגיאה'); return j; }); });
+}
+function fileToBase64(file){
+  return new Promise(function(resolve,reject){
+    var fr = new FileReader();
+    fr.onload = function(){ resolve(String(fr.result).split(',')[1]); };
+    fr.onerror = reject;
+    fr.readAsDataURL(file);
+  });
+}
 
 /* היסטוריית גרסאות. כל שמירה באתר יוצרת גרסה חדשה, ואפשר לחזור לכל
    אחת מהן. הרשימה ממוינת מהחדשה לישנה; הגרסה הראשונה ברשימה היא זו
@@ -1006,21 +1036,96 @@ function evForm(e){
 }
 
 /* ---------- גלריה ---------- */
+var MIME_EXT = { 'image/jpeg':'jpg', 'image/png':'png', 'image/webp':'webp' };
+var MAX_UPLOAD_BYTES = 8*1024*1024;
+
 R['/gallery'] = function(){
   ttl.textContent='גלריית תמונות';
-  view.innerHTML =
-  '<div class="panel" style="margin-bottom:16px"><div class="panel__head">'+
-    '<h3>'+GALLERY.length+' תמונות</h3><span class="sp"></span>'+
-    '<button class="btn btn--p" id="up">'+ico('img')+'העלאת תמונות</button></div>'+
-    '<div style="padding:16px"><div class="drop">גרירת תמונות לכאן להעלאה · JPG או PNG</div></div></div>'+
-  '<div class="gal">'+ GALLERY.map(function(g){
-    return '<figure><img src="'+IMG+g+'" alt="" loading="lazy" />'+
-      '<button class="rm" title="הסרה"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button></figure>';
-  }).join('') + '</div>';
-  $('#up').onclick=function(){ toast('בגרסה האמיתית ייפתח חלון בחירת קבצים'); };
+  view.innerHTML = '<div class="panel"><p class="empty">טוען תמונות…</p></div>';
+
+  function shell(count){
+    return '<div class="panel" style="margin-bottom:16px"><div class="panel__head">'+
+      '<h3>'+count+' תמונות</h3><span class="sp"></span>'+
+      '<button class="btn btn--p" id="up">'+ico('img')+'העלאת תמונות</button></div>'+
+      '<div style="padding:16px"><div class="drop" id="drop">גרירת תמונות לכאן להעלאה · JPG, PNG או WEBP · עד 8MB לתמונה</div></div>'+
+      '<input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp" multiple hidden />'+
+    '</div>';
+  }
+
+  function renderGrid(images){
+    view.innerHTML = shell(images.length) +
+      (images.length
+        ? '<div class="gal">'+ images.map(function(g){
+            return '<figure><img src="'+SB_GALLERY_BUCKET+g.path+'" alt="" loading="lazy" />'+
+              '<button class="rm" title="הסרה" data-path="'+esc(g.path)+'"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button></figure>';
+          }).join('') + '</div>'
+        : '<p class="empty">אין עדיין תמונות בגלריה.</p>');
+    wireUp();
+  }
+
+  function reload(){
+    fetchGalleryImages().then(renderGrid).catch(function(err){
+      view.innerHTML = '<div class="panel"><p class="empty">שגיאה בטעינת הגלריה: '+esc(err.message)+'</p></div>';
+    });
+  }
+
+  function safeName(ext){
+    var rand = Math.random().toString(36).slice(2,8);
+    return 'up-'+Date.now()+'-'+rand+'.'+(ext==='jpeg'?'jpg':ext);
+  }
+
+  function uploadFiles(files){
+    var list = Array.prototype.filter.call(files, function(f){
+      var ext = MIME_EXT[f.type];
+      if(!ext){ toast('סוג קובץ לא נתמך: '+f.name); return false; }
+      if(f.size>MAX_UPLOAD_BYTES){ toast('הקובץ גדול מדי (מעל 8MB): '+f.name); return false; }
+      return true;
+    });
+    if(!list.length) return;
+    toast('מעלה '+list.length+' תמונות…');
+    var chain = Promise.resolve();
+    list.forEach(function(f){
+      chain = chain.then(function(){
+        return fileToBase64(f).then(function(b64){
+          return galleryAdminCall({
+            password: LOGIN_PASS, action:'upload',
+            filename: safeName(MIME_EXT[f.type]),
+            contentType: f.type, contentBase64: b64, alt: ''
+          });
+        });
+      }).catch(function(err){ toast('העלאה נכשלה ('+f.name+'): '+err.message); });
+    });
+    chain.then(function(){ toast('ההעלאה הושלמה'); reload(); });
+  }
+
+  function wireUp(){
+    var fileInput = $('#fileInput'), drop = $('#drop');
+    $('#up').onclick=function(){ fileInput.click(); };
+    fileInput.onchange=function(){ uploadFiles(fileInput.files); fileInput.value=''; };
+
+    drop.addEventListener('dragover',function(e){ e.preventDefault(); drop.classList.add('drop--on'); });
+    drop.addEventListener('dragleave',function(){ drop.classList.remove('drop--on'); });
+    drop.addEventListener('drop',function(e){
+      e.preventDefault(); drop.classList.remove('drop--on');
+      if(e.dataTransfer && e.dataTransfer.files.length) uploadFiles(e.dataTransfer.files);
+    });
+  }
+
+  /* מאזין יחיד ל-view, מחוץ ל-wireUp: reload() מחליף את ה-HTML הרבה
+     פעמים באותו ביקור במסך (אחרי כל העלאה/מחיקה), ו-view עצמו לא
+     מתחלף - מאזין שהיה נכנס בתוך wireUp היה נערם בכל reload. */
   view.addEventListener('click',function(e){
-    if(e.target.closest('.rm')) toast('התמונה הוסרה (הדגמה)');
+    var rm=e.target.closest('.rm'); if(!rm) return;
+    var path=rm.dataset.path;
+    modal('מחיקת תמונה','<p style="font-size:14.5px">התמונה תוסר מהגלריה באתר החי. אפשר לבטל?</p>',
+      function(){
+        galleryAdminCall({password:LOGIN_PASS, action:'delete', path:path})
+          .then(function(){ toast('התמונה הוסרה'); reload(); })
+          .catch(function(err){ toast('מחיקה נכשלה: '+err.message); });
+      },'מחיקה');
   });
+
+  reload();
 };
 
 /* ---------- עריכה חזותית ----------
