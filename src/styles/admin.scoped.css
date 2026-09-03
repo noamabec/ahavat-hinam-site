@@ -1,0 +1,205 @@
+/* ============================================================
+   פאנל ניהול - אב טיפוס עיצובי
+   ------------------------------------------------------------
+   נתונים לדוגמה בלבד. שום דבר כאן לא נשמר ולא משנה את האתר החי.
+   הקובץ הזה הוא המפרט העיצובי לבנייה האמיתית ב-Lovable/Supabase.
+   ============================================================ */
+@font-face{font-family:'Fb Coherenti Sans';src:url('./public/fonts/fb-coherenti-sans-light.ttf') format('truetype');font-weight:300;font-display:swap}
+@font-face{font-family:'Fb Coherenti Sans';src:url('./public/fonts/fb-coherenti-sans-regular.ttf') format('truetype');font-weight:400;font-display:swap}
+@font-face{font-family:'Fb Coherenti Sans';src:url('./public/fonts/fb-coherenti-sans-medium.ttf') format('truetype');font-weight:500;font-display:swap}.admin-app{
+  --blue:#18B1F0; --yellow:#FDC122; --coral:#FC543E; --green:#4DA831;
+  --ink:#0F1720; --ink-2:#46586B; --ink-3:#8296AA;
+  --bg:#F4F6F9; --surface:#FFFFFF; --line:#E4E9EF; --line-2:#EFF3F7;
+  --sidebar:#0F1720; --sidebar-2:#1B2735;
+  --r:14px; --r-sm:9px;
+  --shadow:0 1px 2px rgba(15,23,32,.05),0 8px 24px rgba(15,23,32,.06);
+  --sidebar-w:250px;
+}.admin-app *,.admin-app *::before,.admin-app *::after{box-sizing:border-box}.admin-app button,.admin-app input,.admin-app select,.admin-app textarea{font:inherit;color:inherit}.admin-app button{cursor:pointer;border:0;background:none}.admin-app a{color:inherit;text-decoration:none}.admin-app img{display:block;max-width:100%}.admin-app h1,.admin-app h2,.admin-app h3,.admin-app h4{margin:0;font-weight:500;line-height:1.2}.admin-app p{margin:0}.admin-app ::-webkit-scrollbar{width:10px;height:10px}.admin-app ::-webkit-scrollbar-thumb{background:#C9D4E0;border-radius:6px;border:3px solid var(--bg)}
+
+/* ---------- מסך התחברות ---------- */
+.admin-app #login{position:fixed;inset:0;z-index:80;display:grid;grid-template-columns:1fr 1fr;background:#fff}.admin-app body[data-auth="in"] #login{display:none}.admin-app body:not([data-auth="in"]) #shell,.admin-app body:not([data-auth="in"]) #demoBar{display:none}.admin-app #login .side{
+  background:
+    radial-gradient(120% 90% at 80% 10%, rgba(24,177,240,.30), transparent 60%),
+    radial-gradient(100% 80% at 10% 90%, rgba(253,193,34,.24), transparent 62%),
+    var(--sidebar);
+  color:#fff;padding:48px;display:flex;flex-direction:column;justify-content:center;
+}.admin-app #login .side img{width:76px;height:76px;background:#fff;border-radius:18px;padding:8px;object-fit:contain}.admin-app #login .side h2{font-size:34px;margin-top:26px;line-height:1.18}.admin-app #login .side p{margin-top:14px;font-size:16px;color:#9FB3C8;max-width:34ch;line-height:1.6}.admin-app #login .side .bar{display:flex;height:5px;width:120px;border-radius:3px;overflow:hidden;margin-top:30px}.admin-app #login .side .bar i{flex:1}.admin-app #login .form{display:grid;place-items:center;padding:40px 32px}.admin-app #login .form .box{width:min(360px,100%)}.admin-app #login .form h3{font-size:25px}.admin-app #login .form .sub{font-size:14.5px;color:var(--ink-3);margin-top:7px;margin-bottom:26px}.admin-app #login .demo{
+  background:#FFF8E6;border:1px solid #F5E2B0;color:#7A5A00;
+  border-radius:10px;padding:11px 13px;font-size:13px;line-height:1.55;margin-bottom:20px;
+}.admin-app #login .err{
+  display:none;background:#FDECEA;border:1px solid #F6C9C2;color:#B3271A;
+  border-radius:10px;padding:10px 13px;font-size:13.5px;line-height:1.5;margin-bottom:14px;
+}.admin-app #login .err.on{display:block}.admin-app #login .full{width:100%;height:44px;font-size:15px;margin-top:6px}.admin-app #login .foot{margin-top:20px;font-size:13px;color:var(--ink-3);text-align:center}.admin-app #login .foot a{color:var(--blue)}
+
+@media (max-width:860px){.admin-app #login{grid-template-columns:1fr}.admin-app #login .side{padding:34px 26px;min-height:auto}.admin-app #login .side h2{font-size:26px;margin-top:18px}.admin-app #login .side p{font-size:14.5px}.admin-app #login .side .bar{margin-top:20px}.admin-app #login .form{padding:32px 26px}}
+
+/* ---------- באנר אב-טיפוס ---------- */
+.admin-app #demoBar{
+  position:sticky;top:0;z-index:60;
+  background:linear-gradient(90deg,var(--coral),var(--yellow));
+  color:#3A2B00;font-size:13px;font-weight:500;
+  padding:7px 16px;text-align:center;
+}
+
+/* ---------- שלד ---------- */
+.admin-app #shell{display:flex;min-height:100vh;align-items:stretch}
+
+/* ---------- סרגל צד ---------- */
+.admin-app #side{
+  width:var(--sidebar-w);flex:none;background:var(--sidebar);color:#DCE6F0;
+  display:flex;flex-direction:column;position:sticky;top:0;align-self:flex-start;
+  height:100vh;
+}.admin-app .brand{display:flex;align-items:center;gap:11px;padding:20px 20px 16px}.admin-app .brand img{width:42px;height:42px;object-fit:contain;background:#fff;border-radius:10px;padding:4px;flex:none}.admin-app .brand b{display:block;font-size:15px;font-weight:500;color:#fff;line-height:1.25}.admin-app .brand span{display:block;font-size:11.5px;color:#7D93A9}.admin-app .navlist{padding:6px 12px;overflow-y:auto;flex:1}.admin-app .navlist .grp{font-size:11px;color:#5F7387;padding:14px 10px 6px;letter-spacing:.05em}.admin-app .navlist a{
+  display:flex;align-items:center;gap:11px;
+  padding:10px 11px;border-radius:10px;margin-bottom:2px;
+  font-size:14.5px;color:#C3D2E1;transition:background .16s,color .16s;
+}.admin-app .navlist a:hover{background:#18242F;color:#fff}.admin-app .navlist a.on{background:var(--blue);color:#fff;font-weight:500}.admin-app .navlist a.on .ic{opacity:1}.admin-app .ic{width:19px;height:19px;flex:none;opacity:.75}.admin-app .ic svg{width:100%;height:100%;display:block;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.admin-app .badge{margin-inline-start:auto;background:var(--coral);color:#fff;font-size:11px;
+  min-width:20px;height:20px;border-radius:10px;display:grid;place-items:center;padding:0 6px}.admin-app .sideFoot{padding:12px;border-top:1px solid #1E2B39}.admin-app .who{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px}.admin-app .who .av{width:34px;height:34px;border-radius:50%;background:var(--green);color:#fff;
+  display:grid;place-items:center;font-size:13px;font-weight:500;flex:none}.admin-app .who b{display:block;font-size:13.5px;color:#fff;font-weight:500}.admin-app .who span{display:block;font-size:11.5px;color:#7D93A9}
+
+/* ---------- אזור ראשי ---------- */
+.admin-app #main{flex:1;min-width:0;display:flex;flex-direction:column}.admin-app #top{
+  background:var(--surface);border-bottom:1px solid var(--line);
+  padding:0 clamp(16px,2.4vw,30px);height:66px;
+  display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:40;
+}.admin-app #burger{display:none;width:40px;height:40px;border-radius:10px;place-items:center}.admin-app #burger svg{width:22px;height:22px;stroke:var(--ink);fill:none;stroke-width:1.9;stroke-linecap:round}.admin-app #top h1{font-size:19px;flex:none}.admin-app .search{
+  margin-inline-start:auto;position:relative;max-width:300px;width:100%;
+}.admin-app .search input{
+  width:100%;height:38px;border-radius:10px;border:1px solid var(--line);
+  background:var(--bg);padding:0 38px 0 12px;font-size:14px;outline:0;
+}.admin-app .search input:focus{border-color:var(--blue);background:#fff}.admin-app .search svg{position:absolute;inset-inline-start:12px;top:10px;width:18px;height:18px;
+  stroke:var(--ink-3);fill:none;stroke-width:1.8}.admin-app .topbtn{
+  width:38px;height:38px;border-radius:10px;border:1px solid var(--line);
+  display:grid;place-items:center;flex:none;background:#fff;position:relative;
+}.admin-app .topbtn svg{width:19px;height:19px;stroke:var(--ink-2);fill:none;stroke-width:1.7}.admin-app .topbtn .dot{position:absolute;top:8px;inset-inline-end:9px;width:7px;height:7px;
+  border-radius:50%;background:var(--coral);border:1.5px solid #fff}.admin-app #view{padding:clamp(16px,2.4vw,30px);flex:1}
+
+/* ---------- רכיבים ---------- */
+.admin-app .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.admin-app .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
+  padding:18px;box-shadow:var(--shadow)}.admin-app .kpi .lbl{font-size:13px;color:var(--ink-3);display:flex;align-items:center;gap:8px}.admin-app .kpi .lbl i{width:9px;height:9px;border-radius:3px;display:block}.admin-app .kpi .val{font-size:30px;font-weight:500;margin-top:9px;letter-spacing:-.02em}.admin-app .kpi .sub{font-size:12.5px;color:var(--ink-3);margin-top:5px}.admin-app .kpi .up{color:var(--green)}.admin-app .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
+  box-shadow:var(--shadow);overflow:hidden}.admin-app .panel__head{display:flex;align-items:center;gap:12px;padding:16px 18px;border-bottom:1px solid var(--line-2)}.admin-app .panel__head h3{font-size:16px}.admin-app .panel__head .sp{margin-inline-start:auto}.admin-app .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  height:38px;padding:0 16px;border-radius:10px;font-size:14px;font-weight:500;
+  transition:filter .15s,background .15s,border-color .15s;white-space:nowrap}.admin-app .btn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.admin-app .btn--p{background:var(--blue);color:#fff}.admin-app .btn--p:hover{filter:brightness(1.07)}.admin-app .btn--g{border:1px solid var(--line);background:#fff;color:var(--ink-2)}.admin-app .btn--g:hover{border-color:#C9D4E0;background:#FAFCFE}.admin-app .btn--d{border:1px solid #F6C9C2;background:#fff;color:var(--coral)}.admin-app .btn--d:hover{background:#FFF6F4}.admin-app .btn--sm{height:32px;padding:0 11px;font-size:13px;border-radius:8px}.admin-app table{width:100%;border-collapse:collapse}.admin-app th{font-size:12.5px;font-weight:500;color:var(--ink-3);text-align:right;
+  padding:11px 18px;background:#FAFCFE;border-bottom:1px solid var(--line-2);white-space:nowrap}.admin-app td{padding:13px 18px;border-bottom:1px solid var(--line-2);font-size:14px;vertical-align:middle}.admin-app tr:last-child td{border-bottom:0}.admin-app tbody tr:hover{background:#FCFDFF}.admin-app .who2{display:flex;align-items:center;gap:10px}.admin-app .who2 .av{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;
+  font-size:13px;font-weight:500;color:#fff;flex:none}.admin-app .who2 b{font-weight:500;display:block;line-height:1.25}.admin-app .who2 span{font-size:12.5px;color:var(--ink-3)}.admin-app .money{font-weight:500;white-space:nowrap}.admin-app .pill{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;
+  border-radius:13px;font-size:12.5px;font-weight:500;white-space:nowrap}.admin-app .pill i{width:6px;height:6px;border-radius:50%;background:currentColor}.admin-app .pill--ok{background:#E9F7E3;color:#31761C}.admin-app .pill--wait{background:#FFF4DC;color:#8A6100}.admin-app .pill--err{background:#FDEBE8;color:#C0331F}.admin-app .pill--info{background:#E4F5FE;color:#0B7BAD}
+
+/* ---------- היסטוריית גרסאות ---------- */
+.admin-app .vers{list-style:none;margin:0;padding:0}.admin-app .vers li{
+  position:relative;display:flex;align-items:flex-start;gap:14px;
+  padding:16px 18px;border-bottom:1px solid var(--line-2);
+}.admin-app .vers li:last-child{border-bottom:0}.admin-app .vers li.cur{background:#F3FBFF}
+/* הקו האנכי שמחבר את הנקודות לציר זמן אחד */
+.admin-app .vers__dot{
+  position:relative;flex:none;width:11px;height:11px;border-radius:50%;
+  margin-top:5px;background:var(--line);box-shadow:0 0 0 3px var(--surface);
+}.admin-app .vers li.cur .vers__dot{background:var(--blue)}.admin-app .vers li:not(:last-child) .vers__dot::after{
+  content:"";position:absolute;top:14px;right:5px;
+  width:1px;height:calc(100% + 26px);background:var(--line-2);
+}.admin-app .vers__b{flex:1;min-width:0}.admin-app .vers__t{font-size:14.5px;font-weight:500;line-height:1.5}.admin-app .vers__m{margin-top:5px;font-size:12.5px;color:var(--ink-3);display:flex;flex-wrap:wrap;gap:4px 10px}.admin-app .vers__acts{flex:none;display:flex;gap:8px;align-items:center}
+@media (max-width:760px){.admin-app .vers li{flex-wrap:wrap}.admin-app .vers__acts{width:100%;padding-inline-start:25px}}.admin-app .rowacts{display:flex;gap:7px;justify-content:flex-start}
+
+/* ---------- תעודה ---------- */
+.admin-app .certWrap{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:20px;align-items:start}.admin-app .certStage{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
+  padding:18px;box-shadow:var(--shadow)}.admin-app .cert{position:relative;width:100%;max-width:460px;margin-inline:auto;
+  aspect-ratio:1131/1600;border-radius:6px;overflow:hidden;
+  box-shadow:0 10px 30px rgba(15,23,32,.14)}.admin-app .cert img{width:100%;height:100%;object-fit:cover;display:block}
+/* התיבה הריקה בתבנית - מיקום באחוזים כדי שיישאר נכון בכל גודל */
+.admin-app .certName{
+  position:absolute;left:15.5%;right:15.5%;top:40%;height:9.5%;
+  display:grid;place-items:center;padding:0 12px;
+}.admin-app .certName span{
+  font-size:clamp(15px,3.6cqw,30px);font-weight:500;color:#6B4E12;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;
+}.admin-app .cert{container-type:inline-size}.admin-app .certHint{margin-top:10px;font-size:12.5px;color:var(--ink-3);text-align:center}.admin-app .field{margin-bottom:14px}.admin-app .field label{display:block;font-size:13px;color:var(--ink-2);margin-bottom:6px;font-weight:500}.admin-app .field input,.admin-app .field select,.admin-app .field textarea{
+  width:100%;height:40px;border-radius:10px;border:1px solid var(--line);
+  background:#fff;padding:0 12px;font-size:14px;outline:0;
+}.admin-app .field textarea{height:auto;min-height:96px;padding:10px 12px;resize:vertical;line-height:1.55}.admin-app .field input:focus,.admin-app .field select:focus,.admin-app .field textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(24,177,240,.13)}.admin-app .hint{font-size:12px;color:var(--ink-3);margin-top:5px}.admin-app .seg{display:flex;gap:6px;background:var(--bg);padding:4px;border-radius:10px}.admin-app .seg button{flex:1;height:32px;border-radius:7px;font-size:13.5px;color:var(--ink-2)}.admin-app .seg button.on{background:#fff;color:var(--ink);font-weight:500;box-shadow:0 1px 3px rgba(0,0,0,.09)}
+
+/* ---------- סרגל סינון/חיפוש בטבלאות ---------- */
+.admin-app .tbar{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}.admin-app .tsearch{position:relative;min-width:200px;flex:1 1 220px;max-width:320px}.admin-app .tsearch svg{position:absolute;inset-inline-start:11px;top:9px;width:16px;height:16px;stroke:var(--ink-3);fill:none;stroke-width:1.8}.admin-app .tsearch input{width:100%;height:36px;border-radius:9px;border:1px solid var(--line);background:var(--bg);padding:0 34px 0 10px;font-size:13.5px;outline:0}.admin-app .tsearch input:focus{border-color:var(--blue);background:#fff}.admin-app .tchips{display:flex;gap:6px;flex-wrap:wrap}.admin-app .tchips button{height:32px;padding:0 13px;border-radius:99px;border:1px solid var(--line);background:#fff;font-size:13px;color:var(--ink-2);white-space:nowrap}.admin-app .tchips button.on{background:var(--ink);color:#fff;border-color:var(--ink)}.admin-app .tcount{margin-inline-start:auto;font-size:12.5px;color:var(--ink-3);white-space:nowrap}.admin-app .tdate{display:flex;align-items:center;gap:6px}.admin-app .tdate input[type=date]{height:36px;border-radius:9px;border:1px solid var(--line);background:var(--bg);padding:0 10px;font-size:13px;color:var(--ink);outline:0}.admin-app .tdate input[type=date]:focus{border-color:var(--blue);background:#fff}.admin-app .tdate span{color:var(--ink-3);font-size:12px}
+@media (max-width:560px){.admin-app .tdate{flex-wrap:wrap}}.admin-app th[data-sort]{cursor:pointer;user-select:none;white-space:nowrap}.admin-app th[data-sort] .sarr{display:inline-block;opacity:.35;font-size:11px;margin-inline-start:3px}.admin-app th[data-sort].on .sarr{opacity:1}.admin-app .empty{padding:40px 16px;text-align:center;color:var(--ink-3);font-size:14px}
+
+/* ---------- אירועים / גלריה ---------- */
+.admin-app .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.admin-app .ev{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
+  overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}.admin-app .ev__img{aspect-ratio:16/10;background:#DDE5EE;position:relative}.admin-app .ev__img img{width:100%;height:100%;object-fit:cover}.admin-app .ev__img .tag{position:absolute;top:10px;inset-inline-end:10px;background:rgba(15,23,32,.78);
+  color:#fff;font-size:11.5px;padding:4px 9px;border-radius:20px}.admin-app .ev__b{padding:14px;display:flex;flex-direction:column;flex:1}.admin-app .ev__b h4{font-size:15px}.admin-app .ev__b p{font-size:13px;color:var(--ink-3);margin-top:6px;line-height:1.5;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.admin-app .ev__b .acts{margin-top:12px;display:flex;gap:7px}.admin-app .gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}.admin-app .gal figure{margin:0;position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;
+  border:1px solid var(--line);background:#DDE5EE}.admin-app .gal img{width:100%;height:100%;object-fit:cover}.admin-app .gal .rm{position:absolute;top:7px;inset-inline-end:7px;width:28px;height:28px;border-radius:8px;
+  background:rgba(15,23,32,.72);display:grid;place-items:center;opacity:0;transition:opacity .15s}.admin-app .gal figure:hover .rm{opacity:1}.admin-app .gal .rm svg{width:15px;height:15px;stroke:#fff;fill:none;stroke-width:2}.admin-app .drop{border:2px dashed #C9D6E3;border-radius:var(--r);padding:26px;text-align:center;
+  color:var(--ink-3);font-size:14px;background:#FAFCFE}.admin-app .drop--on{border-color:var(--blue);background:#EAF7FD;color:var(--blue)}
+
+/* ---------- עריכה חזותית ---------- */
+.admin-app .vbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}.admin-app .vbar .grow{margin-inline-start:auto}.admin-app .vstage{background:#E7EDF3;border:1px solid var(--line);border-radius:var(--r);
+  padding:14px;display:flex;justify-content:center;overflow:auto}.admin-app .vstage iframe{
+  width:100%;max-width:1440px;height:72vh;min-height:460px;border:0;background:#fff;
+  border-radius:10px;box-shadow:0 8px 30px rgba(15,23,32,.14);
+  transition:width .3s cubic-bezier(.16,1,.3,1);
+}.admin-app .vstage[data-dev="mob"] iframe{width:390px}.admin-app .vhint{display:flex;align-items:center;gap:9px;font-size:13.5px;color:var(--ink-2);
+  background:#E4F5FE;border:1px solid #BFE6FA;border-radius:10px;padding:10px 13px;margin-bottom:14px}.admin-app .vhint svg{width:17px;height:17px;stroke:var(--blue);fill:none;stroke-width:1.8;flex:none}.admin-app .chg{background:var(--yellow);color:#5A4100;border-radius:20px;height:26px;padding:0 11px;
+  display:inline-flex;align-items:center;font-size:12.5px;font-weight:500}
+
+@media (max-width:720px){.admin-app .vstage{padding:8px}.admin-app .vstage iframe{height:60vh}.admin-app .vbar .btn{flex:1}}
+
+/* ---------- עורך העמודים ---------- */
+.admin-app .pagebar{display:flex;gap:8px;overflow-x:auto;padding:4px;background:var(--bg);
+  border-radius:12px;margin-bottom:16px}.admin-app .pagebar button{
+  white-space:nowrap;height:36px;padding:0 15px;border-radius:9px;
+  font-size:14px;color:var(--ink-2);flex:none;
+}.admin-app .pagebar button.on{background:#fff;color:var(--ink);font-weight:500;box-shadow:0 1px 3px rgba(0,0,0,.1)}.admin-app .sec-item{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
+  box-shadow:var(--shadow);margin-bottom:12px;overflow:hidden}.admin-app .sec-item__hd{display:flex;align-items:center;gap:12px;padding:15px 18px;cursor:pointer;
+  user-select:none;transition:background .15s}.admin-app .sec-item__hd:hover{background:#FAFCFE}.admin-app .sec-item__n{width:30px;height:30px;border-radius:8px;background:var(--bg);color:var(--ink-3);
+  display:grid;place-items:center;font-size:13px;font-weight:500;flex:none}.admin-app .sec-item__t b{display:block;font-size:15px;font-weight:500}.admin-app .sec-item__t span{display:block;font-size:12.5px;color:var(--ink-3);margin-top:1px}.admin-app .sec-item__hd .chev{margin-inline-start:auto;width:20px;height:20px;flex:none;
+  transition:transform .22s;color:var(--ink-3)}.admin-app .sec-item__hd .chev svg{width:100%;height:100%;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}.admin-app .sec-item.open .chev{transform:rotate(180deg)}.admin-app .sec-item__bd{display:none;padding:4px 18px 18px;border-top:1px solid var(--line-2)}.admin-app .sec-item.open .sec-item__bd{display:block}.admin-app .sec-item__bd .field:first-child{margin-top:14px}.admin-app .locked{padding:14px 18px;font-size:13.5px;color:var(--ink-3);background:#FAFCFE;
+  border-top:1px solid var(--line-2);display:flex;align-items:center;gap:9px}.admin-app .locked svg{width:17px;height:17px;stroke:var(--ink-3);fill:none;stroke-width:1.7;flex:none}.admin-app .locked a{color:var(--blue);font-weight:500}
+
+/* שדה תמונה */
+.admin-app .imgf{display:flex;gap:13px;align-items:flex-start;padding:11px;border:1px solid var(--line);
+  border-radius:11px;background:#FAFCFE}.admin-app .imgf__t{width:88px;height:66px;border-radius:8px;overflow:hidden;background:#DDE5EE;flex:none;
+  border:1px solid var(--line)}.admin-app .imgf__t img{width:100%;height:100%;object-fit:cover}.admin-app .imgf__m{flex:1;min-width:0}.admin-app .imgf__m b{display:block;font-size:13.5px;font-weight:500}.admin-app .imgf__m span{display:block;font-size:12px;color:var(--ink-3);margin-top:2px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.admin-app .imgf__a{display:flex;gap:7px;margin-top:9px;flex-wrap:wrap}
+
+/* בורר מדיה */
+.admin-app .mtabs{display:flex;gap:6px;background:var(--bg);padding:4px;border-radius:10px;margin-bottom:14px}.admin-app .mtabs button{flex:1;height:32px;border-radius:7px;font-size:13.5px;color:var(--ink-2)}.admin-app .mtabs button.on{background:#fff;color:var(--ink);font-weight:500;box-shadow:0 1px 3px rgba(0,0,0,.09)}.admin-app .mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px;
+  max-height:330px;overflow-y:auto;padding:2px}.admin-app .mgrid figure{margin:0;aspect-ratio:1;border-radius:9px;overflow:hidden;border:2px solid transparent;
+  cursor:pointer;background:#DDE5EE;position:relative}.admin-app .mgrid figure:hover{border-color:#BFD9EA}.admin-app .mgrid figure.sel{border-color:var(--blue)}.admin-app .mgrid figure.sel::after{content:"✓";position:absolute;inset-inline-end:5px;top:4px;
+  width:20px;height:20px;border-radius:50%;background:var(--blue);color:#fff;
+  font-size:12px;display:grid;place-items:center}.admin-app .mgrid img{width:100%;height:100%;object-fit:cover}
+
+@media (max-width:720px){.admin-app .imgf{flex-direction:column}.admin-app .imgf__t{width:100%;height:120px}.admin-app .imgf__a .btn{flex:1}}
+
+/* ---------- שתי עמודות ---------- */
+.admin-app .two{display:grid;grid-template-columns:1.5fr 1fr;gap:16px;align-items:start}.admin-app .stack{display:grid;gap:16px}
+
+/* ---------- מודאל ---------- */
+.admin-app #modal{position:fixed;inset:0;z-index:70;display:none;place-items:center;padding:18px;
+  background:rgba(15,23,32,.5)}.admin-app #modal.on{display:grid}.admin-app #modal .box{background:#fff;border-radius:var(--r);width:min(560px,100%);
+  max-height:88vh;overflow:auto;box-shadow:0 24px 60px rgba(0,0,0,.3)}.admin-app #modal .hd{display:flex;align-items:center;padding:16px 18px;border-bottom:1px solid var(--line-2)}.admin-app #modal .hd h3{font-size:17px}.admin-app #modal .hd button{margin-inline-start:auto;width:32px;height:32px;border-radius:8px;display:grid;place-items:center}.admin-app #modal .hd svg{width:18px;height:18px;stroke:var(--ink-2);fill:none;stroke-width:2}.admin-app #modal .bd{padding:18px}.admin-app #modal .ft{padding:14px 18px;border-top:1px solid var(--line-2);display:flex;gap:9px;justify-content:flex-start}
+
+/* ---------- טוסט ---------- */
+.admin-app #toast{position:fixed;bottom:22px;inset-inline-start:22px;z-index:90;
+  background:var(--ink);color:#fff;padding:12px 18px;border-radius:11px;font-size:14px;
+  box-shadow:0 12px 30px rgba(0,0,0,.28);opacity:0;transform:translateY(10px);
+  transition:opacity .25s,transform .25s;pointer-events:none}.admin-app #toast.on{opacity:1;transform:none}
+
+/* ---------- רספונסיביות ---------- */
+.admin-app #scrim{position:fixed;inset:0;background:rgba(15,23,32,.5);z-index:49;display:none}.admin-app #scrim.on{display:block}
+
+@media (max-width:1180px){.admin-app .cards{grid-template-columns:repeat(2,1fr)}.admin-app .certWrap{grid-template-columns:1fr}.admin-app .two{grid-template-columns:1fr}.admin-app .grid3{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:900px){.admin-app #burger{display:grid}
+  /* right/left פיזיים בכוונה ולא inset-inline: במסמך RTL הערך
+     inset-inline-end מתורגם לצד שמאל, והסרגל היה נתקע באמצע המסך
+     במקום להיעלם מימין. */
+  .admin-app #side{
+    position:fixed;top:0;bottom:0;right:0;left:auto;z-index:50;height:100vh;
+    transform:translateX(100%);transition:transform .32s cubic-bezier(.16,1,.3,1);
+  }.admin-app body[data-menu="on"] #side{transform:none}.admin-app #top h1{font-size:17px}.admin-app .search{max-width:none}}
+@media (max-width:720px){.admin-app .search{display:none}.admin-app .cards{grid-template-columns:repeat(2,1fr);gap:12px}.admin-app .kpi .val{font-size:25px}.admin-app .grid3{grid-template-columns:1fr}
+  /* טבלאות הופכות לכרטיסים - במסך צר טבלה עם 6 עמודות פשוט לא קריאה */
+  .admin-app table,.admin-app thead,.admin-app tbody,.admin-app tr,.admin-app th,.admin-app td{display:block}.admin-app thead{display:none}.admin-app tbody tr{
+    border:1px solid var(--line);border-radius:12px;margin-bottom:11px;padding:12px;
+    background:#fff;
+  }.admin-app tbody tr:hover{background:#fff}.admin-app td{border:0;padding:6px 0;display:flex;align-items:center;gap:12px}.admin-app td::before{
+    content:attr(data-l);font-size:12.5px;color:var(--ink-3);flex:none;min-width:88px;
+  }.admin-app td:first-child::before{display:none}.admin-app td:first-child{padding-top:0}.admin-app .rowacts{justify-content:stretch}.admin-app .rowacts .btn{flex:1}}
+@media (max-width:420px){.admin-app .cards{grid-template-columns:1fr}}

@@ -1,0 +1,1250 @@
+/* פאנל הניהול - הלוגיקה המקורית, נטענת כסקריפט ואנילה.
+   ראו הערה ב-src/routes/admin.tsx על למה זה לא שוכתב ל-React. */
+(function(){
+'use strict';
+
+/* ============================================================
+   נתוני דוגמה
+   ============================================================ */
+var DONORS = [
+  {id:1, name:'מיכל אברהמי',  email:'michal@example.com',  amount:360, type:'חד-פעמי',  date:'24.08.2026',  gender:'f'},
+  {id:2, name:'יוסי בן-דוד',   email:'yossi@example.com',   amount:1000,type:'הוראת קבע',date:'24.08.2026',  gender:'m'},
+  {id:3, name:'שרה כהן',       email:'sarah@example.com',   amount:180, type:'חד-פעמי',  date:'23.08.2026',  gender:'f'},
+  {id:4, name:'אבי מזרחי',     email:'avi@example.com',     amount:500, type:'חד-פעמי',  date:'23.08.2026',  gender:'m'},
+  {id:5, name:'נועה פרידמן',   email:'noa@example.com',     amount:250, type:'הוראת קבע',date:'22.08.2026',  gender:'f'},
+  {id:6, name:'דוד לוי',       email:'david@example.com',   amount:120, type:'חד-פעמי',  date:'22.08.2026',  gender:'m'},
+  {id:7, name:'תמר שגיא',      email:'tamar@example.com',   amount:750, type:'חד-פעמי',  date:'21.08.2026',  gender:'f'},
+  {id:8, name:'רון אלמוג',     email:'ron@example.com',     amount:200, type:'הוראת קבע',date:'21.08.2026',  gender:'m'},
+  /* תרומות חוזרות של אותו תורם - כדי שעמודת "סה״כ תרומות" תשקף היסטוריה אמיתית ולא רק שורה בודדת */
+  {id:9, name:'מיכל אברהמי',  email:'michal@example.com',  amount:180, type:'חד-פעמי',  date:'02.06.2026',  gender:'f'},
+  {id:10,name:'תמר שגיא',      email:'tamar@example.com',   amount:300, type:'חד-פעמי',  date:'11.03.2026',  gender:'f'}
+];
+
+/* הוראות קבע - מסך נפרד ממעקב התרומות: כאן עוקבים אחרי מצב ההרשאה החוזרת
+   עצמה (האם היא פעילה, מתי החיוב הבא, האם חיוב אחרון נכשל) ולא אחרי תרומה
+   בודדת. תורם יכול להופיע גם ב-DONORS (התרומה הראשונה שפתחה את ההרשאה) וגם
+   כאן (מעקב החיוב החוזר עצמו). */
+var STANDING_ORDERS = [
+  {id:1, name:'יוסי בן-דוד', email:'yossi@example.com', amount:1000, start:'24.08.2025', next:'24.09.2026', charges:12, status:'active'},
+  {id:2, name:'נועה פרידמן', email:'noa@example.com',   amount:250,  start:'22.02.2026', next:'22.09.2026', charges:6,  status:'active'},
+  {id:3, name:'רון אלמוג',   email:'ron@example.com',   amount:200,  start:'21.05.2025', next:'21.09.2026', charges:16, status:'failed'},
+  {id:4, name:'איריס נחום',  email:'iris@example.com',  amount:100,  start:'10.01.2026', next:'—',          charges:5,  status:'cancelled'}
+];
+
+var EVENTS = [
+  {id:1, t:'אירוע פתיחת בית שי',            d:'ראש השנה',            img:'d26.jpg', on:true,  x:'אירוע השקת בית שי והרמת כוסית לרגל פתיחת הבית ולכבוד השנה החדשה.'},
+  {id:2, t:'מרוץ הלילה של נהריה',            d:'17.10.19',            img:'d13.jpg', on:true,  x:'מרוץ הלילה של נהריה התקיים זו השנה השישית ברציפות.'},
+  {id:3, t:'פעילויות חנוכה עם בתי הספר',      d:'חנוכה',               img:'d08.jpg', on:true,  x:'בכל אחד משמונת ימי החנוכה התארחו בבית שי עשרות אורחים.'},
+  {id:4, t:'סיור ג’יפים בחסות בית שי',       d:'14.8.22',             img:'d49.jpg', on:true,  x:'סיור ג’יפים לתלמידי בית הספר “התומר” שבעכו.'},
+  {id:5, t:'סדנת בובנאות',                    d:'סדנה',                img:'d22.jpg', on:true,  x:'סדנה שבה המשתתפים לקחו חלק בכל תהליך הכנת הבובות.'},
+  {id:6, t:'מעגל נשים נהריה בבית שי',        d:'ט”ו בשבט',            img:'d02.jpg', on:false, x:'לכבוד ט”ו בשבט הגיעו בנות מעגל נשים נהריה לשמח את ילדי הבית.'}
+];
+
+var GALLERY = ['d26.jpg','d13.jpg','d22.jpg','d02.jpg','d49.jpg','d08.jpg','d38.jpg','d17.jpg','d31.jpg','d44.jpg','d56.jpg','d10.jpg'];
+
+var IMG = '/images/gallery-full/';
+var AV  = ['#18B1F0','#FDC122','#FC543E','#4DA831'];
+
+/* חיבור אמיתי לגלריית התמונות (Supabase). קריאה היא select פומבי -
+   מותר לפי RLS, לא צריך את ה-Edge Function בשביל זה. כתיבה (העלאה/הסרה)
+   עוברת תמיד דרך gallery-admin עם סיסמת הכניסה לפאנל, כי היא הפעולה
+   האמיתית היחידה כרגע בפאנל שכותבת לאתר החי. */
+var SB_URL  = 'https://zaphyupuufzpfnbgftes.supabase.co';
+var SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InphcGh5dXB1dWZ6cGZuYmdmdGVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc1NzU4NTIsImV4cCI6MjEwMzE1MTg1Mn0.2GZHAH_ZwMppKc-tWbfsHgCHKs9u3zdLKqjC0stHx54';
+var SB_GALLERY_BUCKET = SB_URL + '/storage/v1/object/public/gallery-images/';
+
+function fetchGalleryImages(){
+  return fetch(SB_URL+'/rest/v1/gallery_images?select=path,alt,sort_order&order=sort_order.asc,created_at.asc', {
+    headers: { apikey: SB_ANON, Authorization: 'Bearer '+SB_ANON }
+  }).then(function(r){ if(!r.ok) throw new Error('שגיאת רשת ('+r.status+')'); return r.json(); });
+}
+function galleryAdminCall(payload){
+  return fetch(SB_URL+'/functions/v1/gallery-admin?t='+Date.now(), {
+    method:'POST',
+    headers: { apikey: SB_ANON, Authorization: 'Bearer '+SB_ANON, 'Content-Type':'application/json' },
+    body: JSON.stringify(payload)
+  }).then(function(r){ return r.json().then(function(j){ if(!r.ok || !j.ok) throw new Error(j.error||'שגיאה'); return j; }); });
+}
+function fileToBase64(file){
+  return new Promise(function(resolve,reject){
+    var fr = new FileReader();
+    fr.onload = function(){ resolve(String(fr.result).split(',')[1]); };
+    fr.onerror = reject;
+    fr.readAsDataURL(file);
+  });
+}
+
+/* היסטוריית גרסאות. כל שמירה באתר יוצרת גרסה חדשה, ואפשר לחזור לכל
+   אחת מהן. הרשימה ממוינת מהחדשה לישנה; הגרסה הראשונה ברשימה היא זו
+   שמוצגת כרגע באתר. */
+var VERSIONS = [
+  {id:14, date:'26.8.2026', time:'14:32', who:'רונית לוי',  what:'עדכון הטקסט בבאנר התרומה ובכותרת ההירו', n:4, tag:'עריכה חזותית'},
+  {id:13, date:'25.8.2026', time:'11:07', who:'רונית לוי',  what:'הוספת אירוע "ט״ו בשבט" והחלפת תמונת הכרטיס', n:2, tag:'אירועים'},
+  {id:12, date:'23.8.2026', time:'16:45', who:'נועם אבקסיס', what:'החלפת הלוגו בכל האתר', n:26, tag:'מדיה'},
+  {id:11, date:'21.8.2026', time:'09:20', who:'רונית לוי',  what:'עדכון שעות הפעילות ומספר הטלפון', n:2, tag:'פרטי העמותה'},
+  {id:10, date:'18.8.2026', time:'13:58', who:'רונית לוי',  what:'הוספת 6 תמונות לגלריה', n:6, tag:'גלריה'},
+  {id:9,  date:'15.8.2026', time:'10:12', who:'נועם אבקסיס', what:'עליית האתר לאוויר', n:0, tag:'מקור'}
+];
+
+/* ============================================================
+   עזרים
+   ============================================================ */
+var $  = function(s,r){ return (r||document).querySelector(s); };
+var view = $('#view'), ttl = $('#ttl');
+
+function esc(s){ return String(s).replace(/[&<>"']/g,function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function ils(n){ return '₪' + n.toLocaleString('he-IL'); }
+function initial(n){ return n.trim().charAt(0); }
+function avColor(i){ return AV[i % AV.length]; }
+
+function toast(msg){
+  var t=$('#toast'); t.textContent=msg; t.classList.add('on');
+  clearTimeout(t._h); t._h=setTimeout(function(){ t.classList.remove('on'); },2300);
+}
+
+var SOSTATUS = {
+  active:{c:'ok',   t:'פעילה'},
+  failed:{c:'err',  t:'נכשל חיוב'},
+  cancelled:{c:'wait', t:'בוטלה'}
+};
+function soPill(s){
+  var m=SOSTATUS[s]||SOSTATUS.active;
+  return '<span class="pill pill--'+m.c+'"><i></i>'+m.t+'</span>';
+}
+
+/* מרכזת תרומות לפי אימייל תורם: כמה תרומות, סה״כ מצטבר, ותאריך התרומה
+   האחרונה. משמשת לעמודת "סה״כ תרומות" ולספירת תורמים ייחודיים (לא שורות). */
+function donorTotals(){
+  var map={};
+  DONORS.forEach(function(d){
+    var k=d.email;
+    if(!map[k]) map[k]={ email:k, name:d.name, total:0, count:0, lastDate:d.date };
+    map[k].total += d.amount;
+    map[k].count += 1;
+  });
+  return map;
+}
+function updateBadges(){
+  var failedSO = STANDING_ORDERS.filter(function(s){ return s.status==='failed'; }).length;
+  var b2=$('#soBadge');
+  if(b2){ b2.textContent = failedSO; b2.style.display = failedSO ? '' : 'none'; }
+}
+
+/* מודאל */
+function modal(title, bodyHTML, onOk, okLabel){
+  $('#mTtl').textContent=title;
+  $('#mBd').innerHTML=bodyHTML;
+  $('#mOk').textContent=okLabel||'שמירה';
+  $('#modal').classList.add('on');
+  $('#mOk').onclick=function(){ if(onOk) onOk(); close(); };
+  function close(){ $('#modal').classList.remove('on'); }
+  $('#mX').onclick=close; $('#mCancel').onclick=close;
+  $('#modal').onclick=function(e){ if(e.target===$('#modal')) close(); };
+}
+
+/* ============================================================
+   מסכים
+   ============================================================ */
+var R = {};
+
+/* ---------- סקירה כללית ---------- */
+R['/'] = function(){
+  ttl.textContent='סקירה כללית';
+  var total = DONORS.reduce(function(a,d){ return a+d.amount; },0);
+  var donorCount = Object.keys(donorTotals()).length;
+  var avg = Math.round(total/DONORS.length);
+  var keva  = STANDING_ORDERS.filter(function(s){ return s.status==='active'; }).length;
+
+  var rows = DONORS.slice(0,5).map(function(d,i){
+    return '<tr>'+
+      '<td data-l="תורם"><div class="who2"><span class="av" style="background:'+avColor(i)+'">'+esc(initial(d.name))+'</span>'+
+        '<span><b>'+esc(d.name)+'</b><span>'+esc(d.email)+'</span></span></div></td>'+
+      '<td data-l="סכום"><span class="money">'+ils(d.amount)+'</span></td>'+
+      '<td data-l="סוג">'+esc(d.type)+'</td>'+
+      '<td data-l="תאריך">'+esc(d.date)+'</td></tr>';
+  }).join('');
+
+  view.innerHTML =
+  '<div class="cards">'+
+    kpi('סה״כ החודש', ils(total), '+12% מהחודש שעבר', 'var(--blue)', true)+
+    kpi('תורמים החודש', donorCount, keva+' הוראות קבע פעילות', 'var(--green)')+
+    kpi('תרומה ממוצעת', ils(avg), 'על פני '+DONORS.length+' תרומות', 'var(--yellow)')+
+  '</div>'+
+
+  '<div class="two" style="margin-top:16px">'+
+    '<div class="panel">'+
+      '<div class="panel__head"><h3>תרומות אחרונות</h3>'+
+        '<a class="btn btn--g btn--sm sp" href="#/donations">לכל התרומות</a></div>'+
+      '<table><thead><tr><th>תורם</th><th>סכום</th><th>סוג</th><th>תאריך</th></tr></thead>'+
+      '<tbody>'+rows+'</tbody></table>'+
+    '</div>'+
+    '<div class="stack">'+
+      '<div class="panel"><div class="panel__head"><h3>פעולות מהירות</h3></div>'+
+        '<div style="padding:16px;display:grid;gap:9px">'+
+          '<a class="btn btn--p" href="#/events">'+ico('plus')+'הוספת אירוע חדש</a>'+
+          '<a class="btn btn--g" href="#/gallery">'+ico('img')+'העלאת תמונות לגלריה</a>'+
+          '<a class="btn btn--g" href="#/donations">'+ico('eye')+'לכל התרומות</a>'+
+        '</div>'+
+      '</div>'+
+      '<div class="panel"><div class="panel__head"><h3>מצב האתר</h3></div>'+
+        '<div style="padding:16px;display:grid;gap:12px;font-size:14px">'+
+          statusRow('האתר פעיל','ok','זמין')+
+          statusRow('סליקה (טרנזילה)','wait','ממתין לחיבור')+
+          statusRow('שליחת תעודות','wait','ממתין לסליקה')+
+          statusRow('רכז/ת נגישות','err','חסר')+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+  '</div>';
+};
+
+function kpi(lbl,val,sub,color,up){
+  return '<div class="card kpi"><div class="lbl"><i style="background:'+color+'"></i>'+esc(lbl)+'</div>'+
+    '<div class="val">'+esc(String(val))+'</div>'+
+    '<div class="sub '+(up?'up':'')+'">'+esc(sub)+'</div></div>';
+}
+function statusRow(name,state,txt){
+  return '<div style="display:flex;align-items:center;gap:10px">'+
+    '<span>'+esc(name)+'</span><span class="sp" style="margin-inline-start:auto"></span>'+
+    '<span class="pill pill--'+(state==='ok'?'ok':state==='wait'?'wait':'err')+'"><i></i>'+esc(txt)+'</span></div>';
+}
+function ico(k){
+  var p={plus:'<path d="M12 5v14M5 12h14"/>',
+         img:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m21 16-5-5L5 20"/>',
+         mail:'<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/>',
+         edit:'<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
+         trash:'<path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>',
+         eye:'<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>',
+         send:'<path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/>',
+         hist:'<path d="M3 3v6h6"/><path d="M3.5 9a9 9 0 1 0 2.1-3.4L3 9"/><path d="M12 7v5l3.5 2"/>',
+         undo:'<path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/>'};
+  return '<svg viewBox="0 0 24 24">'+(p[k]||'')+'</svg>';
+}
+
+/* ---------- תרומות ותעודות ---------- */
+var DSTATE = { q:'', type:'all', from:'', to:'', sort:'date', dir:'desc' };
+
+function dateVal(s){ /* dd.mm.yyyy -> מספר בר-השוואה, yyyymmdd */
+  var p=s.split('.'); return +(p[2]+p[1]+p[0]);
+}
+function isoToVal(iso){ /* yyyy-mm-dd (מ-input[type=date]) -> yyyymmdd */
+  return iso ? +iso.replace(/-/g,'') : null;
+}
+function filteredDonors(){
+  var q = DSTATE.q.trim();
+  var fromV = isoToVal(DSTATE.from), toV = isoToVal(DSTATE.to);
+  var list = DONORS.filter(function(d){
+    if(DSTATE.type!=='all' && d.type!==DSTATE.type) return false;
+    if(q && d.name.indexOf(q)===-1 && d.email.toLowerCase().indexOf(q.toLowerCase())===-1) return false;
+    var dv = dateVal(d.date);
+    if(fromV!==null && dv<fromV) return false;
+    if(toV!==null && dv>toV) return false;
+    return true;
+  });
+  list.sort(function(a,b){
+    var av,bv;
+    if(DSTATE.sort==='amount'){ av=a.amount; bv=b.amount; }
+    else { av=dateVal(a.date); bv=dateVal(b.date); }
+    return DSTATE.dir==='asc' ? av-bv : bv-av;
+  });
+  return list;
+}
+R['/donations'] = function(){
+  ttl.textContent='תרומות';
+
+  var totals = donorTotals();
+
+  function renderRows(){
+    var list = filteredDonors();
+    var sum = list.reduce(function(a,d){ return a+d.amount; },0);
+    $('#dCount').textContent = list.length+' מתוך '+DONORS.length+' רשומות · '+ils(sum);
+    if(!list.length){
+      $('#dBody').innerHTML = '<tr><td colspan="5"><p class="empty">אין תרומות התואמות את הסינון.</p></td></tr>';
+      return;
+    }
+    $('#dBody').innerHTML = list.map(function(d,i){
+      var t = totals[d.email];
+      var totalCell = t.count>1
+        ? '<div style="display:flex;flex-direction:column;gap:2px"><span class="money">'+ils(t.total)+'</span><span class="hint" style="margin:0">'+t.count+' תרומות</span></div>'
+        : '<span class="hint" style="margin:0">תרומה ראשונה</span>';
+      return '<tr>'+
+        '<td data-l="תורם"><div class="who2"><span class="av" style="background:'+avColor(i)+'">'+esc(initial(d.name))+'</span>'+
+          '<span><b>'+esc(d.name)+'</b><span>'+esc(d.email)+'</span></span></div></td>'+
+        '<td data-l="סכום"><span class="money">'+ils(d.amount)+'</span></td>'+
+        '<td data-l="סוג">'+esc(d.type)+'</td>'+
+        '<td data-l="תאריך">'+esc(d.date)+'</td>'+
+        '<td data-l="סה״כ תורם">'+totalCell+'</td></tr>';
+    }).join('');
+  }
+
+  function sortArrow(key){
+    if(DSTATE.sort!==key) return '<span class="sarr">↕</span>';
+    return '<span class="sarr">'+(DSTATE.dir==='asc'?'↑':'↓')+'</span>';
+  }
+
+  view.innerHTML =
+    '<div class="panel">'+
+      '<div class="panel__head"><h3>כל התרומות</h3></div>'+
+      '<div class="tbar">'+
+        '<div class="tsearch"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>'+
+          '<input id="dSearch" placeholder="חיפוש לפי שם או אימייל…" /></div>'+
+        '<div class="tchips" id="dTypeChips">'+
+          '<button data-v="all" class="on">הכל</button>'+
+          '<button data-v="חד-פעמי">חד-פעמי</button>'+
+          '<button data-v="הוראת קבע">הוראת קבע</button>'+
+        '</div>'+
+        '<div class="tdate">'+
+          '<input type="date" id="dFrom" aria-label="מתאריך" />'+
+          '<span>—</span>'+
+          '<input type="date" id="dTo" aria-label="עד תאריך" />'+
+          '<button id="dDateClear" class="btn btn--g btn--sm" hidden>נקה תאריכים</button>'+
+        '</div>'+
+        '<span class="tcount" id="dCount"></span>'+
+      '</div>'+
+      '<table><thead><tr>'+
+        '<th>תורם</th>'+
+        '<th data-sort="amount">סכום'+sortArrow('amount')+'</th>'+
+        '<th>סוג</th>'+
+        '<th data-sort="date">תאריך'+sortArrow('date')+'</th>'+
+        '<th>סה״כ תורם</th>'+
+        '</tr></thead>'+
+      '<tbody id="dBody"></tbody></table>'+
+    '</div>';
+
+  $('#dFrom').value = DSTATE.from; $('#dTo').value = DSTATE.to;
+  renderRows();
+
+  function syncClearBtn(){ $('#dDateClear').hidden = !(DSTATE.from || DSTATE.to); }
+  syncClearBtn();
+
+  $('#dSearch').oninput=function(e){ DSTATE.q=e.target.value; renderRows(); };
+  $('#dTypeChips').addEventListener('click',function(e){
+    var b=e.target.closest('button'); if(!b) return;
+    DSTATE.type=b.dataset.v;
+    Array.prototype.forEach.call(this.querySelectorAll('button'),function(x){ x.classList.toggle('on', x===b); });
+    renderRows();
+  });
+  $('#dFrom').onchange=function(e){ DSTATE.from=e.target.value; syncClearBtn(); renderRows(); };
+  $('#dTo').onchange=function(e){ DSTATE.to=e.target.value; syncClearBtn(); renderRows(); };
+  $('#dDateClear').onclick=function(){
+    DSTATE.from=''; DSTATE.to=''; $('#dFrom').value=''; $('#dTo').value='';
+    syncClearBtn(); renderRows();
+  };
+  view.addEventListener('click', function(e){
+    var th=e.target.closest('th[data-sort]');
+    if(th){
+      var key=th.dataset.sort;
+      if(DSTATE.sort===key) DSTATE.dir = DSTATE.dir==='asc' ? 'desc' : 'asc';
+      else { DSTATE.sort=key; DSTATE.dir='desc'; }
+      route(); // מרנדר מחדש את כל המסך כדי לעדכן גם את חצי המיון בכותרות
+    }
+  });
+};
+
+/* ---------- הוראות קבע ---------- */
+R['/standing-orders'] = function(){
+  ttl.textContent='הוראות קבע';
+  var activeSum = STANDING_ORDERS.filter(function(s){return s.status==='active';})
+    .reduce(function(a,s){return a+s.amount;},0);
+  var activeCount = STANDING_ORDERS.filter(function(s){return s.status==='active';}).length;
+  var failedCount = STANDING_ORDERS.filter(function(s){return s.status==='failed';}).length;
+
+  var rows = STANDING_ORDERS.map(function(s,i){
+    return '<tr>'+
+      '<td data-l="תורם"><div class="who2"><span class="av" style="background:'+avColor(i)+'">'+esc(initial(s.name))+'</span>'+
+        '<span><b>'+esc(s.name)+'</b><span>'+esc(s.email)+'</span></span></div></td>'+
+      '<td data-l="סכום חודשי"><span class="money">'+ils(s.amount)+'</span></td>'+
+      '<td data-l="תחילת ההרשאה">'+esc(s.start)+'</td>'+
+      '<td data-l="חיוב הבא">'+esc(s.next)+'</td>'+
+      '<td data-l="חיובים עד כה">'+s.charges+'</td>'+
+      '<td data-l="סטטוס">'+soPill(s.status)+'</td>'+
+      '<td data-l="פעולות"><div class="rowacts">'+
+        (s.status==='active'
+          ? '<button class="btn btn--g btn--sm" data-pause="'+s.id+'">השהיה</button>'
+          : s.status==='failed'
+          ? '<button class="btn btn--g btn--sm" data-retry="'+s.id+'">'+ico('send')+'ניסיון חיוב חוזר</button>'
+          : '<span class="hint" style="margin:0">—</span>')+
+      '</div></td></tr>';
+  }).join('');
+
+  view.innerHTML =
+  '<div class="cards">'+
+    kpi('הוראות קבע פעילות', activeCount, ils(activeSum)+' לחודש', 'var(--green)')+
+    kpi('הכנסה חודשית צפויה', ils(activeSum), 'מהוראות קבע פעילות בלבד', 'var(--blue)', true)+
+    kpi('חיובים שנכשלו', failedCount, failedCount? 'דורש פנייה לתורם' : 'הכל תקין', 'var(--coral)')+
+  '</div>'+
+  '<div class="panel" style="margin-top:16px">'+
+    '<div class="panel__head"><h3>כל ההוראות</h3><span class="sp"></span>'+
+      '<span class="pill pill--info"><i></i>'+STANDING_ORDERS.length+' רשומות</span></div>'+
+    '<table><thead><tr><th>תורם</th><th>סכום חודשי</th><th>תחילת ההרשאה</th><th>חיוב הבא</th><th>חיובים עד כה</th><th>סטטוס</th><th></th></tr></thead>'+
+    '<tbody>'+rows+'</tbody></table>'+
+  '</div>';
+
+  view.addEventListener('click', function(e){
+    var p=e.target.closest('[data-pause]'), r=e.target.closest('[data-retry]');
+    if(p) toast('הוראת הקבע הושהתה (הדגמה)');
+    if(r) toast('בוצע ניסיון חיוב חוזר (הדגמה)');
+  });
+};
+
+/* ---------- אירועים ---------- */
+R['/events'] = function(){
+  ttl.textContent='אירועים';
+  view.innerHTML =
+  '<div class="panel" style="margin-bottom:16px"><div class="panel__head">'+
+    '<h3>'+EVENTS.length+' אירועים</h3><span class="sp"></span>'+
+    '<button class="btn btn--p" id="addEv">'+ico('plus')+'אירוע חדש</button></div></div>'+
+  '<div class="grid3">'+ EVENTS.map(function(e){
+    return '<article class="ev">'+
+      '<div class="ev__img"><img src="'+IMG+e.img+'" alt="" loading="lazy" />'+
+        '<span class="tag">'+esc(e.d)+'</span></div>'+
+      '<div class="ev__b"><h4>'+esc(e.t)+'</h4><p>'+esc(e.x)+'</p>'+
+        '<div class="acts">'+
+          '<button class="btn btn--g btn--sm" data-ev="'+e.id+'">'+ico('edit')+'עריכה</button>'+
+          '<button class="btn btn--d btn--sm" data-evx="'+e.id+'">'+ico('trash')+'</button>'+
+          '<span class="sp" style="margin-inline-start:auto"></span>'+
+          (e.up?'<span class="pill pill--ok" style="margin-inline-end:6px"><i></i>אירוע קרוב</span>':'')+'<span class="pill pill--'+(e.on?'ok':'wait')+'"><i></i>'+(e.on?'מוצג':'מוסתר')+'</span>'+
+        '</div></div></article>';
+  }).join('') + '</div>';
+
+  $('#addEv').onclick=function(){ evForm(null); };
+  view.addEventListener('click',function(ev){
+    var b=ev.target.closest('[data-ev]'), x=ev.target.closest('[data-evx]');
+    if(b) evForm(EVENTS.filter(function(e){return e.id===+b.dataset.ev;})[0]);
+    if(x) modal('מחיקת אירוע','<p style="font-size:14.5px">האירוע יימחק מהאתר. אפשר לבטל?</p>',
+      function(){ toast('האירוע נמחק (הדגמה)'); },'מחיקה');
+  });
+};
+function evForm(e){
+  var isUp = !!(e && e.up);
+  modal(e? 'עריכת אירוע':'אירוע חדש',
+    '<div class="field"><label>סוג האירוע</label>'+
+      '<select id="evKind">'+
+        '<option value="past"'+(isUp?'':' selected')+'>אירוע שהיה - מוצג ברשת האירועים</option>'+
+        '<option value="up"'+(isUp?' selected':'')+'>אירוע קרוב - מוצג למעלה עם כפתור הרשמה</option>'+
+      '</select></div>'+
+
+    '<div class="field"><label>כותרת</label><input value="'+(e?esc(e.t):'')+'" /></div>'+
+    '<div class="field"><label>תיאור</label><textarea>'+(e?esc(e.x):'')+'</textarea></div>'+
+
+    /* --- שדות של אירוע שהיה --- */
+    '<div data-kind="past">'+
+      '<div class="field"><label>תאריך / תווית</label>'+
+        '<input value="'+(e&&!e.up?esc(e.d):'')+'" placeholder="למשל: חנוכה" /></div>'+
+    '</div>'+
+
+    /* --- שדות של אירוע קרוב --- */
+    '<div data-kind="up">'+
+      '<div class="field"><label>תאריך מלא</label>'+
+        '<input value="'+(e&&e.up?esc(e.d||''):'')+'" placeholder="למשל: יום שישי, 12.9.26" /></div>'+
+      '<div class="field"><label>שעה</label>'+
+        '<input value="'+(e&&e.up?esc(e.time||''):'')+'" placeholder="למשל: 18:00" /></div>'+
+      '<div class="field"><label>מקום</label>'+
+        '<input value="'+(e&&e.up?esc(e.where||''):'')+'" placeholder="למשל: בית שי, יצחק שדה 18, נהריה" /></div>'+
+      '<div class="field"><label>קישור להרשמה / יצירת קשר</label>'+
+        '<input value="'+(e&&e.up?esc(e.cta||'./contact.html'):'./contact.html')+'" placeholder="./contact.html" /></div>'+
+    '</div>'+
+
+    '<div class="field"><label>תמונה</label><div class="drop">גרירת תמונה לכאן או לחיצה לבחירה</div></div>'+
+    '<div class="field"><label>מצב</label><select><option>מוצג באתר</option><option>מוסתר</option></select></div>',
+    function(){ toast(e? 'האירוע עודכן (הדגמה)':'האירוע נוסף (הדגמה)'); });
+
+  /* החלפת קבוצת השדות לפי סוג האירוע - אירוע קרוב צריך שעה ומקום,
+     אירוע שהיה לא, ולהפך. modal() מזריק את ה-HTML באופן סינכרוני. */
+  var kind = $('#evKind');
+  function syncKind(){
+    var v = kind.value;
+    var groups = $('#mBd').querySelectorAll('[data-kind]');
+    for(var i=0;i<groups.length;i++)
+      groups[i].hidden = (groups[i].getAttribute('data-kind') !== v);
+  }
+  kind.onchange = syncKind;
+  syncKind();
+}
+
+/* ---------- גלריה ---------- */
+var MIME_EXT = { 'image/jpeg':'jpg', 'image/png':'png', 'image/webp':'webp' };
+var MAX_UPLOAD_BYTES = 8*1024*1024;
+
+R['/gallery'] = function(){
+  ttl.textContent='גלריית תמונות';
+  view.innerHTML = '<div class="panel"><p class="empty">טוען תמונות…</p></div>';
+
+  function shell(count){
+    return '<div class="panel" style="margin-bottom:16px"><div class="panel__head">'+
+      '<h3>'+count+' תמונות</h3><span class="sp"></span>'+
+      '<button class="btn btn--p" id="up">'+ico('img')+'העלאת תמונות</button></div>'+
+      '<div style="padding:16px"><div class="drop" id="drop">גרירת תמונות לכאן להעלאה · JPG, PNG או WEBP · עד 8MB לתמונה</div></div>'+
+      '<input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp" multiple hidden />'+
+    '</div>';
+  }
+
+  function renderGrid(images){
+    view.innerHTML = shell(images.length) +
+      (images.length
+        ? '<div class="gal">'+ images.map(function(g){
+            return '<figure><img src="'+SB_GALLERY_BUCKET+g.path+'" alt="" loading="lazy" />'+
+              '<button class="rm" title="הסרה" data-path="'+esc(g.path)+'"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button></figure>';
+          }).join('') + '</div>'
+        : '<p class="empty">אין עדיין תמונות בגלריה.</p>');
+    wireUp();
+  }
+
+  function reload(){
+    fetchGalleryImages().then(renderGrid).catch(function(err){
+      view.innerHTML = '<div class="panel"><p class="empty">שגיאה בטעינת הגלריה: '+esc(err.message)+'</p></div>';
+    });
+  }
+
+  function safeName(ext){
+    var rand = Math.random().toString(36).slice(2,8);
+    return 'up-'+Date.now()+'-'+rand+'.'+(ext==='jpeg'?'jpg':ext);
+  }
+
+  function uploadFiles(files){
+    var list = Array.prototype.filter.call(files, function(f){
+      var ext = MIME_EXT[f.type];
+      if(!ext){ toast('סוג קובץ לא נתמך: '+f.name); return false; }
+      if(f.size>MAX_UPLOAD_BYTES){ toast('הקובץ גדול מדי (מעל 8MB): '+f.name); return false; }
+      return true;
+    });
+    if(!list.length) return;
+    toast('מעלה '+list.length+' תמונות…');
+    var chain = Promise.resolve();
+    list.forEach(function(f){
+      chain = chain.then(function(){
+        return fileToBase64(f).then(function(b64){
+          return galleryAdminCall({
+            password: LOGIN_PASS, action:'upload',
+            filename: safeName(MIME_EXT[f.type]),
+            contentType: f.type, contentBase64: b64, alt: ''
+          });
+        });
+      }).catch(function(err){ toast('העלאה נכשלה ('+f.name+'): '+err.message); });
+    });
+    chain.then(function(){ toast('ההעלאה הושלמה'); reload(); });
+  }
+
+  function wireUp(){
+    var fileInput = $('#fileInput'), drop = $('#drop');
+    $('#up').onclick=function(){ fileInput.click(); };
+    fileInput.onchange=function(){ uploadFiles(fileInput.files); fileInput.value=''; };
+
+    drop.addEventListener('dragover',function(e){ e.preventDefault(); drop.classList.add('drop--on'); });
+    drop.addEventListener('dragleave',function(){ drop.classList.remove('drop--on'); });
+    drop.addEventListener('drop',function(e){
+      e.preventDefault(); drop.classList.remove('drop--on');
+      if(e.dataTransfer && e.dataTransfer.files.length) uploadFiles(e.dataTransfer.files);
+    });
+  }
+
+  /* מאזין יחיד ל-view, מחוץ ל-wireUp: reload() מחליף את ה-HTML הרבה
+     פעמים באותו ביקור במסך (אחרי כל העלאה/מחיקה), ו-view עצמו לא
+     מתחלף - מאזין שהיה נכנס בתוך wireUp היה נערם בכל reload. */
+  view.addEventListener('click',function(e){
+    var rm=e.target.closest('.rm'); if(!rm) return;
+    var path=rm.dataset.path;
+    modal('מחיקת תמונה','<p style="font-size:14.5px">התמונה תוסר מהגלריה באתר החי. אפשר לבטל?</p>',
+      function(){
+        galleryAdminCall({password:LOGIN_PASS, action:'delete', path:path})
+          .then(function(){ toast('התמונה הוסרה'); reload(); })
+          .catch(function(err){ toast('מחיקה נכשלה: '+err.message); });
+      },'מחיקה');
+  });
+
+  reload();
+};
+
+/* ---------- עריכה חזותית ----------
+   העמוד האמיתי נטען ב-iframe מאותו origin, ולכן מותר לנו להיכנס אליו:
+   מסמנים אלמנטים לעריכה, לוחצים וכותבים במקום. אין כאן שכפול של העיצוב -
+   זה בדיוק העמוד שהגולש רואה. */
+var VSTYLE =
+  '[data-ed]{outline:1.5px dashed rgba(24,177,240,.5);outline-offset:3px;'+
+    'border-radius:3px;cursor:text;transition:outline-color .15s,background .15s}'+
+  '[data-ed]:hover{outline:1.5px solid #18B1F0;background:rgba(24,177,240,.08)}'+
+  '[data-ed][contenteditable="true"]{outline:2px solid #18B1F0;background:rgba(24,177,240,.06);'+
+    'cursor:text}'+
+  '[data-edimg]{outline:1.5px dashed rgba(253,193,34,.75);outline-offset:3px;cursor:pointer;'+
+    'transition:outline-color .15s,filter .15s}'+
+  '[data-edimg]:hover{outline:2px solid #FDC122;filter:brightness(.94)}'+
+  '[data-edited]{outline-color:#4DA831 !important}'+
+  '.nav__links,.nav__menu{pointer-events:none}';
+
+var VS = {page:'index', changes:0};
+
+R['/visual'] = function(){
+  ttl.textContent='עריכה חזותית';
+  view.innerHTML =
+    '<div class="vhint">'+
+      '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>'+
+      '<span>לחצו על כל טקסט כדי לכתוב במקום, ועל כל תמונה כדי להחליף אותה. '+
+      'זה העמוד האמיתי — מה שרואים כאן הוא מה שיפורסם.</span>'+
+    '</div>'+
+
+    '<div class="vbar">'+
+      '<div class="pagebar" style="margin:0;flex:1;min-width:0">'+ PAGES.map(function(p){
+        return '<button data-vpg="'+p.k+'" class="'+(p.k===VS.page?'on':'')+'">'+esc(p.n)+'</button>';
+      }).join('') +'</div>'+
+      '<div class="seg" id="vdev" style="flex:none">'+
+        '<button data-d="desk" class="on">מחשב</button><button data-d="mob">טלפון</button>'+
+      '</div>'+
+      '<span class="chg" id="vchg" style="display:none"></span>'+
+      '<button class="btn btn--p" id="vsave">שמירה ופרסום</button>'+
+    '</div>'+
+
+    '<div class="vstage" id="vstage" data-dev="desk">'+
+      '<iframe id="vf" src="./'+VS.page+'.html" title="עריכה"></iframe>'+
+    '</div>';
+
+  var vf=$('#vf'), stage=$('#vstage');
+  VS.changes=0; paintChg();
+
+  vf.addEventListener('load', function(){ wireVisual(vf); });
+
+  view.querySelector('.pagebar').onclick=function(e){
+    var b=e.target.closest('[data-vpg]'); if(!b) return;
+    if(VS.changes && !confirm('יש שינויים שלא נשמרו. לעבור עמוד?')) return;
+    VS.page=b.dataset.vpg; R['/visual']();
+  };
+  $('#vdev').onclick=function(e){
+    var b=e.target.closest('button'); if(!b) return;
+    Array.prototype.forEach.call(this.children,function(x){x.classList.remove('on');});
+    b.classList.add('on'); stage.dataset.dev=b.dataset.d;
+  };
+  $('#vsave').onclick=function(){
+    if(!VS.changes){ toast('לא בוצעו שינויים'); return; }
+    /* כל פרסום נרשם כגרסה חדשה, כדי שתמיד אפשר יהיה לחזור אחורה */
+    addVersion(VS.changes+' שינויי טקסט ותמונות בעמוד "'+pageName(VS.page)+'"', VS.changes, 'עריכה חזותית');
+    toast(VS.changes+' שינויים נשמרו ופורסמו (הדגמה)');
+    VS.changes=0; paintChg();
+    var d=docOfFrame(vf); if(d) Array.prototype.forEach.call(
+      d.querySelectorAll('[data-edited]'), function(el){ el.removeAttribute('data-edited'); });
+  };
+};
+
+function docOfFrame(f){ try{ return f.contentDocument; }catch(e){ return null; } }
+function paintChg(){
+  var el=$('#vchg'); if(!el) return;
+  el.style.display = VS.changes ? 'inline-flex' : 'none';
+  el.textContent = VS.changes+' שינויים שלא נשמרו';
+}
+function bump(){ VS.changes++; paintChg(); }
+
+function wireVisual(vf){
+  var d=docOfFrame(vf);
+  /* אם אי אפשר להיכנס למסמך שב-iframe, העריכה החזותית פשוט לא תעבוד.
+     המקרה הנפוץ: פתיחת admin.html כקובץ מקומי (file://) - כרום מתייחס
+     לכל קובץ מקומי כמקור נפרד וחוסם את הגישה. קודם זה נכשל בשקט
+     והמסך נראה תקין אבל שום דבר לא היה לחיץ, אז עכשיו מסבירים למה. */
+  if(!d){
+    var stage=$('#vstage');
+    if(stage){
+      stage.insertAdjacentHTML('afterbegin',
+        '<div style="position:absolute;inset:0;z-index:5;display:grid;place-items:center;'+
+        'background:rgba(255,255,255,.96);padding:26px;text-align:center">'+
+        '<div style="max-width:44ch">'+
+        '<div style="font-size:17px;font-weight:600;margin-bottom:10px">העריכה החזותית לא זמינה כאן</div>'+
+        '<div style="font-size:14px;line-height:1.6;color:var(--ink-2)">'+
+        'הדפדפן חוסם גישה לתוכן העמוד כשפאנל הניהול נפתח כקובץ מקומי. '+
+        'כדי לערוך, פתחו את הפאנל דרך כתובת האתר עצמו (https://…/admin.html) '+
+        'ולא בלחיצה כפולה על הקובץ במחשב.</div></div></div>');
+      stage.style.position='relative';
+    }
+    return;
+  }
+  var w=vf.contentWindow;
+
+  /* סגנון הסימון */
+  var st=d.createElement('style'); st.textContent=VSTYLE; d.head.appendChild(st);
+
+  /* מה ניתן לעריכה: כל טקסט אמיתי בעמוד - כותרות, פסקאות, תוויות
+     כפתורים, קישורי ניווט וקישורי פוטר, וגם התפריט הנפתח בהאדר,
+     פירורי לחם, רשימות תוכן, ציטוטים, כיתובי תמונה, ותוויות טפסים -
+     שהיו קודם חורים אמיתיים בעריכה (אפשר היה ללחוץ על "תרמו לנו"
+     אבל לא על "בית שי" בתפריט הנפתח, למשל). */
+  var TEXT_SEL = [
+    'h1','h2','h3','h4','h5','p','.eyebrow','.video-reveal__hint',
+    /* תאריכי האירועים: .event-card__date בעמוד האירועים,
+       .event__date בכרטיסים שבעמוד הבית */
+    '.event-card__date','.event__date',
+    /* אירועים קרובים */
+    '.upcoming__day','.upcoming__month','.upcoming__badge','.upcoming__title','.upcoming__text','.upcoming__meta li',
+    '.btn > span:first-child',
+    '.nav__link','.nav__links a','.nav__trigger span','.nav__menu a','.is-group-title',
+    '.crumbs a','.crumbs [aria-current]',
+    '.footer__links a','.footer__legal a','.footer__contact a',
+    '.footer__contact li > span:not(.footer__ico)','.footer__credit',
+    'li:not(.footer__links li):not(.footer__legal li):not(.footer__contact li)',
+    'summary','cite','figcaption',
+    '.event-nav__label','.event-nav__title',
+    '.field > span'
+  ].join(',');
+  Array.prototype.forEach.call(d.querySelectorAll(TEXT_SEL), function(el){
+    if(!el.textContent.trim()) return;
+    if(el.closest('svg')) return;
+    el.setAttribute('data-ed','1');
+  });
+  Array.prototype.forEach.call(d.querySelectorAll('img'), function(el){
+    if(el.closest('.sprite')) return;
+    el.setAttribute('data-edimg','1');
+  });
+
+  /* רצועת השותפים: מוסיפים אריח "הוספת לוגו" בסוף הרשימה, ומחליפים
+     את הרצועה מחדש דרך ה-API שהאתר עצמו חושף - כך שאם מתווספים
+     מספיק לוגואים כדי לא להיכנס ברוחב המסך, האנימציה נדלקת בדיוק
+     כמו שהיא הייתה נדלקת אצל גולש אמיתי. */
+  wireLogoAdd(d, w);
+
+  /* לחיצה: טקסט -> עריכה במקום, תמונה -> בורר מדיה */
+  d.addEventListener('click', function(e){
+    var img=e.target.closest('[data-edimg]');
+    if(img){
+      e.preventDefault(); e.stopPropagation();
+      pickImage(img.getAttribute('src'), function(src){
+        img.setAttribute('src', src);
+        img.setAttribute('data-edited','1');
+        bump(); toast('התמונה הוחלפה');
+      });
+      return;
+    }
+    var t=e.target.closest('[data-ed]');
+    if(t){
+      e.preventDefault(); e.stopPropagation();
+      startEdit(t, w);
+      return;
+    }
+    /* בזמן עריכה קישורים לא מנווטים */
+    var a=e.target.closest('a');
+    if(a){ e.preventDefault(); }
+  }, true);
+
+  /* מניעת ניווט גם בשליחת טפסים */
+  d.addEventListener('submit', function(e){ e.preventDefault(); }, true);
+}
+
+/* אריח "הוספת לוגו" בסוף רצועת השותפים. משתמש בפונקציה שהאתר עצמו
+   חושף (window.__logoloopRebuild) כדי שקביעת "יש מקום/אין מקום" תיעשה
+   באותה לוגיקה בדיוק שגולש אמיתי חווה - לא חישוב מקביל כאן בפאנל. */
+function wireLogoAdd(d, w){
+  var host = d.getElementById('partnersLoop');
+  if(!host || !w.__logoloopRebuild) return;
+
+  function visibleList(){ return host.querySelector('.logoloop__list:not([aria-hidden])'); }
+  function currentLogos(){
+    var list = visibleList(); if(!list) return [];
+    return Array.prototype.map.call(list.querySelectorAll('img'), function(im){
+      return { src: im.getAttribute('src'), alt: im.getAttribute('alt') || '' };
+    });
+  }
+  function addTile(){
+    var list = visibleList();
+    if(!list || list.querySelector('[data-addlogo]')) return;
+    var li = d.createElement('li');
+    li.className = 'logoloop__item'; li.setAttribute('data-addlogo','1');
+    li.style.cssText =
+      'display:flex;align-items:center;justify-content:center;flex:0 0 auto;'+
+      'width:var(--logoloop-logoHeight);height:var(--logoloop-logoHeight);'+
+      'border:2px dashed rgba(24,177,240,.55);border-radius:10px;'+
+      'cursor:pointer;color:#18B1F0';
+    li.innerHTML = '<svg viewBox="0 0 24 24" style="width:38%;height:38%;stroke:currentColor;'+
+      'fill:none;stroke-width:2;stroke-linecap:round"><path d="M12 5v14M5 12h14"/></svg>';
+    list.appendChild(li);
+  }
+  addTile();
+
+  d.addEventListener('click', function(e){
+    var tile = e.target.closest('[data-addlogo]'); if(!tile) return;
+    e.preventDefault(); e.stopPropagation();
+    pickImage(null, function(src){
+      /* setTimeout(0): המודאל הנוכחי עדיין באמצע סגירה כשה-callback הזה
+         רץ (modal() קורא ל-onOk ואז מיד ל-close()) - פתיחת מודאל שני
+         באותו טיק הייתה נסגרת מיד יחד עם הראשון. */
+      setTimeout(function(){
+        modal('שם השותף/ה (לתיאור נגישות)',
+          '<div class="field"><label>שם או תיאור קצר</label>'+
+          '<input id="lgName" placeholder="למשל: חברת ביטוח כלשהי" /></div>',
+          function(){
+            var nameEl = document.getElementById('lgName');
+            var alt = (nameEl && nameEl.value.trim()) || 'שותף חדש';
+            w.__logoloopRebuild(currentLogos().concat([{ src:src, alt:alt }]));
+            addTile();
+            bump(); toast('הלוגו נוסף לרצועה');
+          }, 'הוספת הלוגו');
+      }, 0);
+    });
+  }, true);
+}
+
+function startEdit(el, w){
+  if(el.getAttribute('contenteditable')==='true') return;
+  var before = el.innerHTML;
+  el.setAttribute('contenteditable','true');
+  el.focus();
+  /* סימון כל הטקסט כדי שאפשר יהיה פשוט להקליד מחדש */
+  try{
+    var r=el.ownerDocument.createRange(); r.selectNodeContents(el);
+    var s=w.getSelection(); s.removeAllRanges(); s.addRange(r);
+  }catch(e){}
+
+  function done(save){
+    el.removeAttribute('contenteditable');
+    if(save && el.innerHTML!==before){ el.setAttribute('data-edited','1'); bump(); }
+    else if(!save){ el.innerHTML=before; }
+    el.removeEventListener('blur',onBlur);
+    el.removeEventListener('keydown',onKey);
+  }
+  function onBlur(){ done(true); }
+  function onKey(ev){
+    if(ev.key==='Escape'){ ev.preventDefault(); done(false); el.blur(); }
+    /* Enter מסיים עריכה בכותרת; בפסקה מאפשר שורה חדשה עם Shift */
+    if(ev.key==='Enter' && !ev.shiftKey && /^H[1-4]$/.test(el.tagName)){
+      ev.preventDefault(); done(true); el.blur();
+    }
+  }
+  el.addEventListener('blur',onBlur);
+  el.addEventListener('keydown',onKey);
+}
+
+/* ---------- עמודים וטקסטים ----------
+   מודל העריכה: העמוד מפורק לסקשנים האמיתיים שלו, ולכל סקשן יש בדיוק
+   את השדות שקיימים בו. הלקוח לא נוגע במבנה, רק בתוכן. */
+var SITEIMG = '/images/';
+var MEDIA = {
+  gallery: GALLERY.concat(['d21.jpg','d36.jpg','d48.jpg','d53.jpg','d66.jpg','d05.jpg']),
+  site:    ['hero.png','about-collage.png','donate-boy.png','video-poster.jpg',
+            'hanan-cutout.png','hanan-story.png','logo.png']
+};
+
+var PAGES = [
+ {k:'index', n:'דף הבית', secs:[
+   {t:'הירו', d:'הכותרת הראשית והתמונה הפותחת', f:[
+     {y:'area', l:'כותרת ראשית', v:'בית שי\nמקום שבו כל ילד\nמתקבל כפי שהוא.'},
+     {y:'area', l:'טקסט מוביל', v:'עמותת אהבת חינ״מ מפעילה מרכז קהילתי טיפולי לילדים על הרצף האוטיסטי ולמשפחותיהם.'},
+     {y:'img',  l:'תמונה ראשית', v:SITEIMG+'hero.png'},
+     {y:'text', l:'כפתור ראשי · טקסט', v:'לתרומות'},
+     {y:'link', l:'כפתור ראשי · קישור', v:'donate.html'},
+     {y:'text', l:'כפתור משני · טקסט', v:'מי אנחנו'}
+   ]},
+   {t:'רצועת השותפים', d:'לוגואים של גופים תומכים', f:[
+     {y:'img', l:'לוגו 1', v:SITEIMG+'partners/1.png'},
+     {y:'img', l:'לוגו 2', v:SITEIMG+'partners/2.png'},
+     {y:'img', l:'לוגו 3', v:SITEIMG+'partners/3.png'}
+   ]},
+   {t:'סרטון', d:'הסרטון שנפתח בגלילה', f:[
+     {y:'img',  l:'תמונת פתיחה לסרטון', v:SITEIMG+'video-poster.jpg'},
+     {y:'link', l:'קישור לסרטון', v:'https://youtube.com/…'}
+   ]},
+   {t:'כל מה שקורה אצלנו', d:'שלושת כרטיסי התוכניות', f:[
+     {y:'text', l:'כותרת הסקשן', v:'כל מה שקורה אצלנו'},
+     {y:'text', l:'כרטיס 1 · כותרת', v:'בית שי'},
+     {y:'area', l:'כרטיס 1 · טקסט', v:'מרכז קהילתי, חברתי וטיפולי בנהריה - חוגים, טיפולים, חצר וכלבים טיפוליים.'},
+     {y:'img',  l:'כרטיס 1 · תמונה', v:IMG+'d26.jpg'},
+     {y:'text', l:'כרטיס 2 · כותרת', v:'בשביל בראשית'},
+     {y:'area', l:'כרטיס 2 · טקסט', v:'מרחב רגשי לאחים, לאחיות ולהורים - כי גם להם מגיע מקום משלהם.'},
+     {y:'img',  l:'כרטיס 2 · תמונה', v:IMG+'d22.jpg'},
+     {y:'text', l:'כרטיס 3 · כותרת', v:'תנועת הנוער ואהבת'},
+     {y:'area', l:'כרטיס 3 · טקסט', v:'ילדים על הרצף וילדים מהקהילה נפגשים, מתנדבים וגדלים יחד.'},
+     {y:'img',  l:'כרטיס 3 · תמונה', v:IMG+'d02.jpg'}
+   ]},
+   {t:'אהבת חינ״מ לכולם', d:'טקסט ההסבר והקולאז׳', f:[
+     {y:'text', l:'כותרת', v:'אהבת חינ”מ (חינוך מיוחד) לכולם'},
+     {y:'area', l:'טור ימני', v:'עמותת אהבת חינ"מ לכולם הינה עמותה שהוקמה מתוך צורך אמיתי של ילדים על הספקטרום האוטיסטי ובני משפחותיהם.'},
+     {y:'area', l:'טור שמאלי', v:'העמותה נוסדה על ידי אמהות ואחיות לילדים על הרצף האוטיסטי יחד עם יזמים חברתיים.'},
+     {y:'img',  l:'קולאז׳ · תמונה מרכזית', v:IMG+'d10.jpg'},
+     {y:'img',  l:'קולאז׳ · תמונה עליונה', v:IMG+'d15.jpg'},
+     {y:'img',  l:'קולאז׳ · תמונה תחתונה', v:IMG+'d01.jpg'}
+   ]},
+   {t:'האירועים שהיו', d:'מנוהל ממסך האירועים', lock:'events', lockT:'האירועים'},
+   {t:'באנר התרומה', d:'הכרטיס הצהוב עם הילד', f:[
+     {y:'area', l:'כותרת', v:'לא צריך לשנות עולם שלם כדי לשנות עולם של ילד אחד.'},
+     {y:'area', l:'טקסט', v:'התרומה שלכם מאפשרת לילדי בית שי לקבל את הכלים, התמיכה והאהבה שמגיעים להם.'},
+     {y:'text', l:'כפתור · טקסט', v:'לעמוד התרומות'},
+     {y:'img',  l:'תמונת הילד', v:SITEIMG+'donate-boy.png'}
+   ]},
+   {t:'גלריה', d:'מנוהל ממסך הגלריה', lock:'gallery', lockT:'הגלריה'},
+   {t:'אנחנו בתקשורת', d:'כרטיסי הכתבות', f:[
+     {y:'text', l:'כותרת הסקשן', v:'אנחנו בתקשורת'},
+     {y:'text', l:'כתבה 1 · כותרת', v:'מתחם חדש, תקווה חדשה'},
+     {y:'img',  l:'כתבה 1 · תמונה', v:IMG+'d05.jpg'},
+     {y:'link', l:'כתבה 1 · קישור', v:'https://www.gmaaravionline.com/…'}
+   ]}
+ ]},
+ {k:'beit-shai', n:'בית שי', secs:[
+   {t:'הירו', d:'כותרת ותמונות פתיחה', f:[
+     {y:'text', l:'כותרת-על', v:'מרכז קהילתי טיפולי'},
+     {y:'area', l:'כותרת ראשית', v:'בית שמחכה\nלכל ילד וילדה,\nבדיוק כפי שהם.'},
+     {y:'area', l:'טקסט מוביל', v:'חוגים, טיפולים, חצר פתוחה וכלבים טיפוליים - הכל תחת קורת גג אחת בנהריה.'},
+     {y:'img',  l:'תמונה 1', v:IMG+'d26.jpg'},
+     {y:'img',  l:'תמונה 2', v:IMG+'d49.jpg'}
+   ]},
+   {t:'מה יש בבית', d:'רשימת הפעילויות', f:[
+     {y:'text', l:'כותרת', v:'מה יש בבית'},
+     {y:'area', l:'תיאור', v:'כל פעילות מותאמת אישית, בקבוצות קטנות, עם אנשי מקצוע מוסמכים.'}
+   ]}
+ ]},
+ {k:'about', n:'מי אנחנו', secs:[
+   {t:'הירו', d:'הכותרת הפותחת', f:[
+     {y:'area', l:'כותרת ראשית', v:'הכול התחיל\nמאמהות שסירבו\nלוותר.'},
+     {y:'area', l:'טקסט מוביל', v:'הסיפור של אהבת חינ״מ מתחיל במשפחות שחיפשו מקום לילדים שלהן - ולא מצאו.'},
+     {y:'img',  l:'תמונת חנן', v:SITEIMG+'hanan-story.png'}
+   ]}
+ ]},
+ {k:'contact', n:'צרו קשר', secs:[
+   {t:'הירו', d:'כותרת העמוד', f:[
+     {y:'area', l:'כותרת ראשית', v:'נשמח לשמוע\nמכם.'},
+     {y:'area', l:'טקסט מוביל', v:'שאלה, בקשה, רצון להתנדב או פשוט לבוא לבקר - אנחנו כאן.'}
+   ]},
+   {t:'פרטי קשר', d:'מנוהל ממסך פרטי העמותה', lock:'settings', lockT:'פרטי העמותה'}
+ ]}
+];
+
+/* שאר עמודי האתר: הפירוק לשדות בנוי רק לעמודים הנפוצים ביותר למעלה.
+   לכל השאר יש עורך תוכן מלא ומדויק במסך "עריכה חזותית" (הוא עובד על
+   כל עמוד לפי המפתח שלו) - כאן רק מפנים אליו, כדי לא לשכפל נתונים. */
+var MORE_PAGES = [
+ ['breshit','בשביל בראשית'], ['vahavta','תנועת ואהבת'], ['the-gallery','הגלריה שלנו'],
+ ['events','האירועים שהיו'], ['gallery','גלריית תמונות'], ['press','בתקשורת'],
+ ['donate','תרומות'], ['thank-you','תרומה · עמוד תודה'], ['payment-failed','תרומה · עמוד כשלון'],
+ ['terms','תקנון'], ['privacy','מדיניות פרטיות'],
+ ['accessibility','הצהרת נגישות'],
+ ['event-opening','אירוע · פתיחת בית שי'], ['event-night-race','אירוע · מרוץ הלילה'],
+ ['event-hanukkah','אירוע · חנוכה בבתי הספר'], ['event-jeeps','אירוע · סיור ג’יפים'],
+ ['event-puppetry','אירוע · סדנת בובנאות'], ['event-workshops','אירוע · סדנאות מיומנויות'],
+ ['event-mamanet','אירוע · ליגת מאמאנט'], ['event-lecture','אירוע · הרצאת כרמית הובר'],
+ ['event-keren-nashim','אירוע · קרן נשי האופן הפנימי'], ['event-volunteers-usa','אירוע · מתנדבים מטנסי'],
+ ['event-tu-bishvat','אירוע · ט”ו בשבט']
+];
+MORE_PAGES.forEach(function(p){
+  PAGES.push({k:p[0], n:p[1], secs:[
+    {t:'תוכן העמוד', d:'עריכה מלאה של הטקסטים והתמונות בעמוד', lock:'visual', lockT:'עריכה חזותית'}
+  ]});
+});
+
+var PSTATE = {page:'index'};
+
+R['/pages'] = function(){
+  ttl.textContent='עמודים וטקסטים';
+  var pg = PAGES.filter(function(p){ return p.k===PSTATE.page; })[0] || PAGES[0];
+
+  view.innerHTML =
+    '<div class="pagebar">'+ PAGES.map(function(p){
+      return '<button data-pg="'+p.k+'" class="'+(p.k===pg.k?'on':'')+'">'+esc(p.n)+'</button>';
+    }).join('') +'</div>'+
+
+    '<div class="panel" style="margin-bottom:14px"><div class="panel__head">'+
+      '<h3>'+esc(pg.n)+'</h3>'+
+      '<span style="font-size:12.5px;color:var(--ink-3)">'+pg.k+'.html</span>'+
+      '<span class="sp"></span>'+
+      '<a class="btn btn--g btn--sm" href="./'+pg.k+'.html" target="_blank">'+ico('eye')+'צפייה בעמוד</a>'+
+      '<button class="btn btn--g btn--sm" id="toVisual">'+ico('edit')+'עריכה חזותית</button>'+
+      '<button class="btn btn--p btn--sm" id="saveAll">שמירת שינויים</button>'+
+    '</div></div>'+
+
+    pg.secs.map(function(s,i){ return secItem(s,i,pg.k); }).join('');
+
+  /* מעבר בין עמודים */
+  view.querySelector('.pagebar').onclick=function(e){
+    var b=e.target.closest('[data-pg]'); if(!b) return;
+    PSTATE.page=b.dataset.pg; R['/pages']();
+  };
+
+  /* פתיחה/סגירה של סקשן */
+  Array.prototype.forEach.call(view.querySelectorAll('.sec-item__hd'), function(hd){
+    hd.onclick=function(){ hd.parentNode.classList.toggle('open'); };
+  });
+
+  /* החלפת תמונה */
+  view.addEventListener('click', function(e){
+    var pick=e.target.closest('[data-pick]'), up=e.target.closest('[data-up]');
+    if(pick){
+      var wrap=pick.closest('.imgf'), im=wrap.querySelector('img');
+      pickImage(im.getAttribute('src'), function(src){
+        im.src=src;
+        wrap.querySelector('.imgf__m span').textContent=src.split('/').pop();
+        toast('התמונה הוחלפה (הדגמה)');
+      });
+    }
+    if(up) toast('בגרסה האמיתית ייפתח חלון בחירת קובץ מהמחשב');
+    if(e.target.closest('#saveAll')) toast('כל השינויים בעמוד נשמרו (הדגמה)');
+    if(e.target.closest('#toVisual')){ VS.page=PSTATE.page; location.hash='#/visual'; }
+    var tv=e.target.closest('[data-tovisual]');
+    if(tv){ VS.page=tv.dataset.tovisual; }
+  });
+};
+
+function secItem(s,i,pageKey){
+  var body;
+  if(s.lock){
+    var href = s.lock==='visual' ? '#/visual' : '#/'+s.lock;
+    var extra = s.lock==='visual' ? ' data-tovisual="'+esc(pageKey)+'"' : '';
+    var msg = s.lock==='visual'
+      ? 'לעמוד הזה עדיין אין טופס שדות מוכן — אפשר לערוך אותו ישירות דרך'
+      : 'הסקשן הזה מתמלא אוטומטית — ערוך אותו במסך';
+    body = '<div class="locked">'+
+      '<svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/></svg>'+
+      '<span>'+msg+' <a href="'+href+'"'+extra+'>'+esc(s.lockT)+'</a>.</span></div>';
+    return '<div class="sec-item"><div class="sec-item__hd">'+
+      '<span class="sec-item__n">'+(i+1)+'</span>'+
+      '<span class="sec-item__t"><b>'+esc(s.t)+'</b><span>'+esc(s.d)+'</span></span>'+
+      '<span class="chev"><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></span>'+
+      '</div>'+body+'</div>';
+  }
+  body = '<div class="sec-item__bd">'+ s.f.map(fieldHTML).join('') +'</div>';
+  return '<div class="sec-item"'+(i===0?' data-first':'')+'><div class="sec-item__hd">'+
+    '<span class="sec-item__n">'+(i+1)+'</span>'+
+    '<span class="sec-item__t"><b>'+esc(s.t)+'</b><span>'+esc(s.d)+'</span></span>'+
+    '<span class="chev"><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></span>'+
+    '</div>'+body+'</div>';
+}
+
+function fieldHTML(f){
+  if(f.y==='img'){
+    return '<div class="field"><label>'+esc(f.l)+'</label>'+
+      '<div class="imgf">'+
+        '<span class="imgf__t"><img src="'+esc(f.v)+'" alt="" loading="lazy" /></span>'+
+        '<span class="imgf__m"><b>'+esc(f.l)+'</b><span>'+esc(f.v.split('/').pop())+'</span>'+
+          '<span class="imgf__a">'+
+            '<button class="btn btn--g btn--sm" data-pick="1">'+ico('img')+'בחירה מהמדיה</button>'+
+            '<button class="btn btn--g btn--sm" data-up="1">העלאת תמונה</button>'+
+          '</span>'+
+        '</span>'+
+      '</div></div>';
+  }
+  if(f.y==='area'){
+    return '<div class="field"><label>'+esc(f.l)+'</label><textarea>'+esc(f.v)+'</textarea></div>';
+  }
+  if(f.y==='link'){
+    return '<div class="field"><label>'+esc(f.l)+'</label><input value="'+esc(f.v)+'" dir="ltr" style="text-align:left" /></div>';
+  }
+  return '<div class="field"><label>'+esc(f.l)+'</label><input value="'+esc(f.v)+'" /></div>';
+}
+
+/* בורר המדיה: בוחרים מתוך מה שכבר קיים באתר, או מעלים חדש */
+function pickImage(cur, cb){
+  var sel={tab:'gallery', src:cur};
+  function grid(tab){
+    var arr = tab==='gallery' ? MEDIA.gallery : MEDIA.site;
+    var base= tab==='gallery' ? IMG : SITEIMG;
+    return arr.map(function(f){
+      var src=base+f;
+      return '<figure data-src="'+src+'"'+(src===sel.src?' class="sel"':'')+'>'+
+        '<img src="'+src+'" loading="lazy" alt="" /></figure>';
+    }).join('');
+  }
+  modal('בחירת תמונה',
+    '<div class="mtabs" id="mt">'+
+      '<button data-t="gallery" class="on">תמונות מהגלריה</button>'+
+      '<button data-t="site">תמונות האתר</button>'+
+    '</div>'+
+    '<div class="mgrid" id="mg">'+grid('gallery')+'</div>'+
+    '<div class="drop" style="margin-top:14px;padding:18px">גרירת תמונה חדשה לכאן · או לחיצה להעלאה מהמחשב</div>',
+    function(){ if(sel.src && sel.src!==cur) cb(sel.src); }, 'בחירת התמונה');
+
+  var mg=document.getElementById('mg');
+  document.getElementById('mt').onclick=function(e){
+    var b=e.target.closest('button'); if(!b) return;
+    Array.prototype.forEach.call(this.children,function(x){ x.classList.remove('on'); });
+    b.classList.add('on'); sel.tab=b.dataset.t; mg.innerHTML=grid(sel.tab);
+  };
+  mg.onclick=function(e){
+    var f=e.target.closest('figure'); if(!f) return;
+    Array.prototype.forEach.call(mg.querySelectorAll('figure'),function(x){ x.classList.remove('sel'); });
+    f.classList.add('sel'); sel.src=f.dataset.src;
+  };
+}
+
+/* ---------- היסטוריית גרסאות ----------
+   כל שמירה יוצרת גרסה חדשה, ואפשר לחזור לכל אחת מהן. השחזור עצמו
+   *לא* מוחק את מה שהיה - הוא מוסיף גרסה חדשה בראש הרשימה שתוכנה זהה
+   לגרסה שנבחרה. כך גם חזרה אחורה היא פעולה הפיכה, ואי אפשר לאבד
+   עבודה בטעות. */
+R['/versions'] = function(){
+  ttl.textContent='היסטוריית גרסאות';
+
+  view.innerHTML =
+  '<div class="panel" style="margin-bottom:14px"><div class="panel__head">'+
+    '<h3>'+VERSIONS.length+' גרסאות שמורות</h3>'+
+    '<span class="sp"></span>'+
+    '<span class="pill pill--ok"><i></i>הגרסה העליונה היא זו שבאתר</span>'+
+  '</div></div>'+
+
+  '<div class="panel"><ul class="vers">'+ VERSIONS.map(function(v,i){
+    var cur = i===0;
+    return '<li class="'+(cur?'cur':'')+'">'+
+      '<span class="vers__dot"></span>'+
+      '<div class="vers__b">'+
+        '<div class="vers__t">'+esc(v.what)+'</div>'+
+        '<div class="vers__m">'+
+          '<span>'+esc(v.date)+' · '+esc(v.time)+'</span>'+
+          '<span>'+esc(v.who)+'</span>'+
+          '<span>'+esc(v.tag)+'</span>'+
+          (v.n? '<span>'+v.n+' שינויים</span>' : '')+
+        '</div>'+
+      '</div>'+
+      '<div class="vers__acts">'+
+        (cur
+          ? '<span class="pill pill--ok"><i></i>באתר עכשיו</span>'
+          : '<button class="btn btn--g btn--sm" data-vprev="'+v.id+'">'+ico('eye')+'תצוגה</button>'+
+            '<button class="btn btn--g btn--sm" data-vrest="'+v.id+'">'+ico('undo')+'שחזור</button>')+
+      '</div>'+
+    '</li>';
+  }).join('') +'</ul></div>';
+
+  view.addEventListener('click', function(e){
+    var pv=e.target.closest('[data-vprev]'), rs=e.target.closest('[data-vrest]');
+
+    if(pv){
+      var v1=vById(+pv.dataset.vprev);
+      modal('תצוגה מקדימה של גרסה',
+        '<p style="font-size:14.5px;line-height:1.6">כך נראה האתר בגרסה מ-'+esc(v1.date)+' '+esc(v1.time)+
+        ' ("'+esc(v1.what)+'").</p>'+
+        '<p style="font-size:13px;color:var(--ink-3);margin-top:10px;line-height:1.6">'+
+        'בגרסה האמיתית ייפתח כאן האתר כפי שהיה באותו רגע, בלי לשנות את מה שמוצג לגולשים.</p>',
+        null,'סגירה');
+      return;
+    }
+
+    if(rs){
+      var v2=vById(+rs.dataset.vrest);
+      modal('שחזור לגרסה קודמת',
+        '<p style="font-size:14.5px;line-height:1.6">האתר יחזור למצב שבו היה ב-<b>'+esc(v2.date)+' '+esc(v2.time)+'</b><br>'+
+        '("'+esc(v2.what)+'").</p>'+
+        '<p style="font-size:13px;color:var(--ink-3);margin-top:10px;line-height:1.6">'+
+        'הגרסה הנוכחית לא תימחק - היא תישאר בהיסטוריה, ותמיד אפשר לחזור אליה בחזרה.</p>',
+        function(){
+          /* מוסיפים גרסה חדשה בראש במקום למחוק - כך השחזור עצמו הפיך */
+          addVersion('שחזור לגרסה מ-'+v2.date+' ('+v2.what+')', v2.n, 'שחזור');
+          R['/versions']();
+          toast('האתר שוחזר לגרסה מ-'+v2.date+' (הדגמה)');
+        },'שחזור האתר');
+    }
+  });
+};
+function vById(id){ return VERSIONS.filter(function(v){ return v.id===id; })[0]; }
+function pad2(n){ return (n<10?'0':'')+n; }
+/* רישום גרסה חדשה בראש ההיסטוריה. נקרא גם מפרסום בעריכה החזותית וגם
+   משחזור, כדי ששתי הפעולות ייראו אותו דבר בציר הזמן. */
+function addVersion(what, n, tag){
+  var now=new Date();
+  VERSIONS.unshift({
+    id: Math.max.apply(null, VERSIONS.map(function(x){ return x.id; }))+1,
+    date: now.getDate()+'.'+(now.getMonth()+1)+'.'+now.getFullYear(),
+    time: pad2(now.getHours())+':'+pad2(now.getMinutes()),
+    who: 'רונית לוי',
+    what: what, n: n, tag: tag
+  });
+}
+function pageName(k){
+  var p=PAGES.filter(function(x){ return x.k===k; })[0];
+  return p? p.n : k;
+}
+
+/* ---------- פרטי העמותה ---------- */
+R['/settings'] = function(){
+  ttl.textContent='פרטי העמותה';
+  view.innerHTML =
+  '<div class="two"><div class="panel"><div class="panel__head"><h3>פרטי קשר</h3></div>'+
+    '<div style="padding:16px">'+
+      f('כתובת','יצחק שדה 18, נהריה')+
+      f('טלפון','054-772-8223')+
+      f('דוא״ל','ah580676369@gmail.com')+
+      f('שעות פעילות','א׳–ה׳, 8:30–13:00')+
+      f('מספר עמותה','58-070-XXX-X','טרם אומת מול רשם העמותות')+
+      '<button class="btn btn--p">שמירה</button>'+
+    '</div></div>'+
+    '<div class="stack">'+
+      '<div class="panel"><div class="panel__head"><h3>רשתות חברתיות</h3></div>'+
+        '<div style="padding:16px">'+f('פייסבוק','facebook.com/…')+f('אינסטגרם','instagram.com/beit_shay_nahariya')+
+        f('וואטסאפ','','עדיין לא חובר')+'</div></div>'+
+      '<div class="panel"><div class="panel__head"><h3>נגישות</h3></div>'+
+        '<div style="padding:16px">'+
+        '<div class="field"><label>רכז/ת נגישות</label><input placeholder="שם מלא" />'+
+        '<p class="hint" style="color:var(--coral)">שדה חובה מבחינה משפטית — עדיין ריק</p></div>'+
+        f('טלפון רכז/ת','')+'</div></div>'+
+    '</div></div>';
+  view.addEventListener('click',function(e){
+    if(e.target.closest('.btn--p')) toast('הפרטים נשמרו (הדגמה)');
+  });
+};
+function f(label,val,hint){
+  return '<div class="field"><label>'+esc(label)+'</label><input value="'+esc(val)+'" />'+
+    (hint? '<p class="hint">'+esc(hint)+'</p>':'')+'</div>';
+}
+
+/* ============================================================
+   ניתוב
+   ============================================================ */
+function route(){
+  var h = location.hash.replace(/^#/,'') || '/';
+  var fn = R[h] || R['/'];
+  Array.prototype.forEach.call(document.querySelectorAll('#nav a'), function(a){
+    a.classList.toggle('on', a.dataset.r === h);
+  });
+  view.innerHTML=''; fn();
+  updateBadges();
+  view.scrollTop=0; window.scrollTo(0,0);
+  document.body.dataset.menu='off';
+  $('#scrim').classList.remove('on');
+}
+addEventListener('hashchange', route);
+
+/* תפריט מובייל */
+$('#burger').onclick=function(){
+  var on = document.body.dataset.menu==='on';
+  document.body.dataset.menu = on?'off':'on';
+  $('#scrim').classList.toggle('on', !on);
+};
+$('#scrim').onclick=function(){
+  document.body.dataset.menu='off'; $('#scrim').classList.remove('on');
+};
+
+/* ============================================================
+   התחברות (הדגמה בלבד)
+   ------------------------------------------------------------
+   שים לב: הבדיקה כאן רצה בדפדפן של המשתמש, ולכן היא *אינה אבטחה* -
+   כל מי שיפתח את קוד המקור של העמוד יראה את הדוא"ל והסיסמה. זה מספיק
+   כדי שהפאנל לא ייפתח למי שסתם מגיע לכתובת, אבל לא יותר מזה. בבנייה
+   האמיתית האימות יעבור לשרת (Supabase Auth) ורק שם הוא יהיה אמיתי.
+   ============================================================ */
+var LOGIN_EMAIL = 'ah580676369@gmail.com';
+var LOGIN_PASS  = '12345678';
+
+document.getElementById('loginForm').onsubmit=function(e){
+  e.preventDefault();
+  var emailEl=document.getElementById('lgEmail');
+  var passEl =document.getElementById('lgPass');
+  var errEl  =document.getElementById('lgErr');
+  var email=(emailEl.value||'').trim().toLowerCase();
+  var pass = passEl.value||'';
+
+  if(email!==LOGIN_EMAIL || pass!==LOGIN_PASS){
+    /* הודעה אחת לשני המקרים - לא מסגירים איזה מהשדות היה שגוי */
+    errEl.textContent='הדוא״ל או הסיסמה שגויים. נסו שוב.';
+    errEl.classList.add('on');
+    passEl.value=''; passEl.focus();
+    return;
+  }
+
+  errEl.classList.remove('on'); errEl.textContent='';
+  passEl.value='';              /* לא מחזיקים סיסמה בזיכרון */
+  document.body.dataset.auth='in';
+  route();
+  toast('ברוכה הבאה, רונית');
+};
+document.getElementById('lgForgot').onclick=function(e){
+  e.preventDefault();
+  toast('בגרסה האמיתית יישלח מייל לאיפוס סיסמה');
+};
+document.getElementById('logout').onclick=function(){
+  document.body.removeAttribute('data-auth');
+  document.getElementById('lgEmail').value='';
+  document.getElementById('lgPass').value='';
+  var errEl=document.getElementById('lgErr');
+  errEl.classList.remove('on'); errEl.textContent='';
+  window.scrollTo(0,0);
+};
+
+route();
+})();
