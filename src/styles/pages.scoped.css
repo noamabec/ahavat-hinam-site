@@ -888,7 +888,7 @@
   }.page-inner .nav__links a:hover,.page-inner .nav__links a:focus-visible{color:var(--brand-blue)}
   /* "לתרומות" מודגש ככפתור מלא - אותו כחול של ה-CTA בהאדר בדסקטופ.
      נבחר לפי ה-href ולא לפי מחלקה, כדי לא לגעת ב-markup של 25 עמודים. */
-  .page-inner .nav__links a[href*="donate.html"]{
+  .page-inner .nav__links a[href="/donate"]{
     margin-top:clamp(16px,4.5vw,26px);
     background:var(--brand-blue);color:#fff;
     border-radius:var(--r-pill);
@@ -896,7 +896,7 @@
     text-align:center;font-size:clamp(17px,4.4vw,22px);
     box-shadow:4px 4px 4px rgba(0,0,0,.25);
     transition:background .25s ease,transform .25s var(--ease-expo),box-shadow .25s ease;
-  }.page-inner .nav__links a[href*="donate.html"]:hover,.page-inner .nav__links a[href*="donate.html"]:focus-visible{
+  }.page-inner .nav__links a[href="/donate"]:hover,.page-inner .nav__links a[href="/donate"]:focus-visible{
     background:var(--brand-coral);color:#fff;
     transform:translateY(-2px);box-shadow:0 10px 22px rgba(252,84,62,.34);
   }.page-inner .nav__links .is-group-title{
