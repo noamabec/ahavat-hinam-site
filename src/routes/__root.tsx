@@ -88,6 +88,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
+      /* טעינה מוקדמת של הפונט, לפני גיליון הסגנונות במכוון: בלי זה
+         הדפדפן מגלה את קובצי הפונט רק אחרי שהוריד ופירסר את ה-CSS,
+         ורק אז מתחילה ההורדה שלהם - מה שיצר את השנייה הראשונה שבה
+         האתר מוצג בפונט ברירת מחדל. crossOrigin חובה כאן: בקשות פונט
+         רצות תמיד במצב CORS, ובלי הדגל הזה הדפדפן לא מזהה את ה-preload
+         כתואם לבקשה של ה-CSS ומוריד את אותו קובץ פעמיים. */
+      { rel: "preload", as: "font", type: "font/ttf", href: "/fonts/fb-coherenti-sans-regular.ttf", crossOrigin: "anonymous" },
+      { rel: "preload", as: "font", type: "font/ttf", href: "/fonts/fb-coherenti-sans-medium.ttf", crossOrigin: "anonymous" },
+      { rel: "preload", as: "font", type: "font/ttf", href: "/fonts/fb-coherenti-sans-light.ttf", crossOrigin: "anonymous" },
       { rel: "stylesheet", href: appCss },
       { rel: "icon", href: "/images/logo.png" },
     ],
@@ -116,6 +125,20 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+
+  /* רשת ביטחון לקישורי איפוס סיסמה: גוטרו מצרף את הטוקן ב-hash ומפנה
+     ל-redirect_to, אבל אם הכתובת הזאת לא ברשימת ה-Redirect URLs הוא נופל
+     בחזרה ל-Site URL - כלומר דף הבית - והמשתמש נשאר עם טוקן ביד ובלי
+     טופס. במקום להסתמך על הגדרה חיצונית, כל מסלול שמזהה type=recovery
+     ב-hash מעביר את הטוקן כמו שהוא ל-/reset-password. */
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (!hash || window.location.pathname === "/reset-password") return;
+    const params = new URLSearchParams(hash.replace(/^#/, ""));
+    if (params.get("type") === "recovery" && params.get("access_token")) {
+      window.location.replace("/reset-password" + hash);
+    }
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

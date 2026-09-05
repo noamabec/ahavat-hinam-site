@@ -4,9 +4,9 @@
    נתונים לדוגמה בלבד. שום דבר כאן לא נשמר ולא משנה את האתר החי.
    הקובץ הזה הוא המפרט העיצובי לבנייה האמיתית ב-Lovable/Supabase.
    ============================================================ */
-@font-face{font-family:'Fb Coherenti Sans';src:url('./public/fonts/fb-coherenti-sans-light.ttf') format('truetype');font-weight:300;font-display:swap}
-@font-face{font-family:'Fb Coherenti Sans';src:url('./public/fonts/fb-coherenti-sans-regular.ttf') format('truetype');font-weight:400;font-display:swap}
-@font-face{font-family:'Fb Coherenti Sans';src:url('./public/fonts/fb-coherenti-sans-medium.ttf') format('truetype');font-weight:500;font-display:swap}.admin-app{
+@font-face{font-family:'Fb Coherenti Sans';src:url('/fonts/fb-coherenti-sans-light.ttf') format('truetype');font-weight:300;font-display:block}
+@font-face{font-family:'Fb Coherenti Sans';src:url('/fonts/fb-coherenti-sans-regular.ttf') format('truetype');font-weight:400;font-display:block}
+@font-face{font-family:'Fb Coherenti Sans';src:url('/fonts/fb-coherenti-sans-medium.ttf') format('truetype');font-weight:500;font-display:block}.admin-app{
   --blue:#18B1F0; --yellow:#FDC122; --coral:#FC543E; --green:#4DA831;
   --ink:#0F1720; --ink-2:#46586B; --ink-3:#8296AA;
   --bg:#F4F6F9; --surface:#FFFFFF; --line:#E4E9EF; --line-2:#EFF3F7;
