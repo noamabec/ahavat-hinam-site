@@ -81,24 +81,56 @@ export function useSiteBehaviors() {
     });
 
     /* ---------- חשיפה בגלילה ---------- */
+    /* החשיפה ממתינה לטעינת הפונט, ולא מתחילה עם טעינת ה-DOM.
+       שתי סיבות שקשורות זו בזו:
+
+       1) מניעת הבזק פונט: כל עוד [data-reveal] לא קיבל is-in הטקסט
+          שקוף לגמרי, כך שהוא פשוט לא נצבע בפונט חלופי. זו בדיוק
+          ההתנהגות שהייתה באתר הסטטי - שם ה-CSS היה מוטבע ב-HTML,
+          הפונט התגלה מיד, והטקסט ממילא היה מוסתר עד לחשיפה.
+       2) שמירת האנימציות: font-display:block משאיר את הגליפים בלתי
+          נראים עד שהפונט מוכן. בלי ההמתנה כאן אנימציות הכניסה רצו
+          בזמן שהטקסט עדיין בלתי נראה, ולכן הן הסתיימו לפני שהיה מה
+          לראות - והטקסט "קפץ" למקומו במקום להיכנס בהדרגה.
+
+       יש גם גבול עליון של 3 שניות: אם טעינת הפונט נתקעת, עדיף להציג
+       את התוכן בפונט חלופי מאשר להשאיר עמוד ריק. */
     const targets = document.querySelectorAll<HTMLElement>("[data-reveal]");
-    if (reduce || !("IntersectionObserver" in window)) {
-      targets.forEach((el) => el.classList.add("is-in"));
-    } else {
-      const io = new IntersectionObserver(
+    let io: IntersectionObserver | null = null;
+    let revealCancelled = false;
+
+    const startReveal = () => {
+      if (revealCancelled) return;
+      if (reduce || !("IntersectionObserver" in window)) {
+        targets.forEach((el) => el.classList.add("is-in"));
+        return;
+      }
+      io = new IntersectionObserver(
         (entries) => {
           entries.forEach((e) => {
             if (e.isIntersecting) {
               e.target.classList.add("is-in");
-              io.unobserve(e.target);
+              io?.unobserve(e.target);
             }
           });
         },
         { rootMargin: "0px 0px -10% 0px", threshold: 0.05 }
       );
-      targets.forEach((el) => io.observe(el));
-      cleanups.push(() => io.disconnect());
-    }
+      targets.forEach((el) => io!.observe(el));
+    };
+
+    const fontsReady: Promise<unknown> = document.fonts
+      ? document.fonts.ready
+      : Promise.resolve();
+    Promise.race([
+      fontsReady,
+      new Promise((resolve) => setTimeout(resolve, 3000)),
+    ]).then(startReveal);
+
+    cleanups.push(() => {
+      revealCancelled = true;
+      io?.disconnect();
+    });
 
     /* ---------- פרלקסה + פס התקדמות: rAF אחד, transform בלבד ---------- */
     const header = document.querySelector(".site-header");
